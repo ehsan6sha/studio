@@ -1,5 +1,6 @@
 import { Brain } from 'lucide-react';
 import Link from 'next/link';
+import { cn } from '@/lib/utils';
 
 interface LogoProps {
   locale: string;
@@ -9,9 +10,15 @@ interface LogoProps {
 
 export function Logo({ locale, appName, className }: LogoProps) {
   return (
-    <Link href={`/${locale}`} className={`flex items-center space-x-2 rtl:space-x-reverse text-primary hover:text-primary/80 transition-colors ${className}`}>
-      <Brain className="h-8 w-8" />
-      <span className="font-headline text-2xl font-semibold">{appName}</span>
+    <Link
+      href={`/${locale}`}
+      className={cn(
+        'flex items-center space-x-2 rtl:space-x-reverse text-primary hover:text-primary/80 transition-colors min-w-0',
+        className
+      )}
+    >
+      <Brain className="h-8 w-8 shrink-0" />
+      <span className="font-headline text-2xl font-semibold truncate">{appName}</span>
     </Link>
   );
 }

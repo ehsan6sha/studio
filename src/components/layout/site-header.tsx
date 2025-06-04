@@ -18,16 +18,12 @@ interface SiteHeaderProps {
 }
 
 export function SiteHeader({ lang, dictionary, appName }: SiteHeaderProps) {
-  // Placeholder for authentication state - this should come from an auth provider/context in a real app
-  // Set this to true to simulate an authenticated user, false for logged-out.
   const isAuthenticated = false; 
 
   const router = useRouter();
   const pathname = usePathname();
   const isMobile = useIsMobile();
 
-  // Determine if the current page is the root page for the current language
-  // Handles both /fa and /fa/ (trailing slash)
   const isHomePage = pathname === `/${lang}` || pathname === `/${lang}/`;
 
   return (
@@ -44,9 +40,9 @@ export function SiteHeader({ lang, dictionary, appName }: SiteHeaderProps) {
             <ArrowLeft className="h-5 w-5" />
           </Button>
         )}
-        <Logo locale={lang} appName={appName} className={isMobile && !isHomePage ? "max-w-[calc(100%-40px)]" : ""} />
+        <Logo locale={lang} appName={appName} />
         <MainNav lang={lang} dictionary={dictionary} isAuthenticated={isAuthenticated} />
-        <div className="flex flex-1 items-center justify-end space-x-2 rtl:space-x-reverse rtl:space-x-reverse">
+        <div className="flex flex-1 items-center justify-end space-x-2 rtl:space-x-reverse">
           <LanguageSwitcher currentLocale={lang} />
           <UserNav lang={lang} dictionary={dictionary} isAuthenticated={isAuthenticated} />
         </div>
