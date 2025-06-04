@@ -9,7 +9,7 @@ import React, { Suspense, useEffect, useState } from 'react'; // Added React imp
 
 // Using Suspense for useSearchParams as per Next.js recommendation for Client Components
 function SignupPageContent({ params: paramsAsProp }: { params: { lang: Locale } }) {
-  const { lang } = paramsAsProp; // Corrected: Direct access
+  const { lang } = React.use(paramsAsProp as any); // Use React.use() to unwrap params
 
   const [dictionary, setDictionary] = useState<any>(null);
   const searchParams = useSearchParams();
