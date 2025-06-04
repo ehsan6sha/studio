@@ -108,8 +108,8 @@
       "emailOrPhoneLabel": "ایمیل یا شماره تلفن",
       "emailOrPhonePlaceholder": "مثال: user@example.com یا 09123456789",
       "dobLabel": "تاریخ تولد",
-      "dobPlaceholderShamsi": "مثال: ۱۳۷۰/۰۱/۱۵ (شمسی)",
-      "dobPlaceholderGregorian": "مثال: 1990-01-15 (میلادی)",
+      "dobPlaceholderShamsi": "مثال: ۱۳۷۰/۰۱/۱۵ (تاریخ شمسی)",
+      "dobPlaceholderGregorian": "مثال: 1990-01-15 (تاریخ میلادی)",
       "passwordLabel": "رمز عبور",
       "confirmPasswordLabel": "تکرار رمز عبور",
       "showPasswordAriaLabel": "نمایش رمز عبور",
@@ -245,11 +245,12 @@
     "welcomeMessage": "همراه هوشمند شما برای سلامت روان. ما به شما کمک می‌کنیم تا با بینش‌های مبتنی بر هوش مصنوعی و ابزارهای کاربردی، مسیر خود را به سوی آرامش و بهزیستی پیدا کنید.",
     "registerButton": "ثبت نام",
     "loginButton": "ورود",
-    "termsPolicyLink": "شرایط و قوانین"
+    "termsPolicyLink": "شرایط و قوانین",
+    "redirectingMessage": "در حال انتقال به داشبورد..."
   },
   "termsPage": {
     "mainTitle": "شرایط و قوانین استفاده",
-    "lastUpdated": "آخرین بروزرسانی: ۵ مرداد ۱۴۰۳",
+    "lastUpdated": "۵ مرداد ۱۴۰۳",
     "introduction": {
       "title": "۱. مقدمه",
       "content1": "به روان‌همراه («شرکت»، «ما»، «مالکیت ما») خوش آمدید! این شرایط و قوانین («شرایط») استفاده شما از وب‌سایت و اپلیکیشن موبایل ما (مجموعاً «سرویس») که توسط روان‌همراه ارائه می‌شود را تنظیم می‌کند.",
