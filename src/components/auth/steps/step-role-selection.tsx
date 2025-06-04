@@ -4,9 +4,9 @@
 import * as React from 'react';
 import { useEffect } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm, Controller } from 'react-hook-form';
+import { useForm } from 'react-hook-form'; // Removed Controller as it's not directly used here for Checkbox group
 import { z } from 'zod';
-import { Button } from '@/components/ui/button';
+// import { Button } from '@/components/ui/button'; // Not used
 import {
   Form,
   FormControl,
@@ -20,7 +20,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import type { SignupFormData } from '../signup-stepper';
 import type { Locale } from '@/i18n-config';
-import { PlusCircle, Trash2 } from 'lucide-react';
+// import { PlusCircle, Trash2 } from 'lucide-react'; // Not used
 
 interface StepRoleSelectionProps {
   dictionary: any; 
@@ -60,8 +60,6 @@ export function StepRoleSelection({ dictionary, formData, updateFormData, onVali
   });
   
   const youthSchema = z.object({
-    // For youth, adultRolesSelected is not relevant for their own role.
-    // selectedRole might be implicitly 'youth_self' or not needed if isYouth flag is the primary determinant.
     connectedParentEmail: z.string().email({ message: dictionary.errors.invalidEmail }).optional().or(z.literal('')),
     connectedTherapistEmail: z.string().email({ message: dictionary.errors.invalidEmail }).optional().or(z.literal('')),
     connectedSchoolConsultantEmail: z.string().email({ message: dictionary.errors.invalidEmail }).optional().or(z.literal('')),
@@ -70,9 +68,9 @@ export function StepRoleSelection({ dictionary, formData, updateFormData, onVali
 
   const currentSchema = isYouth ? youthSchema : adultRoleSchema;
 
-  const form = useForm<z.infer<typeof currentSchema>>({
-    resolver: zodResolver(currentSchema),
-    defaultValues: {
+  // Memoize defaultValues to prevent unnecessary form resets if formData object reference changes but content doesn't
+  const defaultValuesForForm = React.useMemo(() => {
+    return {
       adultRolesSelected: formData.adultRolesSelected || { parent: false, therapist: false, school_consultant: false, supervisor: false },
       clinicCode: formData.clinicCode || '',
       schoolName: formData.schoolName || '',
@@ -80,38 +78,45 @@ export function StepRoleSelection({ dictionary, formData, updateFormData, onVali
       connectedTherapistEmail: formData.connectedTherapistEmail || '',
       connectedSchoolConsultantEmail: formData.connectedSchoolConsultantEmail || '',
       connectedSupervisorEmail: formData.connectedSupervisorEmail || '',
-    },
+    };
+  }, [
+    // Use JSON.stringify for objects/arrays in dependency for simple deep comparison effect
+    JSON.stringify(formData.adultRolesSelected), 
+    formData.clinicCode, 
+    formData.schoolName, 
+    formData.connectedParentEmail, 
+    formData.connectedTherapistEmail, 
+    formData.connectedSchoolConsultantEmail, 
+    formData.connectedSupervisorEmail
+  ]);
+
+  const form = useForm<z.infer<typeof currentSchema>>({
+    resolver: zodResolver(currentSchema),
+    defaultValues: defaultValuesForForm, // RHF uses this on mount/key change
     mode: 'onChange',
   });
 
+  // Effect to reset form and re-validate when `isYouth` (schema determinant) changes
+  // OR if `defaultValuesForForm` changes (e.g., navigating back to step with different localStorage data)
   useEffect(() => {
-    form.reset({
-      adultRolesSelected: formData.adultRolesSelected || { parent: false, therapist: false, school_consultant: false, supervisor: false },
-      clinicCode: formData.clinicCode || '',
-      schoolName: formData.schoolName || '',
-      connectedParentEmail: formData.connectedParentEmail || '',
-      connectedTherapistEmail: formData.connectedTherapistEmail || '',
-      connectedSchoolConsultantEmail: formData.connectedSchoolConsultantEmail || '',
-      connectedSupervisorEmail: formData.connectedSupervisorEmail || '',
-    });
-  }, [formData, isYouth, form.reset]);
+    form.reset(defaultValuesForForm);
+    const timer = setTimeout(() => form.trigger(), 0); // Trigger validation after reset
+    return () => clearTimeout(timer);
+  }, [isYouth, defaultValuesForForm, form.reset, form.trigger]);
 
 
+  // Sync RHF internal state to parent `formData` state
   useEffect(() => {
     const subscription = form.watch((value) => {
       updateFormData(value as Partial<SignupFormData>);
     });
     return () => subscription.unsubscribe();
-  }, [form.watch, updateFormData]);
+  }, [form, updateFormData]); // form (from useForm) and updateFormData (useCallback) are stable
 
+  // Propagate RHF's validity state to parent
   useEffect(() => {
     onValidation(form.formState.isValid);
   }, [form.formState.isValid, onValidation]);
-  
-  useEffect(() => {
-    const timer = setTimeout(() => form.trigger(), 0);
-    return () => clearTimeout(timer);
-  }, [form.trigger, isYouth]);
 
 
   const adultRoles = [
@@ -156,7 +161,7 @@ export function StepRoleSelection({ dictionary, formData, updateFormData, onVali
                     <FormField
                       key={fieldInfo.name}
                       control={form.control}
-                      name={fieldInfo.name}
+                      name={fieldInfo.name as any} // Type assertion due to dynamic schema
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>{fieldInfo.label}</FormLabel>
@@ -170,39 +175,33 @@ export function StepRoleSelection({ dictionary, formData, updateFormData, onVali
                   ))}
                 </>
               ) : (
-                // Adult Role Selection with Checkboxes
-                <FormField
-                  control={form.control}
-                  name="adultRolesSelected" // This name might need adjustment depending on how RHF handles object of booleans for checkboxes
-                  render={() => ( // Render prop might not be needed directly on FormField for group
-                    <FormItem className="space-y-3">
-                      <FormLabel>{dictionary.selectRolesLabel}</FormLabel> {/* Updated label */}
-                      <div className="space-y-2">
-                        {adultRoles.map((role) => (
-                          <FormField
-                            key={role.id}
-                            control={form.control}
-                            name={`adultRolesSelected.${role.id}`}
-                            render={({ field }) => (
-                              <FormItem className="flex flex-row items-start space-x-3 space-y-0 rtl:space-x-reverse">
-                                <FormControl>
-                                  <Checkbox
-                                    checked={field.value}
-                                    onCheckedChange={field.onChange}
-                                  />
-                                </FormControl>
-                                <FormLabel className="font-normal">
-                                  {role.label}
-                                </FormLabel>
-                              </FormItem>
-                            )}
-                          />
-                        ))}
-                      </div>
-                      <FormMessage /> {/* For errors related to the group, if any */}
-                    </FormItem>
-                  )}
-                />
+                <FormItem className="space-y-3">
+                  <FormLabel>{dictionary.selectRolesLabel}</FormLabel>
+                  <div className="space-y-2">
+                    {adultRoles.map((role) => (
+                      <FormField
+                        key={role.id}
+                        control={form.control}
+                        name={`adultRolesSelected.${role.id}` as any} // Type assertion
+                        render={({ field }) => (
+                          <FormItem className="flex flex-row items-start space-x-3 space-y-0 rtl:space-x-reverse">
+                            <FormControl>
+                              <Checkbox
+                                checked={!!field.value} // Ensure checked is boolean
+                                onCheckedChange={field.onChange}
+                              />
+                            </FormControl>
+                            <FormLabel className="font-normal">
+                              {role.label}
+                            </FormLabel>
+                          </FormItem>
+                        )}
+                      />
+                    ))}
+                  </div>
+                  {/* General message for adultRolesSelected if needed, or handled by superRefine */}
+                   <FormMessage /> 
+                </FormItem>
               )}
 
               {!isYouth && form.watch('adultRolesSelected.therapist') && (
