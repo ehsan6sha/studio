@@ -58,16 +58,21 @@ export default function LocaleLayout({
     previousPathnameRef.current = pathname;
   }, [pathname]);
 
-  const minimalTransitionRoutes = React.useMemo(() => [
-    `/${lang}`, // Home page
-    `/${lang}/login`,
-    `/${lang}/signup`,
+  const minimalTransitionRoutesRegex = React.useMemo(() => [
+    new RegExp(`^/${lang}/?$`), // Home page (e.g., /fa or /fa/)
+    new RegExp(`^/${lang}/login/?$`),
+    new RegExp(`^/${lang}/signup/?$`),
   ], [lang]);
 
-  const isCurrentPathMinimal = minimalTransitionRoutes.includes(pathname);
-  const isPreviousPathMinimal = previousPathnameRef.current ? minimalTransitionRoutes.includes(previousPathnameRef.current) : false;
+  const isCurrentPathMinimal = minimalTransitionRoutesRegex.some(regex => regex.test(pathname));
+  const isPreviousPathMinimal = previousPathnameRef.current ? minimalTransitionRoutesRegex.some(regex => regex.test(previousPathnameRef.current!)) : false;
   
-  const disableAnimation = isCurrentPathMinimal && isPreviousPathMinimal && previousPathnameRef.current !== pathname;
+  // Disable animation if transitioning between two different minimal routes
+  const disableAnimation = 
+    isCurrentPathMinimal && 
+    isPreviousPathMinimal && 
+    previousPathnameRef.current !== null && // Ensure previousPathnameRef is set
+    previousPathnameRef.current !== pathname; // Ensure it's an actual navigation
 
   const animatedPageVariants = React.useMemo(() => ({
     initial: { opacity: 0 },
@@ -88,7 +93,7 @@ export default function LocaleLayout({
   }), []);
 
   const noAnimationPageTransition = React.useMemo(() => ({
-    duration: 0,
+    duration: 0, // Instant
   }), []);
 
   const currentVariants = disableAnimation ? noAnimationPageVariants : animatedPageVariants;
@@ -101,7 +106,7 @@ export default function LocaleLayout({
   const footerRightsText = dictionary?.termsPage?.contactInformation
     ? (lang === 'fa' ? 'تمامی حقوق محفوظ است.' : 'All rights reserved.')
     : defaultFooterText;
-  const defaultAppName = lang === 'fa' ? 'حامی' : 'Hami'; // Updated default app name
+  const defaultAppName = lang === 'fa' ? 'حامی' : 'Hami';
 
   return (
     <AuthProvider>
