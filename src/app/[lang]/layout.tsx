@@ -20,7 +20,7 @@ export default function LocaleLayout({
   const params = useParams();
   // Ensure lang is correctly determined, falling back to defaultLocale if necessary
   let lang: Locale = i18n.defaultLocale;
-  const langFromParams = Array.isArray(params.lang) ? params.lang[0] : params.lang; // Corrected: Direct access
+  const langFromParams = Array.isArray(params.lang) ? params.lang[0] : params.lang;
   if (langFromParams && i18n.locales.includes(langFromParams as Locale)) {
     lang = langFromParams as Locale;
   }
@@ -56,18 +56,15 @@ export default function LocaleLayout({
 
   const pageVariants = React.useMemo(() => ({
     initial: {
-      opacity: 1, 
-      x: lang === 'fa' ? -50 : 50, 
+      opacity: 0,
     },
     in: {
-      opacity: 1, 
-      x: 0,       
+      opacity: 1,
     },
     out: {
-      opacity: 1, 
-      x: lang === 'fa' ? 50 : -50, 
+      opacity: 0,
     },
-  }), [lang]);
+  }), []); // Variants are now independent of 'lang' for stability
 
   const pageTransition = React.useMemo(() => ({
     type: 'tween',
@@ -81,7 +78,7 @@ export default function LocaleLayout({
 
   // Default footer text if dictionary is not loaded
   const defaultFooterText = lang === 'fa' ? 'تمامی حقوق محفوظ است.' : 'All rights reserved.';
-  const footerRightsText = dictionary?.termsPage?.contactInformation // Example, adjust path if needed
+  const footerRightsText = dictionary?.termsPage?.contactInformation
     ? (lang === 'fa' ? 'تمامی حقوق محفوظ است.' : 'All rights reserved.')
     : defaultFooterText;
 
