@@ -1,4 +1,3 @@
-
 'use client';
 
 import * as React from 'react';
@@ -13,16 +12,17 @@ import {
   FormItem,
   FormMessage,
 } from '@/components/ui/form';
-import { Label } from '@/components/ui/label'; // Changed from FormLabel to Label for general use
+import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose } from "@/components/ui/dialog"; // Removed DialogDescription as it wasn't used
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose } from "@/components/ui/dialog";
 import type { SignupFormData, YouthConnection } from '../signup-stepper';
 import type { Locale } from '@/i18n-config';
 import { PlusCircle, Trash2 } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Separator } from '@/components/ui/separator';
 
 interface StepRoleSelectionProps {
   dictionary: any;
@@ -34,7 +34,6 @@ interface StepRoleSelectionProps {
 
 type AdultRoleKey = 'parent' | 'therapist' | 'school_consultant' | 'supervisor';
 
-// Schema for the adult role selection part
 const adultRoleSchema = z.object({
   adultRolesSelected: z.object({
     parent: z.boolean().optional(),
@@ -54,24 +53,18 @@ const adultRoleSchema = z.object({
   }
 });
 
-// Schema for the youth connection dialog form
-const youthConnectionDialogSchema = z.object({
-  contact: z.string().min(1, { message: "Contact is required." }) // Placeholder
-    .refine(value => /^(?:\S+@\S+\.\S+)|(?:\+?[0-9\s-]{7,15})$/.test(value), {
-      message: "Invalid email or phone format.", // Placeholder
-    }),
+const youthConnectionDialogSchemaBase = z.object({
+  contact: z.string(), // Validation to be added dynamically with dictionary
   permissions: z.object({
     basicInformation: z.boolean().optional(),
     dailyQuizResults: z.boolean().optional(),
     biometricReports: z.boolean().optional(),
     testResults: z.boolean().optional(),
     syncedInformation: z.boolean().optional(),
-  }).refine(data => Object.values(data).some(value => value === true), {
-    message: "Select at least one permission.", // Placeholder
-    path: ['basicInformation'], 
-  }),
+    othersNotes: z.boolean().optional(), // New permission
+  })
 });
-type YouthConnectionDialogData = z.infer<typeof youthConnectionDialogSchema>;
+type YouthConnectionDialogData = z.infer<typeof youthConnectionDialogSchemaBase>;
 
 
 export function StepRoleSelection({ dictionary, formData, updateFormData, onValidation, lang }: StepRoleSelectionProps) {
@@ -87,25 +80,32 @@ export function StepRoleSelection({ dictionary, formData, updateFormData, onVali
     },
     mode: 'onChange',
   });
+  
+  // Dynamically create the schema with localized messages
+  const currentYouthConnectionDialogSchema = React.useMemo(() => {
+    return youthConnectionDialogSchemaBase.extend({
+        contact: z.string()
+            .min(1, { message: dictionary.youthConnections.errorContactRequired || "Contact is required." })
+            .refine(value => /^(?:\S+@\S+\.\S+)|(?:\+?[0-9\s-]{7,15})$/.test(value), {
+                message: dictionary.youthConnections.errorInvalidContact || "Invalid email or phone format.",
+            }),
+        permissions: z.object({
+            basicInformation: z.boolean().optional(),
+            dailyQuizResults: z.boolean().optional(),
+            biometricReports: z.boolean().optional(),
+            testResults: z.boolean().optional(),
+            syncedInformation: z.boolean().optional(),
+            othersNotes: z.boolean().optional(),
+        }).refine(data => Object.values(data).some(value => value === true), {
+            message: dictionary.youthConnections.errorNoPermissionsSelected || "Select at least one permission.",
+            path: ['basicInformation'], 
+        }),
+    });
+  }, [dictionary.youthConnections]);
+
 
   const dialogForm = useForm<YouthConnectionDialogData>({
-    resolver: zodResolver(youthConnectionDialogSchema.extend({
-      contact: z.string()
-        .min(1, { message: dictionary.youthConnections.errorContactRequired || "Contact is required." })
-        .refine(value => /^(?:\S+@\S+\.\S+)|(?:\+?[0-9\s-]{7,15})$/.test(value), {
-          message: dictionary.youthConnections.errorInvalidContact || "Invalid email or phone format.",
-        }),
-      permissions: z.object({
-        basicInformation: z.boolean().optional(),
-        dailyQuizResults: z.boolean().optional(),
-        biometricReports: z.boolean().optional(),
-        testResults: z.boolean().optional(),
-        syncedInformation: z.boolean().optional(),
-      }).refine(data => Object.values(data).some(value => value === true), {
-        message: dictionary.youthConnections.errorNoPermissionsSelected || "Select at least one permission.",
-         path: ['basicInformation'],
-      }),
-    })),
+    resolver: zodResolver(currentYouthConnectionDialogSchema),
     defaultValues: {
       contact: '',
       permissions: {
@@ -114,6 +114,7 @@ export function StepRoleSelection({ dictionary, formData, updateFormData, onVali
         biometricReports: false,
         testResults: false,
         syncedInformation: false,
+        othersNotes: false, // Default for new permission
       },
     },
     mode: 'onChange',
@@ -121,13 +122,19 @@ export function StepRoleSelection({ dictionary, formData, updateFormData, onVali
 
 
   useEffect(() => {
+    if (isYouth === null) {
+        onValidation(false);
+        return;
+    }
     if (isYouth) {
       onValidation(true); 
     } else {
-      const subscription = adultForm.watch((value) => {
-        updateFormData(value as Partial<SignupFormData>);
+      const subscription = adultForm.watch((value, { name, type }) => {
+        const adultFormData = value as Partial<SignupFormData>;
+        updateFormData(adultFormData);
         onValidation(adultForm.formState.isValid);
       });
+      // Perform initial validation for adult form
       onValidation(adultForm.formState.isValid);
       return () => subscription.unsubscribe();
     }
@@ -141,19 +148,27 @@ export function StepRoleSelection({ dictionary, formData, updateFormData, onVali
     { id: 'supervisor' as AdultRoleKey, label: dictionary.roles.supervisor },
   ];
 
-  const permissionItems = [
+  const permissionItems = React.useMemo(() => [
     { id: 'basicInformation' as keyof YouthConnection['permissions'], label: dictionary.youthConnections.permissionBasicInformation },
     { id: 'dailyQuizResults' as keyof YouthConnection['permissions'], label: dictionary.youthConnections.permissionDailyQuizResults },
     { id: 'biometricReports' as keyof YouthConnection['permissions'], label: dictionary.youthConnections.permissionBiometricReports },
     { id: 'testResults' as keyof YouthConnection['permissions'], label: dictionary.youthConnections.permissionTestResults },
     { id: 'syncedInformation' as keyof YouthConnection['permissions'], label: dictionary.youthConnections.permissionSyncedInformation },
-  ];
+    { id: 'othersNotes' as keyof YouthConnection['permissions'], label: dictionary.youthConnections.permissionOthersNotes },
+  ], [dictionary.youthConnections]);
 
   const handleAddConnection = (data: YouthConnectionDialogData) => {
     const newConnection: YouthConnection = {
       id: Date.now().toString(), 
       contact: data.contact,
-      permissions: data.permissions,
+      permissions: { // Ensure all permission fields are explicitly set
+        basicInformation: data.permissions.basicInformation || false,
+        dailyQuizResults: data.permissions.dailyQuizResults || false,
+        biometricReports: data.permissions.biometricReports || false,
+        testResults: data.permissions.testResults || false,
+        syncedInformation: data.permissions.syncedInformation || false,
+        othersNotes: data.permissions.othersNotes || false,
+      },
     };
     const updatedConnections = [...(formData.youthConnections || []), newConnection];
     updateFormData({ youthConnections: updatedConnections });
@@ -193,112 +208,8 @@ export function StepRoleSelection({ dictionary, formData, updateFormData, onVali
             {isYouth ? dictionary.descriptionYouth : dictionary.descriptionAdult}
           </CardDescription>
         </CardHeader>
-        <CardContent className="flex-grow space-y-4 md:space-y-6">
-          {isYouth ? (
-            // Youth Path UI
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <Label className="text-sm font-medium">{dictionary.youthConnections.shareWithLabel}</Label>
-                <Button variant="outline" size="icon" onClick={() => setIsShareDialogVisible(true)} aria-label={dictionary.youthConnections.addConnectionButton}>
-                  <PlusCircle className="h-5 w-5" />
-                </Button>
-              </div>
-
-              {formData.youthConnections && formData.youthConnections.length > 0 && (
-                <div className="space-y-3">
-                  <h3 className="text-md font-semibold">{dictionary.youthConnections.sharedWithTitle}</h3>
-                  <ScrollArea className="h-[200px] pr-3">
-                    <div className="space-y-2">
-                    {formData.youthConnections.map((conn) => (
-                      <Card key={conn.id} className="p-3">
-                        <div className="flex justify-between items-start">
-                          <div>
-                            <p className="font-medium">{conn.contact}</p>
-                            <p className="text-xs text-muted-foreground">
-                                {dictionary.youthConnections.permissionsSummaryPrefix} {getPermissionsSummary(conn.permissions)}
-                            </p>
-                          </div>
-                          <Button variant="ghost" size="icon" onClick={() => handleRemoveConnection(conn.id)} aria-label={dictionary.youthConnections.removeConnectionButtonLabel}>
-                            <Trash2 className="h-4 w-4 text-destructive" />
-                          </Button>
-                        </div>
-                      </Card>
-                    ))}
-                    </div>
-                  </ScrollArea>
-                </div>
-              )}
-              {(!formData.youthConnections || formData.youthConnections.length === 0) && (
-                 <p className="text-sm text-muted-foreground text-center py-4">{dictionary.youthConnections.noConnectionsYet}</p>
-              )}
-
-              <Dialog open={isShareDialogVisible} onOpenChange={setIsShareDialogVisible}>
-                <DialogContent className="sm:max-w-[425px]">
-                  <DialogHeader>
-                    <DialogTitle>{dictionary.youthConnections.dialogTitle}</DialogTitle>
-                  </DialogHeader>
-                  <Form {...dialogForm}>
-                    <form onSubmit={dialogForm.handleSubmit(handleAddConnection)} className="space-y-4 py-4">
-                      <FormField
-                        control={dialogForm.control}
-                        name="contact"
-                        render={({ field }) => (
-                          <FormItem>
-                            <Label htmlFor={field.name}>{dictionary.youthConnections.contactLabel}</Label>
-                            <FormControl>
-                              <Input placeholder={dictionary.youthConnections.contactPlaceholder} {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormItem>
-                        <Label>{dictionary.youthConnections.permissionsLabel}</Label>
-                        <ScrollArea className="h-[180px] pr-3 border rounded-md p-2 mt-1">
-                        <div className="space-y-2">
-                          {permissionItems.map(item => (
-                            <FormField
-                              key={item.id}
-                              control={dialogForm.control}
-                              name={`permissions.${item.id}` as any}
-                              render={({ field }) => (
-                                <FormItem className="flex flex-row items-center space-x-3 space-y-0 rtl:space-x-reverse">
-                                  <FormControl>
-                                    <Checkbox
-                                      checked={field.value}
-                                      onCheckedChange={field.onChange}
-                                      id={`perm-${item.id}`}
-                                    />
-                                  </FormControl>
-                                  <Label htmlFor={`perm-${item.id}`} className="font-normal text-sm">
-                                    {item.label}
-                                  </Label>
-                                </FormItem>
-                              )}
-                            />
-                          ))}
-                        </div>
-                        </ScrollArea>
-                         {dialogForm.formState.errors.permissions && (
-                            <p className="text-sm font-medium text-destructive">
-                                {dialogForm.formState.errors.permissions.message || (dialogForm.formState.errors.permissions as any)?.basicInformation?.message}
-                            </p>
-                        )}
-                      </FormItem>
-                       <DialogFooter className="pt-4">
-                        <DialogClose asChild>
-                            <Button type="button" variant="outline">{dictionary.youthConnections.dialogCancelButton}</Button>
-                        </DialogClose>
-                        <Button type="submit">{dictionary.youthConnections.dialogAddButton}</Button>
-                      </DialogFooter>
-                    </form>
-                  </Form>
-                </DialogContent>
-              </Dialog>
-
-            </div>
-          ) : (
-            // Adult Path UI (using adultForm)
+        <CardContent className="flex-grow space-y-6">
+          {!isYouth && (
             <Form {...adultForm}>
               <form onSubmit={(e) => e.preventDefault()} className="space-y-6">
                 <FormItem className="space-y-3">
@@ -335,9 +246,9 @@ export function StepRoleSelection({ dictionary, formData, updateFormData, onVali
                     name="clinicCode"
                     render={({ field }) => (
                       <FormItem>
-                        <Label htmlFor={field.name}>{dictionary.clinicCodeLabel}</Label>
+                        <Label htmlFor="clinicCode-input">{dictionary.clinicCodeLabel}</Label>
                         <FormControl>
-                          <Input placeholder={dictionary.clinicCodePlaceholder} {...field} />
+                          <Input id="clinicCode-input" placeholder={dictionary.clinicCodePlaceholder} {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -351,9 +262,9 @@ export function StepRoleSelection({ dictionary, formData, updateFormData, onVali
                     name="schoolCode"
                     render={({ field }) => (
                       <FormItem>
-                        <Label htmlFor={field.name}>{dictionary.schoolCodeLabel}</Label>
+                        <Label htmlFor="schoolCode-input">{dictionary.schoolCodeLabel}</Label>
                         <FormControl>
-                          <Input placeholder={dictionary.schoolCodePlaceholder} {...field} />
+                          <Input id="schoolCode-input" placeholder={dictionary.schoolCodePlaceholder} {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -363,10 +274,113 @@ export function StepRoleSelection({ dictionary, formData, updateFormData, onVali
               </form>
             </Form>
           )}
+
+          {/* Separator for adult path before sharing section */}
+          {!isYouth && <Separator className="my-6" />}
+
+          {/* Common Sharing UI for both youth and adults */}
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <Label className="text-sm font-medium">{dictionary.youthConnections.shareWithLabel}</Label>
+              <Button variant="outline" size="icon" onClick={() => setIsShareDialogVisible(true)} aria-label={dictionary.youthConnections.addConnectionButton}>
+                <PlusCircle className="h-5 w-5" />
+              </Button>
+            </div>
+
+            {formData.youthConnections && formData.youthConnections.length > 0 && (
+              <div className="space-y-3">
+                <h3 className="text-md font-semibold">{dictionary.youthConnections.sharedWithTitle}</h3>
+                <ScrollArea className="h-[200px] pr-3">
+                  <div className="space-y-2">
+                  {formData.youthConnections.map((conn) => (
+                    <Card key={conn.id} className="p-3">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <p className="font-medium">{conn.contact}</p>
+                          <p className="text-xs text-muted-foreground">
+                              {dictionary.youthConnections.permissionsSummaryPrefix} {getPermissionsSummary(conn.permissions)}
+                          </p>
+                        </div>
+                        <Button variant="ghost" size="icon" onClick={() => handleRemoveConnection(conn.id)} aria-label={dictionary.youthConnections.removeConnectionButtonLabel}>
+                          <Trash2 className="h-4 w-4 text-destructive" />
+                        </Button>
+                      </div>
+                    </Card>
+                  ))}
+                  </div>
+                </ScrollArea>
+              </div>
+            )}
+            {(!formData.youthConnections || formData.youthConnections.length === 0) && (
+               <p className="text-sm text-muted-foreground text-center py-4">{dictionary.youthConnections.noConnectionsYet}</p>
+            )}
+          </div>
+
+          <Dialog open={isShareDialogVisible} onOpenChange={setIsShareDialogVisible}>
+            <DialogContent className="sm:max-w-[425px]">
+              <DialogHeader>
+                <DialogTitle>{dictionary.youthConnections.dialogTitle}</DialogTitle>
+              </DialogHeader>
+              <Form {...dialogForm}>
+                <form onSubmit={dialogForm.handleSubmit(handleAddConnection)} className="space-y-4 py-4">
+                  <FormField
+                    control={dialogForm.control}
+                    name="contact"
+                    render={({ field }) => (
+                      <FormItem>
+                        <Label htmlFor="dialog-contact-input">{dictionary.youthConnections.contactLabel}</Label>
+                        <FormControl>
+                          <Input id="dialog-contact-input" placeholder={dictionary.youthConnections.contactPlaceholder} {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormItem>
+                    <Label>{dictionary.youthConnections.permissionsLabel}</Label>
+                    <ScrollArea className="h-[210px] pr-3 border rounded-md p-2 mt-1">
+                    <div className="space-y-2">
+                      {permissionItems.map(item => (
+                        <FormField
+                          key={item.id}
+                          control={dialogForm.control}
+                          name={`permissions.${item.id}` as any}
+                          render={({ field }) => (
+                            <FormItem className="flex flex-row items-center space-x-3 space-y-0 rtl:space-x-reverse">
+                              <FormControl>
+                                <Checkbox
+                                  checked={field.value}
+                                  onCheckedChange={field.onChange}
+                                  id={`perm-${item.id}`}
+                                />
+                              </FormControl>
+                              <Label htmlFor={`perm-${item.id}`} className="font-normal text-sm">
+                                {item.label}
+                              </Label>
+                            </FormItem>
+                          )}
+                        />
+                      ))}
+                    </div>
+                    </ScrollArea>
+                     {dialogForm.formState.errors.permissions && (
+                        <p className="text-sm font-medium text-destructive pt-1">
+                            {dialogForm.formState.errors.permissions.message || (dialogForm.formState.errors.permissions as any)?.basicInformation?.message}
+                        </p>
+                    )}
+                  </FormItem>
+                   <DialogFooter className="pt-4">
+                    <DialogClose asChild>
+                        <Button type="button" variant="outline">{dictionary.youthConnections.dialogCancelButton}</Button>
+                    </DialogClose>
+                    <Button type="submit">{dictionary.youthConnections.dialogAddButton}</Button>
+                  </DialogFooter>
+                </form>
+              </Form>
+            </DialogContent>
+          </Dialog>
         </CardContent>
       </Card>
     </div>
   );
 }
-
-    

@@ -1,4 +1,3 @@
-
 {
   "appName": "Hami",
   "tagline": "Your Supportive Companion",
@@ -147,8 +146,8 @@
       }
     },
     "stepRoleSelection": {
-      "title": "Your Role",
-      "descriptionAdult": "Please select the role(s) that best describe you. You can select multiple or none.",
+      "title": "Your Role & Sharing Preferences",
+      "descriptionAdult": "Please select your role(s) and optionally manage sharing preferences.",
       "descriptionYouth": "If you wish, you can share information with trusted adults.",
       "loadingRoleInfo": "Determining your pathway...",
       "selectRolesLabel": "Select your role(s):",
@@ -176,6 +175,7 @@
         "permissionBiometricReports": "Biometric reports",
         "permissionTestResults": "Test results",
         "permissionSyncedInformation": "Information synced from other systems",
+        "permissionOthersNotes": "Others' notes",
         "dialogAddButton": "Add Connection",
         "dialogCancelButton": "Cancel",
         "removeConnectionButtonLabel": "Remove Connection",
@@ -184,7 +184,7 @@
         "permissionsSummaryPrefix": "Shares:",
         "errorContactRequired": "Contact information is required.",
         "errorInvalidContact": "Please enter a valid email or phone number.",
-        "errorNoPermissionsSelected": "Please select at least one item to share."
+        "errorNoPermissionsSelected": "Select at least one permission."
       },
       "errors": {
         "roleRequired": "Please select a role.",
@@ -257,7 +257,7 @@
   },
   "termsPage": {
     "mainTitle": "Terms and Conditions",
-    "lastUpdated": "Last Updated: July 26, 2024",
+    "lastUpdated": "July 26, 2024",
     "introduction": {
       "title": "1. Introduction",
       "content1": "Welcome to Hami (\"Company\", \"we\", \"our\", \"us\")! These Terms and Conditions (\"Terms\") govern your use of our website and mobile application (collectively, the \"Service\") offered by Hami.",

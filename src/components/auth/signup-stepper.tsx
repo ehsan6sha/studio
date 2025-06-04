@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
@@ -32,6 +31,7 @@ export interface YouthConnection {
     biometricReports: boolean;
     testResults: boolean;
     syncedInformation: boolean;
+    othersNotes: boolean; // New permission
   };
 }
 
@@ -91,11 +91,11 @@ export function SignupStepper({
   const [formData, setFormData] = useState<SignupFormData>({
     isYouth: null,
     adultRolesSelected: {},
-    connectedParentEmails: [], // Keep for potential data migration, but new UI won't use
+    connectedParentEmails: [], 
     connectedTherapistEmails: [],
     connectedSchoolConsultantEmails: [],
     connectedSupervisorEmails: [],
-    youthConnections: [], // Initialize new field
+    youthConnections: [], 
   });
   const [isLoaded, setIsLoaded] = useState(false);
   const [direction, setDirection] = useState(1);
@@ -104,7 +104,6 @@ export function SignupStepper({
   const calculateAge = useCallback((dobString?: string): number | null => {
     if (!dobString) return null;
     try {
-      // Assuming dobString is 'yyyy-MM-dd' from StepUserInfo
       const birthDate = parseGregorianOriginal(dobString, 'yyyy-MM-dd', new Date());
       if (isNaN(birthDate.getTime())) return null;
 
@@ -127,9 +126,7 @@ export function SignupStepper({
       if (!parsedData.adultRolesSelected) {
         parsedData.adultRolesSelected = {};
       }
-      // Ensure new youthConnections field is initialized if not present
       parsedData.youthConnections = parsedData.youthConnections || [];
-      // Ensure old email arrays are initialized if not present in stored data
       parsedData.connectedParentEmails = parsedData.connectedParentEmails || [];
       parsedData.connectedTherapistEmails = parsedData.connectedTherapistEmails || [];
       parsedData.connectedSchoolConsultantEmails = parsedData.connectedSchoolConsultantEmails || [];
@@ -167,14 +164,9 @@ export function SignupStepper({
     } else if (currentStep === 4) {
       setIsStepValid(!!formData.verificationCode && formData.verificationCode.length === 5);
     } else if (currentStep === 5) {
-      // Validation for step 5 is now managed by StepRoleSelection,
-      // and for youth path, it's generally optional to add connections.
-      // The step itself is valid to proceed by default.
-       if (formData.isYouth) {
-        setIsStepValid(true); // Youth can proceed without adding connections
-      } else {
-        // Adult validation is handled by StepRoleSelection via onValidation
-      }
+      // Validation for step 5 is managed by StepRoleSelection.
+      // For youth, it's true by default. For adults, it depends on their role selection form.
+      // The onValidation callback from StepRoleSelection will update isStepValid.
     }
   }, [currentStep, formData, isLoaded]);
 
@@ -184,30 +176,28 @@ export function SignupStepper({
       if (currentStep === 2 && !formData.acceptedMandatoryTerms) {
          toast({ title: dictionary.errorMandatoryTerms, variant: "destructive" });
       }
-      // Other specific error toasts for other steps could be added here if needed
       return;
     }
 
     let nextStepNumber = currentStep + 1;
     let newFormData = { ...formData };
 
-    if (currentStep === 4) { // After verification, before role selection
+    if (currentStep === 4) { 
       const age = calculateAge(formData.dob);
       const isUserYouth = age !== null && age < 18;
       newFormData = { ...newFormData, isYouth: isUserYouth };
-      setFormData(newFormData); // Set formData with isYouth status before going to step 5
+      setFormData(newFormData); 
     }
 
     setDirection(1);
     if (currentStep < TOTAL_STEPS) {
       setCurrentStep(nextStepNumber);
       updateUrl(nextStepNumber);
-      setIsStepValid(false); // Reset step validity for the new step
+      setIsStepValid(false); 
     } else {
-      // Finalize registration
       console.log('Finalizing registration:', newFormData);
       toast({ title: dictionary.registrationCompleteTitle, description: dictionary.registrationCompleteMessage });
-      localStorage.removeItem('signupFormData'); // Clear form data on completion
+      localStorage.removeItem('signupFormData'); 
       auth.signup({ name: newFormData.name, emailOrPhone: newFormData.emailOrPhone }, lang);
     }
   }, [currentStep, formData, dictionary, lang, isStepValid, toast, auth, updateUrl, calculateAge, TOTAL_STEPS]);
@@ -218,13 +208,12 @@ export function SignupStepper({
       const prevStep = currentStep - 1;
       setCurrentStep(prevStep);
       updateUrl(prevStep);
-      setIsStepValid(true); // Generally, previous steps are assumed to be valid if reached
+      setIsStepValid(true); 
     }
   };
 
   const updateFormDataAndValidate = useCallback((data: Partial<SignupFormData>) => {
     setFormData((prev) => ({ ...prev, ...data }));
-    // Re-validation will be triggered by the useEffect watching formData and currentStep
   }, []);
 
   const handleStepValidation = useCallback((isValid: boolean) => {
@@ -315,7 +304,7 @@ export function SignupStepper({
                 dictionary={dictionary.stepRoleSelection}
                 formData={formData}
                 updateFormData={updateFormDataAndValidate}
-                onValidation={handleStepValidation} // onValidation will be set to true for youth path by default in StepRoleSelection
+                onValidation={handleStepValidation} 
                 lang={lang}
               />
             )}

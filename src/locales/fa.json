@@ -1,4 +1,3 @@
-
 {
   "appName": "حامی",
   "tagline": "همراه حامی شما",
@@ -147,8 +146,8 @@
       }
     },
     "stepRoleSelection": {
-      "title": "نقش شما",
-      "descriptionAdult": "لطفاً نقش(هایی) که به بهترین شکل شما را توصیف می‌کند، انتخاب کنید. می‌توانید چند نقش یا هیچکدام را انتخاب کنید.",
+      "title": "نقش و تنظیمات اشتراک‌گذاری شما",
+      "descriptionAdult": "لطفاً نقش(های) خود را انتخاب کرده و در صورت تمایل، تنظیمات اشتراک‌گذاری را مدیریت کنید.",
       "descriptionYouth": "در صورت تمایل، می‌توانید اطلاعات خود را با بزرگسالان مورد اعتماد به اشتراک بگذارید.",
       "loadingRoleInfo": "درحال تعیین مسیر شما...",
       "selectRolesLabel": "نقش(های) خود را انتخاب کنید:",
@@ -176,6 +175,7 @@
         "permissionBiometricReports": "گزارشات بیومتریک",
         "permissionTestResults": "نتایج تست‌ها",
         "permissionSyncedInformation": "اطلاعات همگام‌شده از سایر سیستم‌ها",
+        "permissionOthersNotes": "یادداشت‌های دیگران",
         "dialogAddButton": "افزودن ارتباط",
         "dialogCancelButton": "انصراف",
         "removeConnectionButtonLabel": "حذف ارتباط",
