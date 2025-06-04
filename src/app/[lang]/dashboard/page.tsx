@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useState, useEffect, use } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { getDictionary } from "@/lib/dictionaries";
@@ -50,10 +50,8 @@ const chartConfigBiometric = {
 };
 
 
-export default function DashboardPage({ params: paramsFromProps }: { params: { lang: Locale } }) {
-  // Properly resolve params if it's a promise (for newer Next.js versions)
-  const resolvedParams = use(paramsFromProps as any); // Use React.use() to unwrap params
-  const { lang } = resolvedParams;
+export default function DashboardPage({ params }: { params: { lang: Locale } }) {
+  const { lang } = params; // Directly use params
 
   const [dictionary, setDictionary] = useState<any>(null);
   const isRTL = lang === 'fa';

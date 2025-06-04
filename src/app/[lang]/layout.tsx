@@ -39,6 +39,23 @@ export default function LocaleLayout({
     setCurrentYear(new Date().getFullYear());
   }, []); 
 
+  useEffect(() => {
+    if (lang === 'fa') {
+      document.body.classList.add('font-vazir');
+      document.body.classList.remove('font-body');
+    } else {
+      document.body.classList.add('font-body');
+      document.body.classList.remove('font-vazir');
+    }
+    // Cleanup function to remove classes when component unmounts or lang changes
+    // This ensures that if the layout unmounts before another lang layout mounts,
+    // the body doesn't retain a potentially incorrect font class.
+    return () => {
+      document.body.classList.remove('font-vazir');
+      document.body.classList.remove('font-body');
+    };
+  }, [lang]);
+
   if (!dictionary) {
     return (
       <>

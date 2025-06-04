@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -101,6 +102,10 @@ body {
     --sidebar-accent-foreground: 210 25% 10%;
     --sidebar-border: 210 15% 28%;
     --sidebar-ring: 180 60% 70%;
+  }
+
+  .font-vazir {
+    font-family: 'Vazir', sans-serif;
   }
 }
 
