@@ -21,6 +21,7 @@ export default function LocaleLayout({
   // Ensure lang is correctly determined, falling back to defaultLocale if necessary
   let lang: Locale = i18n.defaultLocale;
   const langFromParams = Array.isArray(params.lang) ? params.lang[0] : params.lang;
+
   if (langFromParams && i18n.locales.includes(langFromParams as Locale)) {
     lang = langFromParams as Locale;
   }
@@ -55,16 +56,10 @@ export default function LocaleLayout({
   }, [lang]);
 
   const pageVariants = React.useMemo(() => ({
-    initial: {
-      opacity: 0,
-    },
-    in: {
-      opacity: 1,
-    },
-    out: {
-      opacity: 0,
-    },
-  }), []); // Variants are now independent of 'lang' for stability
+    initial: { opacity: 0 },
+    in: { opacity: 1 },
+    out: { opacity: 0 },
+  }), []);
 
   const pageTransition = React.useMemo(() => ({
     type: 'tween',
@@ -103,6 +98,7 @@ export default function LocaleLayout({
               exit="out"
               variants={pageVariants}
               transition={pageTransition}
+              style={{ opacity: 0 }} // Force initial opacity to 0
             >
               {children}
             </motion.div>
