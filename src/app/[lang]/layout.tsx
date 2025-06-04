@@ -9,7 +9,7 @@ import { DynamicHtmlAttributes } from '@/components/layout/dynamic-html-attribut
 import { i18n } from '@/i18n-config';
 import { motion, AnimatePresence } from 'framer-motion';
 import { usePathname, useParams } from 'next/navigation';
-import React, { useEffect, useState, useRef } from 'react'; // Import React and useRef
+import React, { useEffect, useState } from 'react'; // Import React
 import { AuthProvider } from '@/context/auth-context';
 
 export default function LocaleLayout({
@@ -25,8 +25,6 @@ export default function LocaleLayout({
   }
 
   const pathname = usePathname();
-  const previousPathnameRef = useRef<string | null>(null);
-
   const [dictionary, setDictionary] = useState<any>(null);
   const [currentYear, setCurrentYear] = useState<number | null>(null);
 
@@ -54,66 +52,26 @@ export default function LocaleLayout({
     };
   }, [lang]);
 
-  useEffect(() => {
-    previousPathnameRef.current = pathname;
-  }, [pathname]);
+  const pageVariants = React.useMemo(() => ({
+    initial: {
+      opacity: 0,
+      scale: 0.95,
+    },
+    in: {
+      opacity: 1,
+      scale: 1,
+    },
+    out: {
+      opacity: 0,
+      scale: 0.95,
+    },
+  }), []);
 
-  const minimalTransitionRoutes = React.useMemo(() => [
-    `/${lang}`,
-    `/${lang}/login`,
-    `/${lang}/signup`,
-  ], [lang]);
-
-  const isTransitionBetweenMinimalRoutes = () => {
-    const fromPath = previousPathnameRef.current;
-    const toPath = pathname;
-
-    if (!fromPath) return false; // Initial load or no previous path recorded
-
-    const isFromMinimal = minimalTransitionRoutes.includes(fromPath);
-    const isToMinimal = minimalTransitionRoutes.includes(toPath);
-    
-    // Only consider it a "minimal transition" if both from and to are in the set
-    return isFromMinimal && isToMinimal;
-  };
-  
-  const currentTransitionIsMinimal = isTransitionBetweenMinimalRoutes();
-
-  const pageVariants = React.useMemo(() => {
-    if (currentTransitionIsMinimal) {
-      return { // Variants for an instant (no-animation) transition
-        initial: { opacity: 1, x: 0 },
-        in: { opacity: 1, x: 0 },
-        out: { opacity: 1, x: 0 },
-      };
-    }
-    // Standard animation variants for other routes
-    return {
-      initial: {
-        opacity: 0,
-        x: lang === 'fa' ? -50 : 50,
-      },
-      in: {
-        opacity: 1,
-        x: 0,
-      },
-      out: {
-        opacity: 0,
-        x: lang === 'fa' ? 50 : -50,
-      },
-    };
-  }, [lang, currentTransitionIsMinimal]);
-
-  const pageTransition = React.useMemo(() => {
-    if (currentTransitionIsMinimal) {
-      return { duration: 0 }; // Instant transition
-    }
-    return {
-      type: 'tween',
-      ease: 'easeInOut',
-      duration: 0.3,
-    };
-  }, [currentTransitionIsMinimal]);
+  const pageTransition = React.useMemo(() => ({
+    type: 'tween',
+    ease: 'easeInOut',
+    duration: 0.3,
+  }), []);
 
   const displayYear = currentYear !== null ? currentYear : "";
   const appNameFromDict = dictionary?.appName;
