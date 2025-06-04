@@ -104,8 +104,9 @@ body {
     --sidebar-ring: 180 60% 70%;
   }
 
+  /* Updated to Vazirmatn for .font-vazir class */
   .font-vazir {
-    font-family: 'Vazir', sans-serif;
+    font-family: 'Vazirmatn', sans-serif;
   }
 }
 

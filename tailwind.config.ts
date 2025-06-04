@@ -12,6 +12,7 @@ export default {
       fontFamily: {
         body: ['Alegreya', 'serif'],
         headline: ['Alegreya', 'serif'],
+        vazir: ['Vazirmatn', 'sans-serif'], // Added Vazirmatn
         code: ['monospace'],
       },
       colors: {
