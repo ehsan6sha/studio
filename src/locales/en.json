@@ -145,11 +145,6 @@
         "pasteIncompleteDescription": "Pasted {count} digits. Please complete the 5-digit code."
       }
     },
-    "stepAgeInfo": {
-      "title": "Emotional Health Profile",
-      "description": "A few more steps to personalize your experience.",
-      "mainContent": "Next, we'll ask some questions about your emotional health. This will help us tailor RavanHamrah to your needs."
-    },
     "stepRoleSelection": {
       "title": "Your Role",
       "descriptionAdult": "Please select the role(s) that best describe you. You can select multiple or none.",
@@ -299,3 +294,5 @@
     }
   }
 }
+
+    

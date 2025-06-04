@@ -8,15 +8,17 @@ import { StepInformation } from './steps/step-information';
 import { StepTerms } from './steps/step-terms';
 import { StepUserInfo } from './steps/step-user-info';
 import { StepVerification } from './steps/step-verification';
-import { StepAgeInfo } from './steps/step-age-info';
+// StepAgeInfo import removed
 import { StepRoleSelection } from './steps/step-role-selection';
 import { Button } from '@/components/ui/button';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Progress } from "@/components/ui/progress";
 import { useAuth } from '@/context/auth-context';
 import { useToast } from '@/hooks/use-toast';
+import { parse as parseGregorianOriginal } from 'date-fns';
 
-const TOTAL_STEPS = 6; 
+
+const TOTAL_STEPS = 5; // Changed from 6 to 5
 
 export interface SignupFormData {
   acceptedMandatoryTerms?: boolean;
@@ -25,17 +27,17 @@ export interface SignupFormData {
   emailOrPhone?: string;
   password?: string;
   name?: string;
-  dob?: string; 
+  dob?: string;
   verificationCode?: string;
-  isYouth?: boolean | null; 
-  adultRolesSelected?: { 
+  isYouth?: boolean | null;
+  adultRolesSelected?: {
     parent?: boolean;
     therapist?: boolean;
     school_consultant?: boolean;
     supervisor?: boolean;
   };
-  clinicCode?: string; 
-  schoolCode?: string; // Renamed from schoolName
+  clinicCode?: string;
+  schoolCode?: string;
   connectedParentEmail?: string;
   connectedTherapistEmail?: string;
   connectedSchoolConsultantEmail?: string;
@@ -44,9 +46,9 @@ export interface SignupFormData {
 
 interface SignupStepperProps {
   lang: Locale;
-  dictionary: any; 
+  dictionary: any;
   initialStep: number;
-  termsDictionary: any; 
+  termsDictionary: any;
   appTermsContent: any;
   dataProcessingConsentContent: any;
   marketingConsentContent: any;
@@ -68,10 +70,29 @@ export function SignupStepper({
   const { toast } = useToast();
 
   const [currentStep, setCurrentStep] = useState(initialStep < 1 || initialStep > TOTAL_STEPS ? 1 : initialStep);
-  const [formData, setFormData] = useState<SignupFormData>({isYouth: null, adultRolesSelected: {}}); 
+  const [formData, setFormData] = useState<SignupFormData>({isYouth: null, adultRolesSelected: {}});
   const [isLoaded, setIsLoaded] = useState(false);
-  const [direction, setDirection] = useState(1); 
+  const [direction, setDirection] = useState(1);
   const [isStepValid, setIsStepValid] = useState(false);
+
+  const calculateAge = useCallback((dobString?: string): number | null => {
+    if (!dobString) return null;
+    try {
+      // DOB is stored as YYYY-MM-DD (Gregorian)
+      const birthDate = parseGregorianOriginal(dobString, 'yyyy-MM-dd', new Date());
+      if (isNaN(birthDate.getTime())) return null;
+
+      const today = new Date();
+      let age = today.getFullYear() - birthDate.getFullYear();
+      const m = today.getMonth() - birthDate.getMonth();
+      if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+        age--;
+      }
+      return age;
+    } catch (e) {
+      return null;
+    }
+  }, []);
 
   useEffect(() => {
     const storedData = localStorage.getItem('signupFormData');
@@ -87,7 +108,7 @@ export function SignupStepper({
     const saneInitialStep = Math.max(1, Math.min(validatedInitialStep, TOTAL_STEPS));
     setCurrentStep(saneInitialStep);
     setIsLoaded(true);
-  }, [searchParams]); 
+  }, [searchParams]);
 
   useEffect(() => {
     if (isLoaded) {
@@ -95,45 +116,27 @@ export function SignupStepper({
     }
   }, [formData, isLoaded]);
 
-  const updateUrl = (step: number) => {
+  const updateUrl = useCallback((step: number) => {
     const newSearchParams = new URLSearchParams(searchParams.toString());
     newSearchParams.set('step', step.toString());
     router.push(`${pathname}?${newSearchParams.toString()}`, { scroll: false });
-  };
-  
-  const calculateAge = (dobString?: string): number | null => {
-    if (!dobString) return null;
-    try {
-      const birthDate = new Date(dobString); // Assumes dobString is YYYY-MM-DD (Gregorian from step 3)
-      if (isNaN(birthDate.getTime())) return null;
-
-      const today = new Date();
-      let age = today.getFullYear() - birthDate.getFullYear();
-      const m = today.getMonth() - birthDate.getMonth();
-      if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
-        age--;
-      }
-      return age;
-    } catch (e) {
-      return null;
-    }
-  };
+  }, [router, pathname, searchParams]);
 
   useEffect(() => {
     if (!isLoaded) return;
 
-    if (currentStep === 1) {
-      setIsStepValid(true); 
-    } else if (currentStep === 2) {
+    if (currentStep === 1) { // Information
+      setIsStepValid(true);
+    } else if (currentStep === 2) { // Terms
       setIsStepValid(!!formData.acceptedMandatoryTerms);
-    } else if (currentStep === 3) {
+    } else if (currentStep === 3) { // UserInfo
       // Validation handled by StepUserInfo via onValidation
-    } else if (currentStep === 4) {
+    } else if (currentStep === 4) { // Verification
       setIsStepValid(!!formData.verificationCode && formData.verificationCode.length === 5);
-    } else if (currentStep === 5) {
-      setIsStepValid(true); 
-    } else if (currentStep === 6) {
+    } else if (currentStep === 5) { // RoleSelection (new Step 5)
       // Validation handled by StepRoleSelection via onValidation
+      // isStepValid will be false initially when navigating to this step,
+      // then updated by StepRoleSelection's onValidation callback.
     }
   }, [currentStep, formData, isLoaded]);
 
@@ -146,26 +149,29 @@ export function SignupStepper({
       return;
     }
 
-    if (currentStep === 5) { 
+    let nextStepNumber = currentStep + 1;
+    let newFormData = { ...formData }; // Operate on a copy
+
+    if (currentStep === 4) { // Transitioning from Verification (Step 4) to RoleSelection (new Step 5)
       const age = calculateAge(formData.dob);
       const isUserYouth = age !== null && age < 18;
-      setFormData(prev => ({ ...prev, isYouth: isUserYouth })); 
+      newFormData = { ...newFormData, isYouth: isUserYouth };
+      setFormData(newFormData); // Update state with isYouth before proceeding
     }
-
 
     setDirection(1);
-    if (currentStep < TOTAL_STEPS) {
-      const nextStep = currentStep + 1;
-      setCurrentStep(nextStep);
-      updateUrl(nextStep);
-      setIsStepValid(false); 
-    } else {
-      console.log('Finalizing registration:', formData);
+    if (currentStep < TOTAL_STEPS) { // TOTAL_STEPS is now 5
+      setCurrentStep(nextStepNumber);
+      updateUrl(nextStepNumber);
+      setIsStepValid(false); // Reset validity for the new step
+    } else { // currentStep === TOTAL_STEPS (i.e., finishing RoleSelection, which is the last step)
+      console.log('Finalizing registration:', newFormData);
       toast({ title: dictionary.registrationCompleteTitle, description: dictionary.registrationCompleteMessage });
       localStorage.removeItem('signupFormData');
-      auth.signup({ name: formData.name, emailOrPhone: formData.emailOrPhone }, lang);
+      // Ensure `name` and `emailOrPhone` are present in newFormData if auth.signup expects them
+      auth.signup({ name: newFormData.name, emailOrPhone: newFormData.emailOrPhone }, lang);
     }
-  }, [currentStep, formData, dictionary, lang, isStepValid, toast, auth, updateUrl]); 
+  }, [currentStep, formData, dictionary, lang, isStepValid, toast, auth, updateUrl, calculateAge, TOTAL_STEPS]);
 
   const handlePrevious = () => {
     setDirection(-1);
@@ -173,7 +179,7 @@ export function SignupStepper({
       const prevStep = currentStep - 1;
       setCurrentStep(prevStep);
       updateUrl(prevStep);
-      setIsStepValid(true); 
+      setIsStepValid(true); // Assume previous step was valid to allow navigation
     }
   };
 
@@ -208,13 +214,13 @@ export function SignupStepper({
   if (!isLoaded) {
     return <div className="flex-grow flex items-center justify-center">{dictionary.loading || "Loading..."}</div>;
   }
-  
+
   const isNextButtonDisabled = !isStepValid;
 
   return (
     <div className="w-full max-w-xl mx-auto flex flex-col flex-grow" dir={lang === 'fa' ? 'rtl' : 'ltr'}>
       <Progress value={progressValue} className="w-full mb-4 md:mb-6" />
-      
+
       <div className="flex-grow overflow-hidden flex flex-col">
         <AnimatePresence initial={false} custom={direction} mode="wait">
           <motion.div
@@ -264,19 +270,11 @@ export function SignupStepper({
                     lang={lang}
                 />
             )}
-            {currentStep === 5 && (
-              <StepAgeInfo
-                dictionary={dictionary.stepAgeInfo}
-                formData={formData}
-                updateFormData={updateFormDataAndValidate}
-                onValidation={handleStepValidation} 
-                lang={lang}
-              />
-            )}
-            {currentStep === 6 && (
+            {/* Step 5 (AgeInfo) removed */}
+            {currentStep === 5 && ( // This is now StepRoleSelection
               <StepRoleSelection
                 dictionary={dictionary.stepRoleSelection}
-                formData={formData}
+                formData={formData} // This should now include isYouth correctly set
                 updateFormData={updateFormDataAndValidate}
                 onValidation={handleStepValidation}
                 lang={lang}
@@ -300,3 +298,5 @@ export function SignupStepper({
     </div>
   );
 }
+
+    
