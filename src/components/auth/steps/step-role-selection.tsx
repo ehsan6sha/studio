@@ -4,7 +4,7 @@
 import * as React from 'react';
 import { useEffect } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
+import { useForm, useFieldArray, Controller } from 'react-hook-form';
 import { z } from 'zod';
 import {
   Form,
@@ -15,10 +15,12 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import type { SignupFormData } from '../signup-stepper';
 import type { Locale } from '@/i18n-config';
+import { PlusCircle, Trash2 } from 'lucide-react';
 
 interface StepRoleSelectionProps {
   dictionary: any;
@@ -27,6 +29,13 @@ interface StepRoleSelectionProps {
   onValidation: (isValid: boolean) => void;
   lang: Locale;
 }
+
+type AdultRoleKey = 'parent' | 'therapist' | 'school_consultant' | 'supervisor';
+const adultRoleTypes: AdultRoleKey[] = ['parent', 'therapist', 'school_consultant', 'supervisor'];
+
+type YouthConnectionRoleKey = 'parent' | 'therapist' | 'school_consultant' | 'supervisor';
+const youthConnectionRoleTypes: YouthConnectionRoleKey[] = ['parent', 'therapist', 'school_consultant', 'supervisor'];
+
 
 export function StepRoleSelection({ dictionary, formData, updateFormData, onValidation, lang }: StepRoleSelectionProps) {
   const { isYouth } = formData;
@@ -51,22 +60,21 @@ export function StepRoleSelection({ dictionary, formData, updateFormData, onVali
   });
 
   const youthSchema = z.object({
-    connectedParentEmail: z.string().email({ message: dictionary.errors.invalidEmail }).optional().or(z.literal('')),
-    connectedTherapistEmail: z.string().email({ message: dictionary.errors.invalidEmail }).optional().or(z.literal('')),
-    connectedSchoolConsultantEmail: z.string().email({ message: dictionary.errors.invalidEmail }).optional().or(z.literal('')),
-    connectedSupervisorEmail: z.string().email({ message: dictionary.errors.invalidEmail }).optional().or(z.literal('')),
+    connectedParentEmails: z.array(z.string().email({ message: dictionary.errors.invalidEmail })).optional(),
+    connectedTherapistEmails: z.array(z.string().email({ message: dictionary.errors.invalidEmail })).optional(),
+    connectedSchoolConsultantEmails: z.array(z.string().email({ message: dictionary.errors.invalidEmail })).optional(),
+    connectedSupervisorEmails: z.array(z.string().email({ message: dictionary.errors.invalidEmail })).optional(),
   });
 
   const currentSchema = isYouth ? youthSchema : adultRoleSchema;
 
-  // Memoize default values based on isYouth and initial formData state
   const defaultValuesForForm = React.useMemo(() => {
     if (isYouth) {
       return {
-        connectedParentEmail: formData.connectedParentEmail || '',
-        connectedTherapistEmail: formData.connectedTherapistEmail || '',
-        connectedSchoolConsultantEmail: formData.connectedSchoolConsultantEmail || '',
-        connectedSupervisorEmail: formData.connectedSupervisorEmail || '',
+        connectedParentEmails: formData.connectedParentEmails || [],
+        connectedTherapistEmails: formData.connectedTherapistEmails || [],
+        connectedSchoolConsultantEmails: formData.connectedSchoolConsultantEmails || [],
+        connectedSupervisorEmails: formData.connectedSupervisorEmails || [],
       };
     } else {
       return {
@@ -76,59 +84,40 @@ export function StepRoleSelection({ dictionary, formData, updateFormData, onVali
       };
     }
   }, [isYouth, 
-      // These dependencies ensure defaultValues change only when isYouth changes,
-      // or when these specific fields are initially different in formData.
-      // This makes defaultValues more stable against echoes from this form's own updates.
-      formData.connectedParentEmail, formData.connectedTherapistEmail, formData.connectedSchoolConsultantEmail, formData.connectedSupervisorEmail,
+      formData.connectedParentEmails, formData.connectedTherapistEmails, formData.connectedSchoolConsultantEmails, formData.connectedSupervisorEmails,
       JSON.stringify(formData.adultRolesSelected), formData.clinicCode, formData.schoolCode
     ]);
 
 
   const form = useForm<z.infer<typeof currentSchema>>({
     resolver: zodResolver(currentSchema),
-    defaultValues: defaultValuesForForm,
+    defaultValues: defaultValuesForForm as any, // Cast as any to handle schema switch
     mode: 'onChange',
   });
+  
+  // Setup field arrays for youth connections
+  const parentEmailsFieldArray = useFieldArray({ control: form.control, name: "connectedParentEmails" as any });
+  const therapistEmailsFieldArray = useFieldArray({ control: form.control, name: "connectedTherapistEmails" as any });
+  const schoolConsultantEmailsFieldArray = useFieldArray({ control: form.control, name: "connectedSchoolConsultantEmails" as any });
+  const supervisorEmailsFieldArray = useFieldArray({ control: form.control, name: "connectedSupervisorEmails" as any });
 
-  // Effect to synchronize incoming formData prop changes to the form's state
+  const youthConnectionFieldArrays = {
+    parent: parentEmailsFieldArray,
+    therapist: therapistEmailsFieldArray,
+    school_consultant: schoolConsultantEmailsFieldArray,
+    supervisor: supervisorEmailsFieldArray,
+  };
+
+
   useEffect(() => {
     if (isYouth === null || isYouth === undefined) return;
-
-    if (isYouth) {
-        if (formData.connectedParentEmail !== form.getValues('connectedParentEmail')) {
-            form.setValue('connectedParentEmail', formData.connectedParentEmail || '', { shouldValidate: true });
-        }
-        if (formData.connectedTherapistEmail !== form.getValues('connectedTherapistEmail')) {
-            form.setValue('connectedTherapistEmail', formData.connectedTherapistEmail || '', { shouldValidate: true });
-        }
-        if (formData.connectedSchoolConsultantEmail !== form.getValues('connectedSchoolConsultantEmail')) {
-            form.setValue('connectedSchoolConsultantEmail', formData.connectedSchoolConsultantEmail || '', { shouldValidate: true });
-        }
-        if (formData.connectedSupervisorEmail !== form.getValues('connectedSupervisorEmail')) {
-            form.setValue('connectedSupervisorEmail', formData.connectedSupervisorEmail || '', { shouldValidate: true });
-        }
-    } else {
-        const currentFormAdultRoles = form.getValues('adultRolesSelected');
-        const propAdultRoles = formData.adultRolesSelected || { parent: false, therapist: false, school_consultant: false, supervisor: false };
-        if (JSON.stringify(propAdultRoles) !== JSON.stringify(currentFormAdultRoles)) {
-            form.setValue('adultRolesSelected', propAdultRoles, { shouldValidate: true });
-        }
-        if (formData.clinicCode !== form.getValues('clinicCode')) {
-            form.setValue('clinicCode', formData.clinicCode || '', { shouldValidate: true });
-        }
-        if (formData.schoolCode !== form.getValues('schoolCode')) {
-            form.setValue('schoolCode', formData.schoolCode || '', { shouldValidate: true });
-        }
-    }
-  }, [
-      formData.adultRolesSelected, formData.clinicCode, formData.schoolCode,
-      formData.connectedParentEmail, formData.connectedTherapistEmail,
-      formData.connectedSchoolConsultantEmail, formData.connectedSupervisorEmail,
-      isYouth, form // form object includes setValue and getValues
-    ]);
+    form.reset(defaultValuesForForm as any, { keepValues: false }); // Reset form with new defaults when isYouth changes
+    const timer = setTimeout(() => form.trigger(), 0); // Re-validate after reset
+    return () => clearTimeout(timer);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isYouth, form.reset, form.trigger]); // defaultValuesForForm will be stable due to its own useMemo
 
 
-  // Effect for watching form changes to update parent formData
   useEffect(() => {
     const subscription = form.watch((value) => {
       updateFormData(value as Partial<SignupFormData>);
@@ -136,33 +125,24 @@ export function StepRoleSelection({ dictionary, formData, updateFormData, onVali
     return () => subscription.unsubscribe();
   }, [form, updateFormData]);
 
-  // Effect for propagating form validity to the parent
   useEffect(() => {
     onValidation(form.formState.isValid);
   }, [form.formState.isValid, onValidation]);
 
-  // Effect to trigger validation upon form instance change (due to key prop related to isYouth)
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      form.trigger();
-    }, 0);
-    return () => clearTimeout(timer);
-  }, [form]);
 
+  const adultRolesDisplay = [
+    { id: 'parent' as AdultRoleKey, label: dictionary.roles.parent },
+    { id: 'therapist' as AdultRoleKey, label: dictionary.roles.therapist },
+    { id: 'school_consultant' as AdultRoleKey, label: dictionary.roles.schoolConsultant },
+    { id: 'supervisor' as AdultRoleKey, label: dictionary.roles.supervisor },
+  ];
 
-  const adultRoles = [
-    { id: 'parent', label: dictionary.roles.parent },
-    { id: 'therapist', label: dictionary.roles.therapist },
-    { id: 'school_consultant', label: dictionary.roles.schoolConsultant },
-    { id: 'supervisor', label: dictionary.roles.supervisor },
-  ] as const;
-
-  const youthConnectionFields = [
-    { name: 'connectedParentEmail', label: dictionary.youthConnections.parentEmailLabel, placeholder: dictionary.youthConnections.emailPlaceholder },
-    { name: 'connectedTherapistEmail', label: dictionary.youthConnections.therapistEmailLabel, placeholder: dictionary.youthConnections.emailPlaceholder },
-    { name: 'connectedSchoolConsultantEmail', label: dictionary.youthConnections.schoolConsultantEmailLabel, placeholder: dictionary.youthConnections.emailPlaceholder },
-    { name: 'connectedSupervisorEmail', label: dictionary.youthConnections.supervisorEmailLabel, placeholder: dictionary.youthConnections.emailPlaceholder },
-  ] as const;
+  const youthConnectionRoleDetails: { key: YouthConnectionRoleKey; label: string; fieldArrayHelper: typeof parentEmailsFieldArray }[] = [
+    { key: 'parent', label: dictionary.roles.parent, fieldArrayHelper: youthConnectionFieldArrays.parent },
+    { key: 'therapist', label: dictionary.roles.therapist, fieldArrayHelper: youthConnectionFieldArrays.therapist },
+    { key: 'school_consultant', label: dictionary.roles.schoolConsultant, fieldArrayHelper: youthConnectionFieldArrays.school_consultant },
+    { key: 'supervisor', label: dictionary.roles.supervisor, fieldArrayHelper: youthConnectionFieldArrays.supervisor },
+  ];
 
 
   if (isYouth === null || isYouth === undefined) {
@@ -188,28 +168,65 @@ export function StepRoleSelection({ dictionary, formData, updateFormData, onVali
               {isYouth ? (
                 <>
                   <p className="text-center font-semibold">{dictionary.youthRoleDisplayLabel}: {dictionary.roles.youth}</p>
-                  {youthConnectionFields.map(fieldInfo => (
-                    <FormField
-                      key={fieldInfo.name}
-                      control={form.control}
-                      name={fieldInfo.name as any}
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>{fieldInfo.label}</FormLabel>
-                          <FormControl>
-                            <Input type="email" placeholder={fieldInfo.placeholder} {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
+                  <p className="text-sm text-muted-foreground text-center">{dictionary.youthConnections.description}</p>
+                  
+                  {youthConnectionRoleDetails.map(({ key, label, fieldArrayHelper }) => (
+                    <div key={key} className="space-y-3 p-3 border rounded-md">
+                      <div className="flex justify-between items-center">
+                        <h3 className="text-md font-semibold">
+                          {dictionary.youthConnections.connectWithRoleLabel.replace('{roleName}', label)}
+                        </h3>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => fieldArrayHelper.append('')}
+                          aria-label={dictionary.youthConnections.addConnectionButtonLabel.replace('{roleName}', label)}
+                        >
+                          <PlusCircle className="h-5 w-5 text-primary" />
+                        </Button>
+                      </div>
+                      {fieldArrayHelper.fields.map((field, index) => (
+                        <FormField
+                          key={field.id}
+                          control={form.control}
+                          name={`connected${key.charAt(0).toUpperCase() + key.slice(1).replace('_c','C')}Emails.${index}` as any}
+                          render={({ field: formField }) => (
+                            <FormItem>
+                              <div className="flex items-center gap-2">
+                                <FormControl>
+                                  <Input 
+                                    type="email" 
+                                    placeholder={dictionary.youthConnections.emailPlaceholder} 
+                                    {...formField} 
+                                  />
+                                </FormControl>
+                                <Button
+                                  type="button"
+                                  variant="ghost"
+                                  size="icon"
+                                  onClick={() => fieldArrayHelper.remove(index)}
+                                  aria-label={dictionary.youthConnections.removeConnectionButtonLabel}
+                                >
+                                  <Trash2 className="h-4 w-4 text-destructive" />
+                                </Button>
+                              </div>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      ))}
+                      {fieldArrayHelper.fields.length === 0 && (
+                        <p className="text-xs text-muted-foreground text-center py-2">{lang === 'fa' ? 'ایمیلی اضافه نشده است.' : 'No emails added yet.'}</p>
                       )}
-                    />
+                    </div>
                   ))}
                 </>
               ) : (
                 <FormItem className="space-y-3">
                   <FormLabel>{dictionary.selectRolesLabel}</FormLabel>
                   <div className="space-y-2">
-                    {adultRoles.map((role) => (
+                    {adultRolesDisplay.map((role) => (
                       <FormField
                         key={role.id}
                         control={form.control}

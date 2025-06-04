@@ -97,7 +97,7 @@
       "marketingConsentLink": "View Marketing Data Details",
       "infoNoteLine1": "You can revoke your consent at any time for the future.",
       "infoNoteLine2": "Please note: If you withdraw your consent for the processing of personal and health data for use in the app, you will no longer have access to Hami.",
-      "infoNoteLine3": "To withdraw this consent, use the delete account option in Profile > Data & Security, or email support.",
+      "infoNoteLine3": "To withdraw this consent, use the delete account option in Profile > Data & Security, or email support@hami.example.com.",
       "dialogClose": "Close"
     },
     "stepUserInfo": {
@@ -148,7 +148,7 @@
     "stepRoleSelection": {
       "title": "Your Role",
       "descriptionAdult": "Please select the role(s) that best describe you. You can select multiple or none.",
-      "descriptionYouth": "We'll help you connect with trusted adults if you wish.",
+      "descriptionYouth": "If you wish, we can help you connect with trusted adults. You can add one or more contacts for each role.",
       "loadingRoleInfo": "Determining your pathway...",
       "selectRolesLabel": "Select your role(s):",
       "roles": {
@@ -165,13 +165,11 @@
       "youthRoleDisplayLabel": "Your Role",
       "youthConnections": {
         "title": "Connect with Support (Optional)",
-        "description": "Enter the email addresses of adults you'd like to connect with.",
-        "parentEmailLabel": "Parent/Caregiver Email",
-        "therapistEmailLabel": "Therapist Email",
-        "schoolConsultantEmailLabel": "School Consultant Email",
-        "supervisorEmailLabel": "Supervisor Email",
-        "emailPlaceholder": "Enter email address",
-        "addEmailButton": "Add Email"
+        "description": "For each role, you can add one or more email addresses to connect.",
+        "connectWithRoleLabel": "Connect with {roleName}",
+        "addConnectionButtonLabel": "Add email for {roleName}",
+        "removeConnectionButtonLabel": "Remove email",
+        "emailPlaceholder": "Enter email address"
       },
       "errors": {
         "roleRequired": "Please select a role.",

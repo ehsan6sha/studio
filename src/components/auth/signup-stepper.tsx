@@ -18,7 +18,7 @@ import { useToast } from '@/hooks/use-toast';
 import { parse as parseGregorianOriginal } from 'date-fns';
 
 
-const TOTAL_STEPS = 5; // Changed from 6 to 5
+const TOTAL_STEPS = 5; 
 
 export interface SignupFormData {
   acceptedMandatoryTerms?: boolean;
@@ -38,10 +38,11 @@ export interface SignupFormData {
   };
   clinicCode?: string;
   schoolCode?: string;
-  connectedParentEmail?: string;
-  connectedTherapistEmail?: string;
-  connectedSchoolConsultantEmail?: string;
-  connectedSupervisorEmail?: string;
+  // Changed to arrays for multiple emails per role
+  connectedParentEmails?: string[];
+  connectedTherapistEmails?: string[];
+  connectedSchoolConsultantEmails?: string[];
+  connectedSupervisorEmails?: string[];
 }
 
 interface SignupStepperProps {
@@ -70,7 +71,14 @@ export function SignupStepper({
   const { toast } = useToast();
 
   const [currentStep, setCurrentStep] = useState(initialStep < 1 || initialStep > TOTAL_STEPS ? 1 : initialStep);
-  const [formData, setFormData] = useState<SignupFormData>({isYouth: null, adultRolesSelected: {}});
+  const [formData, setFormData] = useState<SignupFormData>({
+    isYouth: null, 
+    adultRolesSelected: {},
+    connectedParentEmails: [],
+    connectedTherapistEmails: [],
+    connectedSchoolConsultantEmails: [],
+    connectedSupervisorEmails: [],
+  });
   const [isLoaded, setIsLoaded] = useState(false);
   const [direction, setDirection] = useState(1);
   const [isStepValid, setIsStepValid] = useState(false);
@@ -78,7 +86,6 @@ export function SignupStepper({
   const calculateAge = useCallback((dobString?: string): number | null => {
     if (!dobString) return null;
     try {
-      // DOB is stored as YYYY-MM-DD (Gregorian)
       const birthDate = parseGregorianOriginal(dobString, 'yyyy-MM-dd', new Date());
       if (isNaN(birthDate.getTime())) return null;
 
@@ -101,6 +108,11 @@ export function SignupStepper({
       if (!parsedData.adultRolesSelected) {
         parsedData.adultRolesSelected = {};
       }
+      // Ensure email arrays are initialized if not present in stored data
+      parsedData.connectedParentEmails = parsedData.connectedParentEmails || [];
+      parsedData.connectedTherapistEmails = parsedData.connectedTherapistEmails || [];
+      parsedData.connectedSchoolConsultantEmails = parsedData.connectedSchoolConsultantEmails || [];
+      parsedData.connectedSupervisorEmails = parsedData.connectedSupervisorEmails || [];
       setFormData(parsedData);
     }
     const stepFromQuery = searchParams.get('step');
@@ -125,18 +137,16 @@ export function SignupStepper({
   useEffect(() => {
     if (!isLoaded) return;
 
-    if (currentStep === 1) { // Information
+    if (currentStep === 1) { 
       setIsStepValid(true);
-    } else if (currentStep === 2) { // Terms
+    } else if (currentStep === 2) { 
       setIsStepValid(!!formData.acceptedMandatoryTerms);
-    } else if (currentStep === 3) { // UserInfo
+    } else if (currentStep === 3) { 
       // Validation handled by StepUserInfo via onValidation
-    } else if (currentStep === 4) { // Verification
+    } else if (currentStep === 4) { 
       setIsStepValid(!!formData.verificationCode && formData.verificationCode.length === 5);
-    } else if (currentStep === 5) { // RoleSelection (new Step 5)
+    } else if (currentStep === 5) { 
       // Validation handled by StepRoleSelection via onValidation
-      // isStepValid will be false initially when navigating to this step,
-      // then updated by StepRoleSelection's onValidation callback.
     }
   }, [currentStep, formData, isLoaded]);
 
@@ -150,25 +160,24 @@ export function SignupStepper({
     }
 
     let nextStepNumber = currentStep + 1;
-    let newFormData = { ...formData }; // Operate on a copy
+    let newFormData = { ...formData }; 
 
-    if (currentStep === 4) { // Transitioning from Verification (Step 4) to RoleSelection (new Step 5)
+    if (currentStep === 4) { 
       const age = calculateAge(formData.dob);
       const isUserYouth = age !== null && age < 18;
       newFormData = { ...newFormData, isYouth: isUserYouth };
-      setFormData(newFormData); // Update state with isYouth before proceeding
+      setFormData(newFormData); 
     }
 
     setDirection(1);
-    if (currentStep < TOTAL_STEPS) { // TOTAL_STEPS is now 5
+    if (currentStep < TOTAL_STEPS) { 
       setCurrentStep(nextStepNumber);
       updateUrl(nextStepNumber);
-      setIsStepValid(false); // Reset validity for the new step
-    } else { // currentStep === TOTAL_STEPS (i.e., finishing RoleSelection, which is the last step)
+      setIsStepValid(false); 
+    } else { 
       console.log('Finalizing registration:', newFormData);
       toast({ title: dictionary.registrationCompleteTitle, description: dictionary.registrationCompleteMessage });
       localStorage.removeItem('signupFormData');
-      // Ensure `name` and `emailOrPhone` are present in newFormData if auth.signup expects them
       auth.signup({ name: newFormData.name, emailOrPhone: newFormData.emailOrPhone }, lang);
     }
   }, [currentStep, formData, dictionary, lang, isStepValid, toast, auth, updateUrl, calculateAge, TOTAL_STEPS]);
@@ -179,7 +188,7 @@ export function SignupStepper({
       const prevStep = currentStep - 1;
       setCurrentStep(prevStep);
       updateUrl(prevStep);
-      setIsStepValid(true); // Assume previous step was valid to allow navigation
+      setIsStepValid(true); 
     }
   };
 
@@ -270,11 +279,10 @@ export function SignupStepper({
                     lang={lang}
                 />
             )}
-            {/* Step 5 (AgeInfo) removed */}
-            {currentStep === 5 && ( // This is now StepRoleSelection
+            {currentStep === 5 && ( 
               <StepRoleSelection
                 dictionary={dictionary.stepRoleSelection}
-                formData={formData} // This should now include isYouth correctly set
+                formData={formData} 
                 updateFormData={updateFormDataAndValidate}
                 onValidation={handleStepValidation}
                 lang={lang}
@@ -298,5 +306,3 @@ export function SignupStepper({
     </div>
   );
 }
-
-    
