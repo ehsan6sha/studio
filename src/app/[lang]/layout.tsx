@@ -53,7 +53,7 @@ export default function LocaleLayout({
   const pageVariants = {
     initial: {
       opacity: 0,
-      x: lang === 'fa' ? '-100vw' : '100vw',
+      x: lang === 'fa' ? -50 : 50, // Gentler slide using pixel values
     },
     in: {
       opacity: 1,
@@ -61,14 +61,14 @@ export default function LocaleLayout({
     },
     out: {
       opacity: 0,
-      x: lang === 'fa' ? '100vw' : '-100vw',
+      x: lang === 'fa' ? 50 : -50, // Opposite direction for exit
     },
   };
 
   const pageTransition = {
     type: 'tween',
-    ease: 'anticipate',
-    duration: 0.4,
+    ease: 'easeInOut', // Smoother easing
+    duration: 0.3,    // Slightly adjusted duration
   };
 
   const displayYear = currentYear !== null ? currentYear : ""; 
