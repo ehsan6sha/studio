@@ -11,14 +11,14 @@ import {
   FormControl,
   FormField,
   FormItem,
-  FormLabel,
   FormMessage,
 } from '@/components/ui/form';
+import { Label } from '@/components/ui/label'; // Changed from FormLabel to Label for general use
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose } from "@/components/ui/dialog"; // Removed DialogDescription as it wasn't used
 import type { SignupFormData, YouthConnection } from '../signup-stepper';
 import type { Locale } from '@/i18n-config';
 import { PlusCircle, Trash2 } from 'lucide-react';
@@ -68,7 +68,7 @@ const youthConnectionDialogSchema = z.object({
     syncedInformation: z.boolean().optional(),
   }).refine(data => Object.values(data).some(value => value === true), {
     message: "Select at least one permission.", // Placeholder
-    path: ['basicInformation'], // Assign error to a specific field or a general one
+    path: ['basicInformation'], 
   }),
 });
 type YouthConnectionDialogData = z.infer<typeof youthConnectionDialogSchema>;
@@ -122,14 +122,12 @@ export function StepRoleSelection({ dictionary, formData, updateFormData, onVali
 
   useEffect(() => {
     if (isYouth) {
-      onValidation(true); // Youth path is valid by default, sharing is optional
+      onValidation(true); 
     } else {
-      // For adults, validation depends on the adultForm
-      const subscription = adultForm.watch((value, { name, type }) => {
+      const subscription = adultForm.watch((value) => {
         updateFormData(value as Partial<SignupFormData>);
         onValidation(adultForm.formState.isValid);
       });
-      // Initial validation check for adult form
       onValidation(adultForm.formState.isValid);
       return () => subscription.unsubscribe();
     }
@@ -153,7 +151,7 @@ export function StepRoleSelection({ dictionary, formData, updateFormData, onVali
 
   const handleAddConnection = (data: YouthConnectionDialogData) => {
     const newConnection: YouthConnection = {
-      id: Date.now().toString(), // Simple unique ID
+      id: Date.now().toString(), 
       contact: data.contact,
       permissions: data.permissions,
     };
@@ -200,7 +198,7 @@ export function StepRoleSelection({ dictionary, formData, updateFormData, onVali
             // Youth Path UI
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <FormLabel>{dictionary.youthConnections.shareWithLabel}</FormLabel>
+                <Label className="text-sm font-medium">{dictionary.youthConnections.shareWithLabel}</Label>
                 <Button variant="outline" size="icon" onClick={() => setIsShareDialogVisible(true)} aria-label={dictionary.youthConnections.addConnectionButton}>
                   <PlusCircle className="h-5 w-5" />
                 </Button>
@@ -246,7 +244,7 @@ export function StepRoleSelection({ dictionary, formData, updateFormData, onVali
                         name="contact"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>{dictionary.youthConnections.contactLabel}</FormLabel>
+                            <Label htmlFor={field.name}>{dictionary.youthConnections.contactLabel}</Label>
                             <FormControl>
                               <Input placeholder={dictionary.youthConnections.contactPlaceholder} {...field} />
                             </FormControl>
@@ -255,7 +253,7 @@ export function StepRoleSelection({ dictionary, formData, updateFormData, onVali
                         )}
                       />
                       <FormItem>
-                        <FormLabel>{dictionary.youthConnections.permissionsLabel}</FormLabel>
+                        <Label>{dictionary.youthConnections.permissionsLabel}</Label>
                         <ScrollArea className="h-[180px] pr-3 border rounded-md p-2 mt-1">
                         <div className="space-y-2">
                           {permissionItems.map(item => (
@@ -269,11 +267,12 @@ export function StepRoleSelection({ dictionary, formData, updateFormData, onVali
                                     <Checkbox
                                       checked={field.value}
                                       onCheckedChange={field.onChange}
+                                      id={`perm-${item.id}`}
                                     />
                                   </FormControl>
-                                  <FormLabel className="font-normal text-sm">
+                                  <Label htmlFor={`perm-${item.id}`} className="font-normal text-sm">
                                     {item.label}
-                                  </FormLabel>
+                                  </Label>
                                 </FormItem>
                               )}
                             />
@@ -303,7 +302,7 @@ export function StepRoleSelection({ dictionary, formData, updateFormData, onVali
             <Form {...adultForm}>
               <form onSubmit={(e) => e.preventDefault()} className="space-y-6">
                 <FormItem className="space-y-3">
-                  <FormLabel>{dictionary.selectRolesLabel}</FormLabel>
+                  <Label>{dictionary.selectRolesLabel}</Label>
                   <div className="space-y-2">
                     {adultRolesDisplay.map((role) => (
                       <FormField
@@ -316,11 +315,12 @@ export function StepRoleSelection({ dictionary, formData, updateFormData, onVali
                               <Checkbox
                                 checked={!!field.value}
                                 onCheckedChange={field.onChange}
+                                id={`role-${role.id}`}
                               />
                             </FormControl>
-                            <FormLabel className="font-normal">
+                            <Label htmlFor={`role-${role.id}`} className="font-normal">
                               {role.label}
-                            </FormLabel>
+                            </Label>
                           </FormItem>
                         )}
                       />
@@ -335,7 +335,7 @@ export function StepRoleSelection({ dictionary, formData, updateFormData, onVali
                     name="clinicCode"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>{dictionary.clinicCodeLabel}</FormLabel>
+                        <Label htmlFor={field.name}>{dictionary.clinicCodeLabel}</Label>
                         <FormControl>
                           <Input placeholder={dictionary.clinicCodePlaceholder} {...field} />
                         </FormControl>
@@ -351,7 +351,7 @@ export function StepRoleSelection({ dictionary, formData, updateFormData, onVali
                     name="schoolCode"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>{dictionary.schoolCodeLabel}</FormLabel>
+                        <Label htmlFor={field.name}>{dictionary.schoolCodeLabel}</Label>
                         <FormControl>
                           <Input placeholder={dictionary.schoolCodePlaceholder} {...field} />
                         </FormControl>
@@ -368,3 +368,5 @@ export function StepRoleSelection({ dictionary, formData, updateFormData, onVali
     </div>
   );
 }
+
+    
