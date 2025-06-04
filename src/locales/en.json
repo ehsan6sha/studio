@@ -111,6 +111,8 @@
       "dobPlaceholder": "Select your date of birth",
       "passwordLabel": "Password",
       "confirmPasswordLabel": "Confirm Password",
+      "showPassword": "Show password",
+      "hidePassword": "Hide password",
       "errors": {
         "nameRequired": "Full name is required.",
         "emailOrPhoneRequired": "Email or phone number is required.",
@@ -126,6 +128,7 @@
       "title": "Account Verification",
       "descriptionEmail": "A verification code has been sent to {emailOrPhone}. Please enter it below.",
       "descriptionPhone": "A verification code has been sent to {emailOrPhone}. Please enter it below.",
+      "descriptionGeneric": "Please enter the verification code.",
       "pasteButton": "Paste Code",
       "openEmailButton": "Open {domain}",
       "didNotReceiveCode": "Didn't receive the code?",
@@ -136,7 +139,9 @@
         "pastedTitle": "Code Pasted",
         "pasteErrorTitle": "Paste Error",
         "pasteErrorInvalid": "Pasted text is not a valid OTP code.",
-        "pasteErrorFailed": "Could not read from clipboard. Please type the code manually."
+        "pasteErrorFailed": "Could not read from clipboard. Please type the code manually.",
+        "pasteIncompleteTitle": "Incomplete Code",
+        "pasteIncompleteDescription": "Pasted {count} digits. Please complete the 5-digit code."
       }
     },
     "appTermsContent": {

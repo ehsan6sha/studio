@@ -1,7 +1,7 @@
 
 'use client';
 
-import * as React from 'react'; // Added this line
+import * as React from 'react';
 import { useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
@@ -10,7 +10,6 @@ import { Button } from '@/components/ui/button';
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -41,7 +40,7 @@ export function StepUserInfo({ dictionary, formData, updateFormData, onValidatio
   const UserInfoSchema = z.object({
     name: z.string().min(1, { message: dictionary.errors.nameRequired }),
     emailOrPhone: z.string().min(1, { message: dictionary.errors.emailOrPhoneRequired })
-      .refine(value => /^(?:\S+@\S+\.\S+)|(?:\+?[0-9\s-]{7,15})$/.test(value), { // Basic email or phone regex
+      .refine(value => /^(?:\S+@\S+\.\S+)|(?:\+?[0-9\s-]{7,15})$/.test(value), { 
         message: dictionary.errors.invalidEmailOrPhone,
       }),
     dob: z.date({
@@ -62,41 +61,54 @@ export function StepUserInfo({ dictionary, formData, updateFormData, onValidatio
 
   const form = useForm<z.infer<typeof UserInfoSchema>>({
     resolver: zodResolver(UserInfoSchema),
-    defaultValues: {
+    defaultValues: { // defaultValues are now set via form.reset in useEffect
+      name: '',
+      emailOrPhone: '',
+      dob: undefined,
+      password: '',
+      confirmPassword: '',
+    },
+    mode: 'onChange', 
+  });
+
+  React.useEffect(() => {
+    // Reset form with current formData from parent (e.g., when navigating back)
+    form.reset({
       name: formData.name || '',
       emailOrPhone: formData.emailOrPhone || '',
       dob: formData.dob ? new Date(formData.dob) : undefined,
       password: formData.password || '',
-      confirmPassword: formData.password || '', // prefill confirm with password
-    },
-    mode: 'onChange', // Validate on change to update button state
-  });
+      confirmPassword: formData.password || '', 
+    });
 
-  React.useEffect(() => {
-    const subscription = form.watch((value, { name, type }) => {
-      if (type === 'change') {
-        updateFormData(value as Partial<SignupFormData>);
-      }
+    // After reset, the form's state (including isValid) will be re-evaluated.
+    // Report this initial (post-reset) validity.
+    // Using setTimeout to ensure this runs after the current execution context,
+    // allowing form state to fully settle.
+    const timerId = setTimeout(() => {
+      onValidation(form.formState.isValid);
+    }, 0);
+
+    // Watch for subsequent changes and report validation
+    const subscription = form.watch((values) => {
+      // Update parent's formData on field change
+      // The `values` object here is the entire form data
+      const { name, emailOrPhone, dob, password } = values;
+      updateFormData({
+        name,
+        emailOrPhone,
+        dob: dob ? dob.toISOString().split('T')[0] : undefined,
+        password,
+        // confirmPassword is not stored in the central formData
+      });
       onValidation(form.formState.isValid);
     });
-    // Initial validation check
-    onValidation(form.formState.isValid);
-    return () => subscription.unsubscribe();
-  }, [form, updateFormData, onValidation]);
-  
-  React.useEffect(() => {
-    // Set initial values from formData if they exist
-    // This ensures that if a user navigates back, their data is pre-filled
-    form.reset({
-        name: formData.name || '',
-        emailOrPhone: formData.emailOrPhone || '',
-        dob: formData.dob ? new Date(formData.dob) : undefined,
-        password: formData.password || '',
-        confirmPassword: formData.password || '', // Re-check if pre-filling confirmPassword makes sense here
-    });
-    // Manually trigger validation after reset if needed, or rely on mode: 'onChange'
-    form.trigger(); 
-  }, [formData, form.reset, form.trigger]);
+
+    return () => {
+      clearTimeout(timerId);
+      subscription.unsubscribe();
+    };
+  }, [form, formData, onValidation, updateFormData]);
 
 
   return (
@@ -112,33 +124,33 @@ export function StepUserInfo({ dictionary, formData, updateFormData, onValidatio
               <FormField
                 control={form.control}
                 name="name"
-                render={({ field }) => (
+                render={({ field, fieldState }) => (
                   <FormItem>
                     <FormLabel>{dictionary.nameLabel}</FormLabel>
                     <FormControl>
                       <Input placeholder={dictionary.namePlaceholder} {...field} />
                     </FormControl>
-                    <FormMessage />
+                    {fieldState.isTouched && <FormMessage />}
                   </FormItem>
                 )}
               />
               <FormField
                 control={form.control}
                 name="emailOrPhone"
-                render={({ field }) => (
+                render={({ field, fieldState }) => (
                   <FormItem>
                     <FormLabel>{dictionary.emailOrPhoneLabel}</FormLabel>
                     <FormControl>
                       <Input placeholder={dictionary.emailOrPhonePlaceholder} {...field} />
                     </FormControl>
-                    <FormMessage />
+                    {fieldState.isTouched && <FormMessage />}
                   </FormItem>
                 )}
               />
               <FormField
                 control={form.control}
                 name="dob"
-                render={({ field }) => (
+                render={({ field, fieldState }) => (
                   <FormItem className="flex flex-col">
                     <FormLabel>{dictionary.dobLabel}</FormLabel>
                     <Popover>
@@ -166,7 +178,7 @@ export function StepUserInfo({ dictionary, formData, updateFormData, onValidatio
                           selected={field.value}
                           onSelect={(date) => {
                             field.onChange(date);
-                            if (date) updateFormData({ dob: date.toISOString().split('T')[0] });
+                            // updateFormData is now handled by form.watch
                           }}
                           disabled={(date) =>
                             date > new Date() || date < new Date("1900-01-01")
@@ -178,14 +190,14 @@ export function StepUserInfo({ dictionary, formData, updateFormData, onValidatio
                         />
                       </PopoverContent>
                     </Popover>
-                    <FormMessage />
+                    {fieldState.isTouched && <FormMessage />}
                   </FormItem>
                 )}
               />
               <FormField
                 control={form.control}
                 name="password"
-                render={({ field }) => (
+                render={({ field, fieldState }) => (
                   <FormItem>
                     <FormLabel>{dictionary.passwordLabel}</FormLabel>
                     <FormControl>
@@ -195,21 +207,22 @@ export function StepUserInfo({ dictionary, formData, updateFormData, onValidatio
                           type="button"
                           variant="ghost"
                           size="icon"
-                          className="absolute right-1 top-1/2 h-7 w-7 -translate-y-1/2"
+                          className="absolute right-1 top-1/2 h-7 w-7 -translate-y-1/2 rtl:right-auto rtl:left-1"
                           onClick={() => setShowPassword(!showPassword)}
+                          aria-label={showPassword ? dictionary.hidePassword : dictionary.showPassword}
                         >
                           {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                         </Button>
                       </div>
                     </FormControl>
-                    <FormMessage />
+                    {fieldState.isTouched && <FormMessage />}
                   </FormItem>
                 )}
               />
               <FormField
                 control={form.control}
                 name="confirmPassword"
-                render={({ field }) => (
+                render={({ field, fieldState }) => (
                   <FormItem>
                     <FormLabel>{dictionary.confirmPasswordLabel}</FormLabel>
                     <FormControl>
@@ -219,14 +232,15 @@ export function StepUserInfo({ dictionary, formData, updateFormData, onValidatio
                           type="button"
                           variant="ghost"
                           size="icon"
-                          className="absolute right-1 top-1/2 h-7 w-7 -translate-y-1/2"
+                          className="absolute right-1 top-1/2 h-7 w-7 -translate-y-1/2 rtl:right-auto rtl:left-1"
                           onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                          aria-label={showConfirmPassword ? dictionary.hidePassword : dictionary.showPassword}
                         >
                           {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                         </Button>
                       </div>
                     </FormControl>
-                    <FormMessage />
+                    {fieldState.isTouched && <FormMessage />}
                   </FormItem>
                 )}
               />
