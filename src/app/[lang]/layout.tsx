@@ -9,7 +9,7 @@ import { DynamicHtmlAttributes } from '@/components/layout/dynamic-html-attribut
 import { i18n } from '@/i18n-config';
 import { motion, AnimatePresence } from 'framer-motion';
 import { usePathname, useParams } from 'next/navigation';
-import React, { useEffect, useState } from 'react'; // Import React
+import React, { useEffect, useState, useRef } from 'react'; // Import React and useRef
 import { AuthProvider } from '@/context/auth-context';
 
 export default function LocaleLayout({
@@ -18,7 +18,6 @@ export default function LocaleLayout({
   children: ReactNode;
 }) {
   const params = useParams();
-  // Ensure lang is correctly determined, falling back to defaultLocale if necessary
   let lang: Locale = i18n.defaultLocale;
   const langFromParams = Array.isArray(params.lang) ? params.lang[0] : params.lang;
   if (langFromParams && i18n.locales.includes(langFromParams as Locale)) {
@@ -26,6 +25,8 @@ export default function LocaleLayout({
   }
 
   const pathname = usePathname();
+  const previousPathnameRef = useRef<string | null>(null);
+
   const [dictionary, setDictionary] = useState<any>(null);
   const [currentYear, setCurrentYear] = useState<number | null>(null);
 
@@ -47,41 +48,79 @@ export default function LocaleLayout({
       document.body.classList.add('font-body');
       document.body.classList.remove('font-vazir');
     }
-    // Cleanup function to remove classes when component unmounts or lang changes
     return () => {
       document.body.classList.remove('font-vazir');
       document.body.classList.remove('font-body');
     };
   }, [lang]);
 
-  const pageVariants = React.useMemo(() => ({ // Memoize pageVariants
-    initial: {
-      opacity: 0,
-      x: lang === 'fa' ? -50 : 50,
-    },
-    in: {
-      opacity: 1,
-      x: 0,
-    },
-    out: {
-      opacity: 0,
-      x: lang === 'fa' ? 50 : -50,
-    },
-  }), [lang]);
+  useEffect(() => {
+    previousPathnameRef.current = pathname;
+  }, [pathname]);
 
-  const pageTransition = React.useMemo(() => ({ // Memoize pageTransition
-    type: 'tween',
-    ease: 'easeInOut',
-    duration: 0.3,
-  }), []);
+  const minimalTransitionRoutes = React.useMemo(() => [
+    `/${lang}`,
+    `/${lang}/login`,
+    `/${lang}/signup`,
+  ], [lang]);
+
+  const isTransitionBetweenMinimalRoutes = () => {
+    const fromPath = previousPathnameRef.current;
+    const toPath = pathname;
+
+    if (!fromPath) return false; // Initial load or no previous path recorded
+
+    const isFromMinimal = minimalTransitionRoutes.includes(fromPath);
+    const isToMinimal = minimalTransitionRoutes.includes(toPath);
+    
+    // Only consider it a "minimal transition" if both from and to are in the set
+    return isFromMinimal && isToMinimal;
+  };
+  
+  const currentTransitionIsMinimal = isTransitionBetweenMinimalRoutes();
+
+  const pageVariants = React.useMemo(() => {
+    if (currentTransitionIsMinimal) {
+      return { // Variants for an instant (no-animation) transition
+        initial: { opacity: 1, x: 0 },
+        in: { opacity: 1, x: 0 },
+        out: { opacity: 1, x: 0 },
+      };
+    }
+    // Standard animation variants for other routes
+    return {
+      initial: {
+        opacity: 0,
+        x: lang === 'fa' ? -50 : 50,
+      },
+      in: {
+        opacity: 1,
+        x: 0,
+      },
+      out: {
+        opacity: 0,
+        x: lang === 'fa' ? 50 : -50,
+      },
+    };
+  }, [lang, currentTransitionIsMinimal]);
+
+  const pageTransition = React.useMemo(() => {
+    if (currentTransitionIsMinimal) {
+      return { duration: 0 }; // Instant transition
+    }
+    return {
+      type: 'tween',
+      ease: 'easeInOut',
+      duration: 0.3,
+    };
+  }, [currentTransitionIsMinimal]);
 
   const displayYear = currentYear !== null ? currentYear : "";
   const appNameFromDict = dictionary?.appName;
   const navigationDict = dictionary?.navigation;
 
-  // Default footer text if dictionary is not loaded
   const defaultFooterText = lang === 'fa' ? 'تمامی حقوق محفوظ است.' : 'All rights reserved.';
-  const footerRightsText = dictionary?.termsPage?.contactInformation // Example, adjust path if needed
+  const footerRightsText = dictionary?.termsPage?.contactInformation
     ? (lang === 'fa' ? 'تمامی حقوق محفوظ است.' : 'All rights reserved.')
     : defaultFooterText;
 
@@ -94,8 +133,8 @@ export default function LocaleLayout({
       <div className="flex min-h-screen flex-col">
         <SiteHeader
           lang={lang}
-          dictionary={navigationDict} // Pass potentially null dictionary
-          appName={appNameFromDict}    // Pass potentially null appName
+          dictionary={navigationDict}
+          appName={appNameFromDict}
         />
         <main className="flex-1 container mx-auto px-4 py-8 sm:px-6 lg:px-8 overflow-x-hidden">
           <AnimatePresence mode="wait" initial={false}>
@@ -106,7 +145,6 @@ export default function LocaleLayout({
               exit="out"
               variants={pageVariants}
               transition={pageTransition}
-              // className="h-full" // Removed previously
             >
               {children}
             </motion.div>
