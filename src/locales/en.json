@@ -1,3 +1,4 @@
+
 {
   "appName": "Hami",
   "tagline": "Your Supportive Companion",
@@ -146,9 +147,8 @@
       }
     },
     "stepRoleSelection": {
-      "title": "Your Role & Sharing Preferences",
-      "descriptionAdult": "Please select your role(s) and optionally manage sharing preferences.",
-      "descriptionYouth": "If you wish, you can share information with trusted adults.",
+      "title": "Your Role",
+      "descriptionAdult": "Please select your role(s). You'll be able to set sharing preferences in the next step.",
       "loadingRoleInfo": "Determining your pathway...",
       "selectRolesLabel": "Select your role(s):",
       "roles": {
@@ -162,8 +162,16 @@
       "clinicCodePlaceholder": "Enter your clinic code (optional)",
       "schoolCodeLabel": "School Code (for School Consultants)",
       "schoolCodePlaceholder": "Enter your school's code",
-      "youthRoleDisplayLabel": "Your Role",
-      "youthConnections": {
+      "errors": {
+        "roleRequired": "Please select a role.",
+        "schoolCodeRequired": "School code is required if 'School Consultant' role is selected.",
+        "invalidEmail": "Please enter a valid email address."
+      }
+    },
+    "stepSharingPreferences": {
+      "title": "Sharing Preferences",
+      "description": "If you wish, you can share information with trusted contacts.",
+      "sharingConnections": {
         "shareWithLabel": "Share with:",
         "addConnectionButton": "Add Contact to Share With",
         "dialogTitle": "Share Information",
@@ -185,11 +193,6 @@
         "errorContactRequired": "Contact information is required.",
         "errorInvalidContact": "Please enter a valid email or phone number.",
         "errorNoPermissionsSelected": "Select at least one permission."
-      },
-      "errors": {
-        "roleRequired": "Please select a role.",
-        "schoolCodeRequired": "School code is required if 'School Consultant' role is selected.",
-        "invalidEmail": "Please enter a valid email address."
       }
     },
     "appTermsContent": {

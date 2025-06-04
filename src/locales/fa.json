@@ -1,3 +1,4 @@
+
 {
   "appName": "حامی",
   "tagline": "همراه حامی شما",
@@ -146,9 +147,8 @@
       }
     },
     "stepRoleSelection": {
-      "title": "نقش و تنظیمات اشتراک‌گذاری شما",
-      "descriptionAdult": "لطفاً نقش(های) خود را انتخاب کرده و در صورت تمایل، تنظیمات اشتراک‌گذاری را مدیریت کنید.",
-      "descriptionYouth": "در صورت تمایل، می‌توانید اطلاعات خود را با بزرگسالان مورد اعتماد به اشتراک بگذارید.",
+      "title": "نقش شما",
+      "descriptionAdult": "لطفاً نقش(های) خود را انتخاب کنید. در مرحله بعد می‌توانید تنظیمات اشتراک‌گذاری را مشخص نمایید.",
       "loadingRoleInfo": "درحال تعیین مسیر شما...",
       "selectRolesLabel": "نقش(های) خود را انتخاب کنید:",
       "roles": {
@@ -162,8 +162,16 @@
       "clinicCodePlaceholder": "کد کلینیک خود را وارد کنید (اختیاری)",
       "schoolCodeLabel": "کد مدرسه (برای مشاورین مدرسه)",
       "schoolCodePlaceholder": "کد مدرسه خود را وارد کنید",
-      "youthRoleDisplayLabel": "نقش شما",
-      "youthConnections": {
+      "errors": {
+        "roleRequired": "لطفاً یک نقش انتخاب کنید.",
+        "schoolCodeRequired": "کد مدرسه برای نقش 'مشاور مدرسه' الزامی است.",
+        "invalidEmail": "لطفاً یک آدرس ایمیل معتبر وارد کنید."
+      }
+    },
+     "stepSharingPreferences": {
+      "title": "تنظیمات اشتراک‌گذاری",
+      "description": "در صورت تمایل، می‌توانید اطلاعات خود را با مخاطبین مورد اعتماد به اشتراک بگذارید.",
+      "sharingConnections": {
         "shareWithLabel": "اشتراک‌گذاری با:",
         "addConnectionButton": "افزودن مخاطب برای اشتراک‌گذاری",
         "dialogTitle": "اشتراک‌گذاری اطلاعات",
@@ -185,11 +193,6 @@
         "errorContactRequired": "اطلاعات تماس الزامی است.",
         "errorInvalidContact": "لطفاً ایمیل یا شماره تلفن معتبر وارد کنید.",
         "errorNoPermissionsSelected": "لطفاً حداقل یک مورد برای اشتراک‌گذاری انتخاب کنید."
-      },
-      "errors": {
-        "roleRequired": "لطفاً یک نقش انتخاب کنید.",
-        "schoolCodeRequired": "کد مدرسه برای نقش 'مشاور مدرسه' الزامی است.",
-        "invalidEmail": "لطفاً یک آدرس ایمیل معتبر وارد کنید."
       }
     },
     "appTermsContent": {
