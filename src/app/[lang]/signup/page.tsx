@@ -5,11 +5,12 @@ import { SignupStepper } from '@/components/auth/signup-stepper';
 import { getDictionary } from '@/lib/dictionaries';
 import type { Locale } from '@/i18n-config';
 import { useSearchParams } from 'next/navigation';
-import { Suspense, useEffect, useState } from 'react';
+import React, { Suspense, useEffect, useState } from 'react'; // Added React import
 
 // Using Suspense for useSearchParams as per Next.js recommendation for Client Components
 function SignupPageContent({ params }: { params: { lang: Locale } }) {
-  const { lang } = params; // Directly use params
+  const resolvedParams = React.use(params as any); // Unwrap params using React.use()
+  const { lang } = resolvedParams;
 
   const [dictionary, setDictionary] = useState<any>(null);
   const searchParams = useSearchParams();

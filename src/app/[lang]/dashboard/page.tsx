@@ -51,7 +51,8 @@ const chartConfigBiometric = {
 
 
 export default function DashboardPage({ params }: { params: { lang: Locale } }) {
-  const { lang } = params; // Directly use params
+  const resolvedParams = React.use(params as any);
+  const { lang } = resolvedParams;
 
   const [dictionary, setDictionary] = useState<any>(null);
   const isRTL = lang === 'fa';
