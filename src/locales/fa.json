@@ -149,7 +149,7 @@
     "stepRoleSelection": {
       "title": "نقش شما",
       "descriptionAdult": "لطفاً نقش(هایی) که به بهترین شکل شما را توصیف می‌کند، انتخاب کنید. می‌توانید چند نقش یا هیچکدام را انتخاب کنید.",
-      "descriptionYouth": "در صورت تمایل، به شما کمک می‌کنیم تا با بزرگسالان مورد اعتماد ارتباط برقرار کنید. برای هر نقش، می‌توانید یک یا چند ایمیل وارد کنید.",
+      "descriptionYouth": "در صورت تمایل، می‌توانید اطلاعات خود را با بزرگسالان مورد اعتماد به اشتراک بگذارید.",
       "loadingRoleInfo": "درحال تعیین مسیر شما...",
       "selectRolesLabel": "نقش(های) خود را انتخاب کنید:",
       "roles": {
@@ -165,12 +165,26 @@
       "schoolCodePlaceholder": "کد مدرسه خود را وارد کنید",
       "youthRoleDisplayLabel": "نقش شما",
       "youthConnections": {
-        "title": "ارتباط با افراد حامی (اختیاری)",
-        "description": "برای هر نقش، می‌توانید یک یا چند آدرس ایمیل برای برقراری ارتباط وارد کنید.",
-        "connectWithRoleLabel": "ارتباط با {roleName}",
-        "addConnectionButtonLabel": "افزودن ایمیل برای {roleName}",
-        "removeConnectionButtonLabel": "حذف ایمیل",
-        "emailPlaceholder": "آدرس ایمیل را وارد کنید"
+        "shareWithLabel": "اشتراک‌گذاری با:",
+        "addConnectionButton": "افزودن مخاطب برای اشتراک‌گذاری",
+        "dialogTitle": "اشتراک‌گذاری اطلاعات",
+        "contactLabel": "مخاطب (ایمیل یا شماره تلفن)",
+        "contactPlaceholder": "ایمیل یا شماره تلفن را وارد کنید",
+        "permissionsLabel": "موارد قابل اشتراک را انتخاب کنید:",
+        "permissionBasicInformation": "اطلاعات پایه",
+        "permissionDailyQuizResults": "نتایج آزمون روزانه",
+        "permissionBiometricReports": "گزارشات بیومتریک",
+        "permissionTestResults": "نتایج تست‌ها",
+        "permissionSyncedInformation": "اطلاعات همگام‌شده از سایر سیستم‌ها",
+        "dialogAddButton": "افزودن ارتباط",
+        "dialogCancelButton": "انصراف",
+        "removeConnectionButtonLabel": "حذف ارتباط",
+        "sharedWithTitle": "در حال اشتراک‌گذاری با:",
+        "noConnectionsYet": "هنوز اطلاعات خود را با کسی به اشتراک نگذاشته‌اید.",
+        "permissionsSummaryPrefix": "موارد اشتراک‌گذاری شده:",
+        "errorContactRequired": "اطلاعات تماس الزامی است.",
+        "errorInvalidContact": "لطفاً ایمیل یا شماره تلفن معتبر وارد کنید.",
+        "errorNoPermissionsSelected": "لطفاً حداقل یک مورد برای اشتراک‌گذاری انتخاب کنید."
       },
       "errors": {
         "roleRequired": "لطفاً یک نقش انتخاب کنید.",
@@ -293,5 +307,3 @@
     }
   }
 }
-
-    

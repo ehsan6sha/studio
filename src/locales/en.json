@@ -149,7 +149,7 @@
     "stepRoleSelection": {
       "title": "Your Role",
       "descriptionAdult": "Please select the role(s) that best describe you. You can select multiple or none.",
-      "descriptionYouth": "If you wish, we can help you connect with trusted adults. You can add one or more contacts for each role.",
+      "descriptionYouth": "If you wish, you can share information with trusted adults.",
       "loadingRoleInfo": "Determining your pathway...",
       "selectRolesLabel": "Select your role(s):",
       "roles": {
@@ -165,12 +165,26 @@
       "schoolCodePlaceholder": "Enter your school's code",
       "youthRoleDisplayLabel": "Your Role",
       "youthConnections": {
-        "title": "Connect with Support (Optional)",
-        "description": "For each role, you can add one or more email addresses to connect.",
-        "connectWithRoleLabel": "Connect with {roleName}",
-        "addConnectionButtonLabel": "Add email for {roleName}",
-        "removeConnectionButtonLabel": "Remove email",
-        "emailPlaceholder": "Enter email address"
+        "shareWithLabel": "Share with:",
+        "addConnectionButton": "Add Contact to Share With",
+        "dialogTitle": "Share Information",
+        "contactLabel": "Contact (Email or Phone)",
+        "contactPlaceholder": "Enter email or phone number",
+        "permissionsLabel": "Select items to share:",
+        "permissionBasicInformation": "Basic information",
+        "permissionDailyQuizResults": "Daily quiz results",
+        "permissionBiometricReports": "Biometric reports",
+        "permissionTestResults": "Test results",
+        "permissionSyncedInformation": "Information synced from other systems",
+        "dialogAddButton": "Add Connection",
+        "dialogCancelButton": "Cancel",
+        "removeConnectionButtonLabel": "Remove Connection",
+        "sharedWithTitle": "Currently Sharing With:",
+        "noConnectionsYet": "You haven't shared information with anyone yet.",
+        "permissionsSummaryPrefix": "Shares:",
+        "errorContactRequired": "Contact information is required.",
+        "errorInvalidContact": "Please enter a valid email or phone number.",
+        "errorNoPermissionsSelected": "Please select at least one item to share."
       },
       "errors": {
         "roleRequired": "Please select a role.",
@@ -293,5 +307,3 @@
     }
   }
 }
-
-    
