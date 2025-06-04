@@ -108,7 +108,7 @@
       "emailOrPhoneLabel": "Email or Phone Number",
       "emailOrPhonePlaceholder": "e.g., user@example.com or +1234567890",
       "dobLabel": "Date of Birth",
-      "dobPlaceholder": "Select your date of birth",
+      "dobPlaceholder": "YYYY-MM-DD",
       "passwordLabel": "Password",
       "confirmPasswordLabel": "Confirm Password",
       "showPassword": "Show password",
@@ -118,7 +118,7 @@
         "emailOrPhoneRequired": "Email or phone number is required.",
         "invalidEmailOrPhone": "Please enter a valid email or phone number.",
         "dobRequired": "Date of birth is required.",
-        "dobInvalid": "Invalid date format.",
+        "dobInvalid": "Invalid date format. Please use YYYY-MM-DD.",
         "passwordMinLength": "Password must be at least 6 characters.",
         "confirmPasswordMinLength": "Confirm password must be at least 6 characters.",
         "passwordsDontMatch": "Passwords do not match."
