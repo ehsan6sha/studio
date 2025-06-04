@@ -92,93 +92,95 @@ export function StepTerms({
   };
 
   return (
-    <Card className="w-full shadow-none border-none">
-      <CardHeader className="text-center">
-        <CardTitle className="text-2xl font-headline">{dictionary.title}</CardTitle>
-        <CardDescription>{dictionary.description}</CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-6">
-        {/* Mandatory Terms */}
-        <div className="items-top flex space-x-2 rtl:space-x-reverse">
-          <Checkbox
-            id="mandatoryTerms"
-            checked={!!formData.acceptedMandatoryTerms}
-            onCheckedChange={(checked) => handleCheckboxChange('acceptedMandatoryTerms', !!checked)}
-            aria-label={dictionary.mandatoryTermsLabel}
-          />
-          <div className="grid gap-1.5 leading-none">
-            <label htmlFor="mandatoryTerms" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-              {dictionary.mandatoryTermsLabel}
-            </label>
-            <Dialog>
-              <DialogTrigger asChild>
-                <Button variant="link" className="p-0 h-auto text-primary text-sm justify-start">
-                  {dictionary.viewTermsLink}
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="sm:max-w-[80vw] md:max-w-[70vw] lg:max-w-[60vw] max-h-[90vh] flex flex-col">
-                 <TermDialogContent title={termsDictionary.mainTitle} content={termsDictionary} dictionary={dictionary} />
-              </DialogContent>
-            </Dialog>
+    <div className="h-full flex flex-col">
+      <Card className="w-full shadow-none border-none flex-grow flex flex-col">
+        <CardHeader className="text-center">
+          <CardTitle className="text-2xl font-headline">{dictionary.title}</CardTitle>
+          <CardDescription>{dictionary.description}</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6 flex-grow">
+          {/* Mandatory Terms */}
+          <div className="items-top flex space-x-2 rtl:space-x-reverse">
+            <Checkbox
+              id="mandatoryTerms"
+              checked={!!formData.acceptedMandatoryTerms}
+              onCheckedChange={(checked) => handleCheckboxChange('acceptedMandatoryTerms', !!checked)}
+              aria-label={dictionary.mandatoryTermsLabel}
+            />
+            <div className="grid gap-1.5 leading-none">
+              <label htmlFor="mandatoryTerms" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                {dictionary.mandatoryTermsLabel}
+              </label>
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button variant="link" className="p-0 h-auto text-primary text-sm justify-start">
+                    {dictionary.viewTermsLink}
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-[80vw] md:max-w-[70vw] lg:max-w-[60vw] max-h-[90vh] flex flex-col">
+                  <TermDialogContent title={termsDictionary.mainTitle} content={termsDictionary} dictionary={dictionary} />
+                </DialogContent>
+              </Dialog>
+            </div>
           </div>
-        </div>
 
-        {/* Optional Communications */}
-        <div className="items-top flex space-x-2 rtl:space-x-reverse">
-          <Checkbox
-            id="optionalCommunications"
-            checked={!!formData.acceptedOptionalCommunications}
-            onCheckedChange={(checked) => handleCheckboxChange('acceptedOptionalCommunications', !!checked)}
-            aria-label={dictionary.optionalCommunicationsLabel}
-          />
-          <div className="grid gap-1.5 leading-none">
-            <label htmlFor="optionalCommunications" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-              {dictionary.optionalCommunicationsLabel}
-            </label>
-             <Dialog>
-              <DialogTrigger asChild>
-                <Button variant="link" className="p-0 h-auto text-primary text-sm justify-start">
-                   {dictionary.dataProcessingConsentLink}
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="sm:max-w-[80vw] md:max-w-[70vw] lg:max-w-[60vw] max-h-[90vh] flex flex-col">
-                 <TermDialogContent title={dataProcessingConsentContent.title} content={dataProcessingConsentContent.content} dictionary={dictionary} />
-              </DialogContent>
-            </Dialog>
+          {/* Optional Communications */}
+          <div className="items-top flex space-x-2 rtl:space-x-reverse">
+            <Checkbox
+              id="optionalCommunications"
+              checked={!!formData.acceptedOptionalCommunications}
+              onCheckedChange={(checked) => handleCheckboxChange('acceptedOptionalCommunications', !!checked)}
+              aria-label={dictionary.optionalCommunicationsLabel}
+            />
+            <div className="grid gap-1.5 leading-none">
+              <label htmlFor="optionalCommunications" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                {dictionary.optionalCommunicationsLabel}
+              </label>
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button variant="link" className="p-0 h-auto text-primary text-sm justify-start">
+                    {dictionary.dataProcessingConsentLink}
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-[80vw] md:max-w-[70vw] lg:max-w-[60vw] max-h-[90vh] flex flex-col">
+                  <TermDialogContent title={dataProcessingConsentContent.title} content={dataProcessingConsentContent.content} dictionary={dictionary} />
+                </DialogContent>
+              </Dialog>
+            </div>
           </div>
-        </div>
 
-        {/* Optional Marketing */}
-        <div className="items-top flex space-x-2 rtl:space-x-reverse">
-          <Checkbox
-            id="optionalMarketing"
-            checked={!!formData.acceptedOptionalMarketing}
-            onCheckedChange={(checked) => handleCheckboxChange('acceptedOptionalMarketing', !!checked)}
-            aria-label={dictionary.optionalMarketingLabel}
-          />
-          <div className="grid gap-1.5 leading-none">
-            <label htmlFor="optionalMarketing" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-              {dictionary.optionalMarketingLabel}
-            </label>
-            <Dialog>
-              <DialogTrigger asChild>
-                <Button variant="link" className="p-0 h-auto text-primary text-sm justify-start">
-                  {dictionary.marketingConsentLink}
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="sm:max-w-[80vw] md:max-w-[70vw] lg:max-w-[60vw] max-h-[90vh] flex flex-col">
-                <TermDialogContent title={marketingConsentContent.title} content={marketingConsentContent.content} dictionary={dictionary} />
-              </DialogContent>
-            </Dialog>
+          {/* Optional Marketing */}
+          <div className="items-top flex space-x-2 rtl:space-x-reverse">
+            <Checkbox
+              id="optionalMarketing"
+              checked={!!formData.acceptedOptionalMarketing}
+              onCheckedChange={(checked) => handleCheckboxChange('acceptedOptionalMarketing', !!checked)}
+              aria-label={dictionary.optionalMarketingLabel}
+            />
+            <div className="grid gap-1.5 leading-none">
+              <label htmlFor="optionalMarketing" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                {dictionary.optionalMarketingLabel}
+              </label>
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button variant="link" className="p-0 h-auto text-primary text-sm justify-start">
+                    {dictionary.marketingConsentLink}
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-[80vw] md:max-w-[70vw] lg:max-w-[60vw] max-h-[90vh] flex flex-col">
+                  <TermDialogContent title={marketingConsentContent.title} content={marketingConsentContent.content} dictionary={dictionary} />
+                </DialogContent>
+              </Dialog>
+            </div>
           </div>
-        </div>
-        
-        <div className="mt-6 p-3 bg-muted/50 rounded-md text-xs text-muted-foreground space-y-1">
-            <p>{dictionary.infoNoteLine1}</p>
-            <p>{dictionary.infoNoteLine2}</p>
-            <p>{dictionary.infoNoteLine3}</p>
-        </div>
-      </CardContent>
-    </Card>
+          
+          <div className="mt-6 p-3 bg-muted/50 rounded-md text-xs text-muted-foreground space-y-1">
+              <p>{dictionary.infoNoteLine1}</p>
+              <p>{dictionary.infoNoteLine2}</p>
+              <p>{dictionary.infoNoteLine3}</p>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
   );
 }
