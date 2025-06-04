@@ -4,7 +4,7 @@
 import * as React from 'react';
 import { useState, useEffect, useCallback } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm, Controller } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { Button } from '@/components/ui/button';
 import {
@@ -25,7 +25,7 @@ import { InputMask, type MaskEventDetail, type MaskEventHandler } from '@react-i
 
 // Standard date-fns for English/Gregorian
 import { format as formatGregorian, parse as parseGregorianOriginal, isValid as isValidGregorianDateOriginal, getYear as getYearGregorian } from 'date-fns';
-import { faIR as faIRLocaleGregorian } from 'date-fns/locale/fa-IR'; 
+// Removed faIR import for gregorian as it's not used and can be confusing
 
 // For Farsi/Shamsi (Jalali)
 import { format as formatJalaliOriginal, parse as parseJalaliOriginal, isValid as isValidJalaliDateOriginal, getYear as getYearJalali } from 'date-fns-jalali';
@@ -58,7 +58,7 @@ export function StepUserInfo({ dictionary, formData, updateFormData, onValidatio
         parseDateInput: parseJalaliOriginal,
         isValidDate: isValidJalaliDateOriginal,
         dateLocale: faIRJalaliLocale,
-        dateFormatString: 'yyyy/MM/dd', // Format used for display AND parsing from mask
+        dateFormatString: 'yyyy/MM/dd', 
         getYearForCalendar: getYearJalali,
         calendarMinYear: 1279, 
         calendarMaxYear: getYearJalali(new Date()), 
@@ -69,7 +69,7 @@ export function StepUserInfo({ dictionary, formData, updateFormData, onValidatio
       parseDateInput: parseGregorianOriginal,
       isValidDate: isValidGregorianDateOriginal,
       dateLocale: undefined, 
-      dateFormatString: 'yyyy/MM/dd', // Using a consistent format for display and parsing
+      dateFormatString: 'yyyy/MM/dd', 
       getYearForCalendar: getYearGregorian,
       calendarMinYear: 1900,
       calendarMaxYear: getYearGregorian(new Date()),
@@ -86,7 +86,7 @@ export function StepUserInfo({ dictionary, formData, updateFormData, onValidatio
     dob: z.date({
       invalid_type_error: dictionary.errors.dobInvalid,
       required_error: dictionary.errors.dobRequired,
-    }).nullable(), // Allow null for incomplete/invalid typed input
+    }).nullable(), 
     password: z.string().min(6, { message: dictionary.errors.passwordMinLength }),
     confirmPassword: z.string().min(6, { message: dictionary.errors.confirmPasswordMinLength }),
   }).superRefine(({ confirmPassword, password }, ctx) => {
@@ -125,34 +125,16 @@ export function StepUserInfo({ dictionary, formData, updateFormData, onValidatio
     }
   }, [defaultFormValues, form, formatDate, dateFormatString, dateLocale, isValidDate]);
 
-  useEffect(() => {
-    const currentDob = form.getValues('dob');
-    if (currentDob && isValidDate(currentDob)) {
-      setDobInputValue(formatDate(currentDob, dateFormatString, { locale: dateLocale }));
-    } else {
-      // If not a valid date (e.g. after clearing or invalid parse), clear input string
-      // only if it's not currently focused (to allow typing)
-      if (document.activeElement?.id !== 'dob-input') {
-         setDobInputValue('');
-      }
-    }
-    const timerId = setTimeout(() => form.trigger(), 0);
-    return () => clearTimeout(timerId);
-  }, [lang, form, dateFormatString, dateLocale, formatDate, isValidDate]);
-
 
   const handleDobMaskedValueChange: MaskEventHandler = useCallback((event: CustomEvent<MaskEventDetail>) => {
     const { value, unmaskedValue, maskedValue } = event.detail;
-    setDobInputValue(maskedValue); // Update the displayed input value with the mask
+    setDobInputValue(maskedValue); 
 
     let parsedInputDate: Date | null = null;
-    if (unmaskedValue.length === 8) { // Assuming YYYYMMDD has 8 digits
+    if (unmaskedValue.length === 8) { 
       try {
-        // Try parsing the maskedValue first as it has separators, more robust
         parsedInputDate = parseDateInput(maskedValue, dateFormatString, new Date(), { locale: dateLocale });
         if (!isValidDate(parsedInputDate)) {
-            // Fallback to unmasked if masked didn't work (e.g. partial input)
-            // This path is less likely to be hit if mask ensures format, but as a safeguard
             parsedInputDate = parseDateInput(unmaskedValue, 'yyyyMMdd', new Date(), {locale: dateLocale});
         }
       } catch {
@@ -177,23 +159,19 @@ export function StepUserInfo({ dictionary, formData, updateFormData, onValidatio
         password: currentRHFValues.password,
       });
       
-      // Sync from RHF (e.g. calendar selection) back to dobInputValue for display
       if (changedFieldName === 'dob') {
         const rhfDobDate = currentRHFValues.dob;
         if (rhfDobDate instanceof Date && isValidGregorianDateOriginal(rhfDobDate)) {
            const formattedDateFromRhf = formatDate(rhfDobDate, dateFormatString, { locale: dateLocale });
-            if (dobInputValue !== formattedDateFromRhf) { // Prevent loop if already same
+            if (dobInputValue !== formattedDateFromRhf) { 
                 setDobInputValue(formattedDateFromRhf); 
             }
-        } else if (rhfDobDate === null && document.activeElement?.id !== 'dob-input') {
-            // If RHF cleared DOB (and not currently typing), clear display input
-            // setDobInputValue(''); // This might be too aggressive, let mask control display during typing
         }
       }
     });
     return () => subscription.unsubscribe();
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [form, updateFormData, formatGregorian, isValidGregorianDateOriginal, formatDate, isValidDate, dateLocale, dateFormatString /* Removed dobInputValue */]);
+  }, [form, updateFormData, formatGregorian, isValidGregorianDateOriginal, formatDate, isValidDate, dateLocale, dateFormatString]);
 
 
   useEffect(() => {
@@ -250,16 +228,16 @@ export function StepUserInfo({ dictionary, formData, updateFormData, onValidatio
                         mask="____/__/__"
                         replacement={{ _: /\d/ }}
                         showMask
-                        value={dobInputValue} // Controlled by local state for display
-                        onMaskedValueChange={handleDobMaskedValueChange} // Use the custom handler
+                        value={dobInputValue}
+                        onMaskedValueChange={handleDobMaskedValueChange}
                       >
                         {({ ref: maskRef, ...inputPropsFromMask }) => {
-                           const {children, ...safeInputProps} = inputPropsFromMask; // Exclude children
+                           const { children, ...safeInputProps } = inputPropsFromMask; // Destructure children
                            return (
                             <input
-                                {...safeInputProps} // Spread props from mask library (value, onChange etc.)
-                                ref={(el) => { // Combine refs
-                                    maskRef(el);
+                                {...safeInputProps} // Spread only safe props
+                                ref={(el) => { 
+                                    if (maskRef && typeof maskRef === 'function') maskRef(el);
                                     rhfField.ref(el);
                                 }}
                                 id={formItemId || "dob-input"}
