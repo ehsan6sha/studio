@@ -61,7 +61,7 @@ export function StepUserInfo({ dictionary, formData, updateFormData, onValidatio
 
   const form = useForm<z.infer<typeof UserInfoSchema>>({
     resolver: zodResolver(UserInfoSchema),
-    defaultValues: { // defaultValues are now set via form.reset in useEffect
+    defaultValues: {
       name: '',
       emailOrPhone: '',
       dob: undefined,
@@ -72,34 +72,25 @@ export function StepUserInfo({ dictionary, formData, updateFormData, onValidatio
   });
 
   React.useEffect(() => {
-    // Reset form with current formData from parent (e.g., when navigating back)
     form.reset({
       name: formData.name || '',
       emailOrPhone: formData.emailOrPhone || '',
       dob: formData.dob ? new Date(formData.dob) : undefined,
       password: formData.password || '',
-      confirmPassword: formData.password || '', 
+      confirmPassword: '', // Always start confirmPassword empty
     });
 
-    // After reset, the form's state (including isValid) will be re-evaluated.
-    // Report this initial (post-reset) validity.
-    // Using setTimeout to ensure this runs after the current execution context,
-    // allowing form state to fully settle.
     const timerId = setTimeout(() => {
       onValidation(form.formState.isValid);
     }, 0);
 
-    // Watch for subsequent changes and report validation
     const subscription = form.watch((values) => {
-      // Update parent's formData on field change
-      // The `values` object here is the entire form data
       const { name, emailOrPhone, dob, password } = values;
       updateFormData({
         name,
         emailOrPhone,
         dob: dob ? dob.toISOString().split('T')[0] : undefined,
         password,
-        // confirmPassword is not stored in the central formData
       });
       onValidation(form.formState.isValid);
     });
@@ -178,7 +169,6 @@ export function StepUserInfo({ dictionary, formData, updateFormData, onValidatio
                           selected={field.value}
                           onSelect={(date) => {
                             field.onChange(date);
-                            // updateFormData is now handled by form.watch
                           }}
                           disabled={(date) =>
                             date > new Date() || date < new Date("1900-01-01")
