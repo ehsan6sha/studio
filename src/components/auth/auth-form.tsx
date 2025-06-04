@@ -87,10 +87,10 @@ export function AuthForm({ type, dictionary, lang }: AuthFormProps) {
   }
 
   return (
-    <div className="flex items-center justify-center min-h-[calc(100vh-15rem)] py-12">
+    <div className="flex flex-col items-center justify-center flex-grow py-6 md:py-12 px-4">
       <Card className="w-full max-w-md shadow-xl">
         <CardHeader className="text-center">
-          <CardTitle className="text-2xl font-headline">{dictionary.title}</CardTitle>
+          <CardTitle className="text-xl md:text-2xl font-headline">{dictionary.title}</CardTitle>
           <CardDescription>
             {type === 'login' ? (lang === 'fa' ? 'برای ادامه وارد شوید.' : 'Log in to continue.') 
                              : (lang === 'fa' ? 'برای شروع یک حساب کاربری ایجاد کنید.' : 'Create an account to get started.')}
@@ -98,7 +98,7 @@ export function AuthForm({ type, dictionary, lang }: AuthFormProps) {
         </CardHeader>
         <CardContent>
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 md:space-y-6">
               <FormField
                 control={form.control}
                 name="emailOrPhone"
