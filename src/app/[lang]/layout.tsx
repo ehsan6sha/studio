@@ -10,7 +10,7 @@ import { i18n } from '@/i18n-config';
 import { motion, AnimatePresence } from 'framer-motion';
 import { usePathname, useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { AuthProvider } from '@/context/auth-context'; // Added AuthProvider
+import { AuthProvider } from '@/context/auth-context';
 
 export default function LocaleLayout({
   children,
@@ -18,16 +18,18 @@ export default function LocaleLayout({
   children: ReactNode;
 }) {
   const params = useParams();
-  let lang: Locale = i18n.defaultLocale;
+  let lang: Locale = i18n.defaultLocale; // Default to 'fa'
+
   if (params.lang && typeof params.lang === 'string' && i18n.locales.includes(params.lang as Locale)) {
     lang = params.lang as Locale;
   } else if (Array.isArray(params.lang) && params.lang.length > 0 && i18n.locales.includes(params.lang[0] as Locale)) {
     lang = params.lang[0] as Locale;
   }
 
+
   const pathname = usePathname();
   const [dictionary, setDictionary] = useState<any>(null);
-  const [currentYear, setCurrentYear] = useState<number | null>(null); 
+  const [currentYear, setCurrentYear] = useState<number | null>(null);
 
   useEffect(() => {
     if (lang) {
@@ -37,7 +39,7 @@ export default function LocaleLayout({
 
   useEffect(() => {
     setCurrentYear(new Date().getFullYear());
-  }, []); 
+  }, []);
 
   useEffect(() => {
     if (lang === 'fa') {
@@ -47,30 +49,16 @@ export default function LocaleLayout({
       document.body.classList.add('font-body');
       document.body.classList.remove('font-vazir');
     }
-    // Cleanup function to remove classes when component unmounts or lang changes
-    // This ensures that if the layout unmounts before another lang layout mounts,
-    // the body doesn't retain a potentially incorrect font class.
     return () => {
       document.body.classList.remove('font-vazir');
       document.body.classList.remove('font-body');
     };
   }, [lang]);
 
-  if (!dictionary) {
-    return (
-      <>
-        <DynamicHtmlAttributes locale={lang} />
-        <div className="flex min-h-screen flex-col items-center justify-center">
-          Loading...
-        </div>
-      </>
-    );
-  }
-
   const pageVariants = {
     initial: {
       opacity: 0,
-      x: lang === 'fa' ? -50 : 50, // Gentler slide using pixel values
+      x: lang === 'fa' ? -50 : 50,
     },
     in: {
       opacity: 1,
@@ -78,23 +66,32 @@ export default function LocaleLayout({
     },
     out: {
       opacity: 0,
-      x: lang === 'fa' ? 50 : -50, // Opposite direction for exit
+      x: lang === 'fa' ? 50 : -50,
     },
   };
 
   const pageTransition = {
     type: 'tween',
-    ease: 'easeInOut', // Smoother easing
-    duration: 0.3,    // Slightly adjusted duration
+    ease: 'easeInOut',
+    duration: 0.3,
   };
 
-  const displayYear = currentYear !== null ? currentYear : ""; 
+  const displayYear = currentYear !== null ? currentYear : "";
+  const appNameFromDict = dictionary?.appName;
+  const navigationDict = dictionary?.navigation;
+  const footerRightsText = dictionary
+    ? (lang === 'fa' ? 'تمامی حقوق محفوظ است.' : 'All rights reserved.')
+    : (lang === 'fa' ? 'تمامی حقوق محفوظ است.' : 'All rights reserved.'); // Default text
 
   return (
-    <AuthProvider> {/* Added AuthProvider Wrapper */}
+    <AuthProvider>
       <DynamicHtmlAttributes locale={lang} />
       <div className="flex min-h-screen flex-col">
-        <SiteHeader lang={lang} dictionary={dictionary.navigation} appName={dictionary.appName} />
+        <SiteHeader
+          lang={lang}
+          dictionary={navigationDict}
+          appName={appNameFromDict}
+        />
         <main className="flex-1 container mx-auto px-4 py-8 sm:px-6 lg:px-8 overflow-x-hidden">
           <AnimatePresence mode="wait" initial={false}>
             <motion.div
@@ -111,7 +108,7 @@ export default function LocaleLayout({
           </AnimatePresence>
         </main>
         <footer className="py-6 text-center text-sm text-muted-foreground">
-          © {displayYear} {dictionary.appName}. {lang === 'fa' ? 'تمامی حقوق محفوظ است.' : 'All rights reserved.'}
+          © {displayYear} {appNameFromDict || (lang === 'fa' ? 'اپلیکیشن' : 'Application')}. {footerRightsText}
         </footer>
       </div>
     </AuthProvider>
