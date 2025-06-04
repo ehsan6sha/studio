@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect, useCallback, useRef } from 'react'; // Added useRef
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import type { Locale } from '@/i18n-config';
 import { StepInformation } from './steps/step-information';
@@ -16,19 +16,19 @@ import { Progress } from "@/components/ui/progress";
 import { useAuth } from '@/context/auth-context';
 import { useToast } from '@/hooks/use-toast';
 import { parse as parseGregorianOriginal } from 'date-fns';
-import confetti from 'canvas-confetti'; // Added confetti import
+import confetti from 'canvas-confetti';
 
 const BASE_TOTAL_STEPS_YOUTH = 5;
 const BASE_TOTAL_STEPS_ADULT = 6;
 
 export interface YouthConnectionPermission {
-  id: string; 
-  label: string; 
+  id: string;
+  label: string;
   value: boolean;
 }
 export interface YouthConnection {
-  id: string; 
-  contact: string; 
+  id: string;
+  contact: string;
   permissions: {
     basicInformation: boolean;
     dailyQuizResults: boolean;
@@ -84,13 +84,12 @@ export function SignupStepper({
   const searchParams = useSearchParams();
   const auth = useAuth();
   const { toast } = useToast();
-  
+
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState<SignupFormData>({
     isYouth: null,
     adultRolesSelected: {},
     youthConnections: [],
-    // Initialize other fields to prevent undefined issues if localStorage is empty or old
     acceptedMandatoryTerms: false,
     acceptedOptionalCommunications: false,
     acceptedOptionalMarketing: false,
@@ -105,12 +104,11 @@ export function SignupStepper({
   const [isLoaded, setIsLoaded] = useState(false);
   const [direction, setDirection] = useState(1);
   const [isStepValid, setIsStepValid] = useState(false);
-  const finishButtonRef = useRef<HTMLButtonElement>(null); // Ref for the finish button
+  const finishButtonRef = useRef<HTMLButtonElement>(null);
 
   const calculateAge = useCallback((dobString?: string): number | null => {
     if (!dobString) return null;
     try {
-      // dobString is expected to be 'yyyy-MM-dd' from formData
       const birthDate = parseGregorianOriginal(dobString, 'yyyy-MM-dd', new Date());
       if (isNaN(birthDate.getTime())) return null;
 
@@ -125,17 +123,17 @@ export function SignupStepper({
       return null;
     }
   }, []);
-  
+
   const getCurrentTotalSteps = useCallback(() => {
     if (formData.isYouth === true) return BASE_TOTAL_STEPS_YOUTH;
     if (formData.isYouth === false) return BASE_TOTAL_STEPS_ADULT;
-    return BASE_TOTAL_STEPS_ADULT; // Default to max if isYouth is undetermined
+    return BASE_TOTAL_STEPS_ADULT;
   }, [formData.isYouth]);
 
 
   useEffect(() => {
     const storedData = localStorage.getItem('signupFormData');
-    let effectiveFormData = { // Start with a default, complete structure
+    let effectiveFormData: SignupFormData = {
       isYouth: null,
       adultRolesSelected: {},
       youthConnections: [],
@@ -154,8 +152,8 @@ export function SignupStepper({
     if (storedData) {
       const parsedData = JSON.parse(storedData);
       effectiveFormData = {
-        ...effectiveFormData, // Ensure all keys are present
-        ...parsedData,        // Override with parsed data
+        ...effectiveFormData,
+        ...parsedData,
         adultRolesSelected: parsedData.adultRolesSelected || {},
         youthConnections: parsedData.youthConnections || [],
       };
@@ -164,14 +162,14 @@ export function SignupStepper({
 
     const stepFromQuery = searchParams.get('step');
     const validatedInitialStep = stepFromQuery ? parseInt(stepFromQuery, 10) : initialStep;
-    
+
     let currentTotalStepsCalc;
     if (effectiveFormData.isYouth === true) currentTotalStepsCalc = BASE_TOTAL_STEPS_YOUTH;
     else if (effectiveFormData.isYouth === false) currentTotalStepsCalc = BASE_TOTAL_STEPS_ADULT;
-    else currentTotalStepsCalc = BASE_TOTAL_STEPS_ADULT;
+    else currentTotalStepsCalc = BASE_TOTAL_STEPS_ADULT; // Default if isYouth is undetermined
 
     const saneInitialStep = Math.max(1, Math.min(validatedInitialStep, currentTotalStepsCalc));
-    
+
     setCurrentStep(saneInitialStep);
     setIsLoaded(true);
   }, [searchParams, initialStep]);
@@ -196,65 +194,59 @@ export function SignupStepper({
   useEffect(() => {
     if (!isLoaded) return;
 
-    if (currentStep === 1) { // StepInformation doesn't call onValidation
+    if (currentStep === 1) {
       setIsStepValid(true);
     }
-    // For Step 2 (Terms), StepUserInfo (3), StepVerification (4),
-    // StepRoleSelection (5 Adult), StepSharingPreferences (5 Youth / 6 Adult),
-    // `isStepValid` is set by `handleStepValidation` which is called by child components.
-    // `setIsStepValid(false)` is called in `handleNext` and `handlePrevious` to reset
-    // validity when navigating, allowing the new step's component to assert its validity.
   }, [currentStep, isLoaded]);
 
 
   const handleNext = useCallback(async () => {
     if (!isStepValid) {
       if (currentStep === 2 && !formData.acceptedMandatoryTerms) {
-         toast({ title: dictionary.errorMandatoryTerms, variant: "destructive" });
+        toast({ title: dictionary.errorMandatoryTerms, variant: "destructive" });
       }
       return;
     }
 
     let nextStepNumber = currentStep + 1;
-    let newFormData = { ...formData }; // Use a mutable copy for this scope
-    const age = calculateAge(formData.dob); // Calculate age based on current formData.dob
+    let newFormData = { ...formData };
+    const age = calculateAge(formData.dob);
 
-    if (currentStep === 4) { // After Verification, determine if user is youth
+    if (currentStep === 4) {
       const isUserYouth = age !== null && age < 18;
       newFormData = { ...newFormData, isYouth: isUserYouth };
-      setFormData(newFormData); // Update the main formData state
-      // Next step is 5 for both youth (sharing) and adults (role selection)
+      setFormData(newFormData);
     }
-    
+
     setDirection(1);
-    const actualTotalSteps = getCurrentTotalSteps(); // Get total steps based on potentially updated formData
+    const actualTotalSteps = getCurrentTotalSteps();
 
     if (currentStep < actualTotalSteps) {
       setCurrentStep(nextStepNumber);
       updateUrl(nextStepNumber);
-      setIsStepValid(false); 
-    } else { // currentStep === actualTotalSteps (finish registration)
-      console.log('Finalizing registration:', newFormData); // Use newFormData which has the latest isYouth status
+      setIsStepValid(false);
+    } else {
+      console.log('Finalizing registration:', newFormData);
 
       if (finishButtonRef.current) {
         const rect = finishButtonRef.current.getBoundingClientRect();
+        const originX = (rect.left + rect.width / 2) / window.innerWidth;
+        const originY = rect.top / window.innerHeight; // Originates slightly above the button's top
+
         confetti({
           particleCount: 150,
-          spread: 100,
-          origin: {
-            x: (rect.left + rect.width / 2) / window.innerWidth,
-            y: (rect.top + rect.height / 2) / window.innerHeight
-          },
-          angle: 315, // Shoots upwards and to the right (45 deg from vertical up)
-          startVelocity: 45, 
-          gravity: 0.9,      
-          drift: Math.random() * 0.2 - 0.1, 
-          ticks: 300, 
+          spread: 70, // A bit narrower spread for upward motion
+          origin: { x: originX, y: originY },
+          angle: 90, // Main direction straight up
+          startVelocity: 55, // Increase velocity for more upward thrust
+          gravity: 1, // Standard gravity to bring them down
+          drift: 0, // Minimal horizontal drift initially
+          ticks: 400, // Longer duration
         });
       }
 
       toast({ title: dictionary.registrationCompleteTitle, description: dictionary.registrationCompleteMessage });
-      localStorage.removeItem('signupFormData'); 
+      localStorage.removeItem('signupFormData');
       auth.signup({ name: newFormData.name, emailOrPhone: newFormData.emailOrPhone }, lang);
     }
   }, [currentStep, formData, dictionary, lang, isStepValid, toast, auth, updateUrl, calculateAge, getCurrentTotalSteps]);
@@ -265,13 +257,12 @@ export function SignupStepper({
       let prevStep = currentStep - 1;
       setCurrentStep(prevStep);
       updateUrl(prevStep);
-      setIsStepValid(true); // Assume previous step was valid; new step will re-validate if needed
+      setIsStepValid(true);
     }
   };
 
   const updateFormDataAndValidate = useCallback((data: Partial<SignupFormData>) => {
     setFormData((prev) => ({ ...prev, ...data }));
-    // Validation for the current step will be triggered by child component's onValidation or the stepper's own useEffect
   }, []);
 
 
@@ -296,7 +287,6 @@ export function SignupStepper({
   };
 
   if (!isLoaded || (formData.isYouth === null && currentStep > 4 && currentStep <= actualTotalSteps)) {
-     // Show loading if isYouth is not determined yet and we are past step 4 but not beyond total steps.
     return <div className="flex-grow flex items-center justify-center">{dictionary.loading || "Loading..."}</div>;
   }
 
@@ -307,42 +297,42 @@ export function SignupStepper({
     currentStepComponent = <StepInformation dictionary={dictionary.stepInformation} />;
   } else if (currentStep === 2) {
     currentStepComponent = <StepTerms
-        dictionary={dictionary.stepTerms}
-        formData={formData}
-        updateFormData={updateFormDataAndValidate}
-        onValidation={handleStepValidation}
-        lang={lang}
-        termsDictionary={termsDictionary}
-        appTermsContent={appTermsContent}
-        dataProcessingConsentContent={dataProcessingConsentContent}
-        marketingConsentContent={marketingConsentContent}
-      />;
+      dictionary={dictionary.stepTerms}
+      formData={formData}
+      updateFormData={updateFormDataAndValidate}
+      onValidation={handleStepValidation}
+      lang={lang}
+      termsDictionary={termsDictionary}
+      appTermsContent={appTermsContent}
+      dataProcessingConsentContent={dataProcessingConsentContent}
+      marketingConsentContent={marketingConsentContent}
+    />;
   } else if (currentStep === 3) {
     currentStepComponent = <StepUserInfo
-        dictionary={dictionary.stepUserInfo}
-        formData={formData}
-        updateFormData={updateFormDataAndValidate}
-        onValidation={handleStepValidation}
-        lang={lang}
-      />;
+      dictionary={dictionary.stepUserInfo}
+      formData={formData}
+      updateFormData={updateFormDataAndValidate}
+      onValidation={handleStepValidation}
+      lang={lang}
+    />;
   } else if (currentStep === 4) {
     currentStepComponent = <StepVerification
-        dictionary={dictionary.stepVerification}
-        formData={formData}
-        updateFormData={updateFormDataAndValidate}
-        onValidation={handleStepValidation}
-        lang={lang}
-      />;
+      dictionary={dictionary.stepVerification}
+      formData={formData}
+      updateFormData={updateFormDataAndValidate}
+      onValidation={handleStepValidation}
+      lang={lang}
+    />;
   } else if (currentStep === 5) {
-    if (formData.isYouth === true) { 
+    if (formData.isYouth === true) {
       currentStepComponent = <StepSharingPreferences
         dictionary={dictionary.stepSharingPreferences}
         formData={formData}
         updateFormData={updateFormDataAndValidate}
-        onValidation={handleStepValidation} 
+        onValidation={handleStepValidation}
         lang={lang}
-       />;
-    } else if (formData.isYouth === false) { 
+      />;
+    } else if (formData.isYouth === false) {
       currentStepComponent = <StepRoleSelection
         dictionary={dictionary.stepRoleSelection}
         formData={formData}
@@ -351,24 +341,17 @@ export function SignupStepper({
         lang={lang}
       />;
     } else {
-      // Fallback if isYouth is null at step 5 (should be caught by loading state earlier)
       currentStepComponent = <div className="flex-grow flex items-center justify-center">{dictionary.loadingRoleInfo || "Determining your pathway..."}</div>;
     }
-  } else if (currentStep === 6) { 
-    if (formData.isYouth === false) { // Only adults reach step 6 for sharing
+  } else if (currentStep === 6) {
+    if (formData.isYouth === false) {
       currentStepComponent = <StepSharingPreferences
         dictionary={dictionary.stepSharingPreferences}
         formData={formData}
         updateFormData={updateFormDataAndValidate}
-        onValidation={handleStepValidation} 
+        onValidation={handleStepValidation}
         lang={lang}
       />;
-    } else {
-      // Youth should not reach step 6. Redirect or show error?
-      // This case implies an issue with step logic if reached by youth.
-      // For now, effectively treat as end for youth.
-       console.error("Youth user reached step 6, which should not happen.");
-       // Potentially redirect or show a generic "completed" view if this state is somehow reached.
     }
   }
 
@@ -380,7 +363,7 @@ export function SignupStepper({
       <div className="flex-grow overflow-hidden flex flex-col">
         <AnimatePresence initial={false} custom={direction} mode="wait">
           <motion.div
-            key={`${currentStep}-${formData.isYouth}`} // Key change helps reset animation state if isYouth changes step 5 component
+            key={`${currentStep}-${formData.isYouth}`}
             custom={direction}
             variants={variants}
             initial="enter"
@@ -404,10 +387,10 @@ export function SignupStepper({
         <div className="text-sm text-muted-foreground">
           {lang === 'fa' ? `مرحله ${currentStep} از ${actualTotalSteps}` : `Step ${currentStep} of ${actualTotalSteps}`}
         </div>
-        <Button 
-          onClick={handleNext} 
+        <Button
+          onClick={handleNext}
           disabled={isNextButtonDisabled}
-          ref={currentStep === actualTotalSteps ? finishButtonRef : null} 
+          ref={currentStep === actualTotalSteps ? finishButtonRef : null}
         >
           {currentStep === actualTotalSteps ? (dictionary.finishButton || 'Finish') : (dictionary.nextButton || 'Save & Next')}
         </Button>
@@ -415,3 +398,4 @@ export function SignupStepper({
     </div>
   );
 }
+
