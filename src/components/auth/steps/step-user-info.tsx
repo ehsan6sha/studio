@@ -21,11 +21,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
 import { cn } from '@/lib/utils';
-import { InputMask, type MaskEventDetail, type MaskEventHandler } from '@react-input/mask';
 
 // Standard date-fns for English/Gregorian
 import { format as formatGregorian, parse as parseGregorianOriginal, isValid as isValidGregorianDateOriginal, getYear as getYearGregorian } from 'date-fns';
-// Removed faIR import for gregorian as it's not used and can be confusing
 
 // For Farsi/Shamsi (Jalali)
 import { format as formatJalaliOriginal, parse as parseJalaliOriginal, isValid as isValidJalaliDateOriginal, getYear as getYearJalali } from 'date-fns-jalali';
@@ -126,27 +124,31 @@ export function StepUserInfo({ dictionary, formData, updateFormData, onValidatio
   }, [defaultFormValues, form, formatDate, dateFormatString, dateLocale, isValidDate]);
 
 
-  const handleDobMaskedValueChange: MaskEventHandler = useCallback((event: CustomEvent<MaskEventDetail>) => {
-    const { value, unmaskedValue, maskedValue } = event.detail;
-    setDobInputValue(maskedValue); 
+  const handleDobInputChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+    const inputValue = event.target.value;
+    setDobInputValue(inputValue); // Update the displayed string value
 
     let parsedInputDate: Date | null = null;
-    if (unmaskedValue.length === 8) { 
+    // Try to parse if the input length suggests a potential date (e.g., yyyy/MM/dd or similar)
+    if (inputValue.length >= 8) { 
       try {
-        parsedInputDate = parseDateInput(maskedValue, dateFormatString, new Date(), { locale: dateLocale });
-        if (!isValidDate(parsedInputDate)) {
-            parsedInputDate = parseDateInput(unmaskedValue, 'yyyyMMdd', new Date(), {locale: dateLocale});
+        // Attempt to parse using the locale-specific format (e.g., "yyyy/MM/dd")
+        parsedInputDate = parseDateInput(inputValue, dateFormatString, new Date(), { locale: dateLocale });
+        if (!isValidDate(parsedInputDate)) { // Ensure the parsed date is actually valid
+            parsedInputDate = null; 
         }
       } catch {
+        // If parsing throws an error (e.g., for completely invalid formats)
         parsedInputDate = null;
       }
     }
-
-    if (parsedInputDate && isValidDate(parsedInputDate)) {
-      form.setValue('dob', parsedInputDate, { shouldValidate: true });
-    } else {
-      form.setValue('dob', null, { shouldValidate: true });
+    // For incomplete input, we also set dob to null so RHF can show "required" or "invalid" based on schema
+     else if (inputValue.length > 0 && inputValue.length < 8) {
+        parsedInputDate = null;
     }
+
+
+    form.setValue('dob', parsedInputDate, { shouldValidate: true });
   }, [form, parseDateInput, isValidDate, dateFormatString, dateLocale]);
 
 
@@ -161,17 +163,26 @@ export function StepUserInfo({ dictionary, formData, updateFormData, onValidatio
       
       if (changedFieldName === 'dob') {
         const rhfDobDate = currentRHFValues.dob;
+        // This part synchronizes calendar selection back to the input field
         if (rhfDobDate instanceof Date && isValidGregorianDateOriginal(rhfDobDate)) {
            const formattedDateFromRhf = formatDate(rhfDobDate, dateFormatString, { locale: dateLocale });
             if (dobInputValue !== formattedDateFromRhf) { 
                 setDobInputValue(formattedDateFromRhf); 
             }
+        } else if (rhfDobDate === null && dobInputValue !== '') {
+            // If RHF date is null (e.g. from invalid manual input that got cleared by RHF validation, or calendar cleared)
+            // AND the input field still has some text, we might want to clear it or let handleDobInputChange manage.
+            // For now, if RHF is null and input is not, we clear the input if user is not actively typing.
+            // This is tricky. Let's rely on user typing to clear/correct or calendar to set.
+            // If RHF becomes null and dobInputValue is not empty, it implies the input was invalid.
+            // We don't want to clear it if user is mid-typing.
+            // So, only update from RHF if RHF *has* a valid date.
         }
       }
     });
     return () => subscription.unsubscribe();
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [form, updateFormData, formatGregorian, isValidGregorianDateOriginal, formatDate, isValidDate, dateLocale, dateFormatString]);
+  }, [form, updateFormData, formatDate, isValidDate, dateLocale, dateFormatString, formatGregorian, isValidGregorianDateOriginal]);
 
 
   useEffect(() => {
@@ -224,35 +235,22 @@ export function StepUserInfo({ dictionary, formData, updateFormData, onValidatio
                   <FormItem className="flex flex-col">
                     <FormLabel htmlFor={formItemId || "dob-input"}>{dictionary.dobLabel}</FormLabel>
                     <div className="relative flex items-center gap-x-2">
-                      <InputMask
-                        mask="____/__/__"
-                        replacement={{ _: /\d/ }}
-                        showMask
-                        value={dobInputValue}
-                        onMaskedValueChange={handleDobMaskedValueChange}
-                      >
-                        {({ ref: maskRef, ...inputPropsFromMask }) => {
-                           const { children, ...safeInputProps } = inputPropsFromMask; // Destructure children
-                           return (
-                            <input
-                                {...safeInputProps} // Spread only safe props
-                                ref={(el) => { 
-                                    if (maskRef && typeof maskRef === 'function') maskRef(el);
-                                    rhfField.ref(el);
-                                }}
-                                id={formItemId || "dob-input"}
-                                onBlur={rhfField.onBlur}
-                                placeholder={isFarsi ? dictionary.dobPlaceholderShamsi : dictionary.dobPlaceholderGregorian}
-                                className={cn(
-                                    "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
-                                    fieldState.error && "border-destructive"
-                                )}
-                                aria-invalid={!!fieldState.error}
-                                aria-describedby={fieldState.error ? `${formItemId}-form-item-message` : undefined}
-                            />
-                           );
-                        }}
-                      </InputMask>
+                      <input
+                        type="text"
+                        id={formItemId || "dob-input"}
+                        {...rhfField} // Spread RHF field props (ref, onBlur, but not value/onChange here)
+                        ref={rhfField.ref} // Explicitly pass ref
+                        onBlur={rhfField.onBlur} // Explicitly pass onBlur
+                        value={dobInputValue} // Control the input value with local state
+                        onChange={handleDobInputChange} // Handle changes with our custom logic
+                        placeholder={isFarsi ? dictionary.dobPlaceholderShamsi : dictionary.dobPlaceholderGregorian}
+                        className={cn(
+                            "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
+                            fieldState.error && "border-destructive"
+                        )}
+                        aria-invalid={!!fieldState.error}
+                        aria-describedby={fieldState.error ? `${formItemId}-form-item-message` : undefined}
+                      />
                       <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
                         <PopoverTrigger asChild>
                           <Button variant="outline" size="icon" type="button" className="shrink-0">
@@ -264,12 +262,9 @@ export function StepUserInfo({ dictionary, formData, updateFormData, onValidatio
                             mode="single"
                             selected={rhfField.value ?? undefined} 
                             onSelect={(date) => {
+                              // This directly sets the RHF 'dob' field to a Date object or null
                               form.setValue('dob', date, { shouldValidate: true });
-                              if (date && isValidDate(date)) {
-                                setDobInputValue(formatDate(date, dateFormatString, { locale: dateLocale }));
-                              } else {
-                                setDobInputValue('');
-                              }
+                              // The useEffect form.watch() will then sync this to dobInputValue
                               setIsCalendarOpen(false);
                             }}
                             disabled={(date) => {
@@ -279,9 +274,11 @@ export function StepUserInfo({ dictionary, formData, updateFormData, onValidatio
                                 const currentDateTimestamp = new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
                         
                                 const minDateValue = isFarsi
-                                ? parseDateInput('1279/01/01', 'yyyy/MM/dd', new Date()) 
+                                ? parseDateInput('1279/01/01', 'yyyy/MM/dd', new Date(), { locale: dateLocale }) 
                                 : new Date("1900-01-01");
-                                const minDateTimestamp = new Date(minDateValue.getFullYear(), minDateValue.getMonth(), minDateValue.getDate()).getTime();
+                                
+                                // Ensure minDateValue is a valid date before getTime()
+                                const minDateTimestamp = isValidDate(minDateValue) ? minDateValue.getTime() : 0;
                                 
                                 return currentDateTimestamp > today.getTime() || currentDateTimestamp < minDateTimestamp;
                             }}
