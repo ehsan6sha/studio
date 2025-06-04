@@ -120,6 +120,7 @@
         "invalidEmailOrPhone": "لطفا ایمیل یا شماره تلفن معتبر وارد کنید.",
         "dobRequired": "تاریخ تولد الزامی است.",
         "dobInvalid": "فرمت تاریخ نامعتبر است. لطفاً از فرمت YYYY/MM/DD استفاده کنید.",
+        "dobInFuture": "تاریخ تولد نمی‌تواند در آینده باشد.",
         "passwordMinLength": "رمز عبور باید حداقل ۶ کاراکتر باشد.",
         "confirmPasswordMinLength": "تکرار رمز عبور باید حداقل ۶ کاراکتر باشد.",
         "passwordsDontMatch": "رمزهای عبور یکسان نیستند."

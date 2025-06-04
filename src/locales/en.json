@@ -120,6 +120,7 @@
         "invalidEmailOrPhone": "Please enter a valid email or phone number.",
         "dobRequired": "Date of birth is required.",
         "dobInvalid": "Invalid date format. Please use YYYY/MM/DD.",
+        "dobInFuture": "Date of birth cannot be in the future.",
         "passwordMinLength": "Password must be at least 6 characters.",
         "confirmPasswordMinLength": "Confirm password must be at least 6 characters.",
         "passwordsDontMatch": "Passwords do not match."

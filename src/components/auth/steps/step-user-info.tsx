@@ -22,18 +22,14 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Calendar } from '@/components/ui/calendar';
 import { cn } from '@/lib/utils';
 
-// Standard date-fns for English/Gregorian
 import { format as formatGregorian, parse as parseGregorianOriginal, isValid as isValidGregorianDateOriginal, getYear as getYearGregorian } from 'date-fns';
-
-// For Farsi/Shamsi (Jalali)
 import { format as formatJalaliOriginal, parse as parseJalaliOriginal, isValid as isValidJalaliDateOriginal, getYear as getYearJalali } from 'date-fns-jalali';
 import { faIR as faIRJalaliLocale } from 'date-fns-jalali/locale'; 
-
 
 import { CalendarIcon, Eye, EyeOff } from 'lucide-react';
 import type { SignupFormData } from '../signup-stepper';
 import type { Locale } from '@/i18n-config';
-import { MaskInput, type MaskDetail } from 'maska';
+import { type MaskInput, type MaskDetail } from 'maska';
 
 
 interface StepUserInfoProps {
@@ -48,7 +44,7 @@ export function StepUserInfo({ dictionary, formData, updateFormData, onValidatio
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
-  const [dobInputValue, setDobInputValue] = useState<string>(''); // For display in input
+  const [dobInputValue, setDobInputValue] = useState<string>(''); 
   
   const isFarsi = lang === 'fa';
   const dobInputRef = useRef<HTMLInputElement>(null);
@@ -79,7 +75,6 @@ export function StepUserInfo({ dictionary, formData, updateFormData, onValidatio
     };
   }, [isFarsi]);
 
-
   const UserInfoSchema = z.object({
     name: z.string().min(1, { message: dictionary.errors.nameRequired }),
     emailOrPhone: z.string().min(1, { message: dictionary.errors.emailOrPhoneRequired })
@@ -89,7 +84,9 @@ export function StepUserInfo({ dictionary, formData, updateFormData, onValidatio
     dob: z.date({
       invalid_type_error: dictionary.errors.dobInvalid,
       required_error: dictionary.errors.dobRequired,
-    }).nullable(), 
+    })
+    .max(new Date(), { message: dictionary.errors.dobInFuture || "Date of birth cannot be in the future." })
+    .nullable(), 
     password: z.string().min(6, { message: dictionary.errors.passwordMinLength }),
     confirmPassword: z.string().min(6, { message: dictionary.errors.confirmPasswordMinLength }),
   }).superRefine(({ confirmPassword, password }, ctx) => {
@@ -116,22 +113,27 @@ export function StepUserInfo({ dictionary, formData, updateFormData, onValidatio
     mode: 'onChange', 
   });
   
-
   useEffect(() => {
     form.reset(defaultFormValues);
     const initialDobDate = defaultFormValues.dob;
     if (initialDobDate && isValidDate(initialDobDate)) {
-      setDobInputValue(formatDate(initialDobDate, dateFormatString, { locale: dateLocale }));
+        const formattedForDisplay = formatDate(initialDobDate, dateFormatString, { locale: dateLocale });
+        setDobInputValue(formattedForDisplay);
+        if (maskaInstanceRef.current) {
+            maskaInstanceRef.current.masked = formattedForDisplay;
+        }
     } else {
-      setDobInputValue('');
+        setDobInputValue('');
+        if (maskaInstanceRef.current) {
+            maskaInstanceRef.current.masked = '';
+        }
     }
   }, [defaultFormValues, form, formatDate, dateFormatString, dateLocale, isValidDate]);
-
 
   const handleMaskaDetail = useCallback((detail: MaskDetail) => {
     setDobInputValue(detail.masked);
     let parsedInputDate: Date | null = null;
-    if (detail.masked.length >= 8) { // Basic check for potential date string
+    if (detail.completed) { // Use detail.completed to check if mask is filled
       try {
         parsedInputDate = parseDateInput(detail.masked, dateFormatString, new Date(), { locale: dateLocale });
         if (!isValidDate(parsedInputDate)) {
@@ -142,20 +144,17 @@ export function StepUserInfo({ dictionary, formData, updateFormData, onValidatio
       }
     }
     form.setValue('dob', parsedInputDate, { shouldValidate: true });
-  }, [form, parseDateInput, dateFormatString, dateLocale, isValidDate, setDobInputValue]);
+  }, [form, parseDateInput, dateFormatString, dateLocale, isValidDate]);
 
   useEffect(() => {
     if (dobInputRef.current && !maskaInstanceRef.current) {
-      const instance = new MaskInput(dobInputRef.current, {
+      const MaskaLib = require('maska'); // Dynamically import Maska
+      const instance = new MaskaLib.MaskInput(dobInputRef.current, {
         mask: "####/##/##",
         onMaska: handleMaskaDetail,
-        eager: true, // Process initial value and programmatic changes
+        eager: true,
       });
       maskaInstanceRef.current = instance;
-
-      // If dobInputValue (from defaultValue of input) has an initial valid format,
-      // maska with eager:true should process it.
-      // Alternatively, to be explicit:
       if (dobInputRef.current.value) {
          instance.masked = dobInputRef.current.value;
       }
@@ -166,9 +165,8 @@ export function StepUserInfo({ dictionary, formData, updateFormData, onValidatio
     };
   }, [handleMaskaDetail]);
 
-
   useEffect(() => {
-    const subscription = form.watch((currentRHFValues, { name: changedFieldName }) => {
+    const subscription = form.watch((currentRHFValues) => {
       updateFormData({
         name: currentRHFValues.name,
         emailOrPhone: currentRHFValues.emailOrPhone,
@@ -177,12 +175,34 @@ export function StepUserInfo({ dictionary, formData, updateFormData, onValidatio
       });
     });
     return () => subscription.unsubscribe();
-  }, [form, updateFormData, formatGregorian]);
-
+  }, [form, updateFormData]);
 
   useEffect(() => {
     onValidation(form.formState.isValid);
   }, [form.formState.isValid, onValidation]);
+
+  const minDateForPicker = React.useMemo(() => {
+    let dateStr = '1900/01/01';
+    let parseFn = parseGregorianOriginal;
+    let isValidFn = isValidGregorianDateOriginal;
+    let currentLocale = undefined;
+
+    if (isFarsi) {
+        dateStr = '1279/01/01';
+        parseFn = parseJalaliOriginal;
+        isValidFn = isValidJalaliDateOriginal;
+        currentLocale = faIRJalaliLocale;
+    }
+    
+    const parsed = parseFn(dateStr, 'yyyy/MM/dd', new Date(), { locale: currentLocale });
+    return isValidFn(parsed) ? parsed : new Date(1900, 0, 1); // Fallback
+  }, [isFarsi]);
+
+  const maxDateForPicker = React.useMemo(() => {
+    const today = new Date();
+    today.setHours(0,0,0,0); // Set to start of today for accurate comparison
+    return today;
+  }, []);
 
 
   return (
@@ -224,7 +244,7 @@ export function StepUserInfo({ dictionary, formData, updateFormData, onValidatio
               <FormField
                 control={form.control}
                 name="dob"
-                render={({ field: rhfField, fieldState }) => { // RHF field used for its ref and onBlur
+                render={({ field: rhfField, fieldState }) => { 
                     const { formItemId } = useFormField();
                     return (
                   <FormItem className="flex flex-col">
@@ -233,9 +253,9 @@ export function StepUserInfo({ dictionary, formData, updateFormData, onValidatio
                       <input
                         type="text"
                         id={formItemId || "dob-input"}
-                        ref={dobInputRef} // Ref for Maska
-                        defaultValue={dobInputValue} // For initial display, Maska will take over
-                        onBlur={rhfField.onBlur} // RHF onBlur
+                        ref={dobInputRef} 
+                        defaultValue={dobInputValue} 
+                        onBlur={rhfField.onBlur} 
                         placeholder={isFarsi ? dictionary.dobPlaceholderShamsi : dictionary.dobPlaceholderGregorian}
                         className={cn(
                             "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
@@ -252,39 +272,31 @@ export function StepUserInfo({ dictionary, formData, updateFormData, onValidatio
                         </PopoverTrigger>
                         <PopoverContent className="w-auto p-0" align="start">
                           <Calendar
+                            key={lang} // Ensures re-mount on lang change
                             mode="single"
                             selected={rhfField.value ?? undefined} 
+                            defaultMonth={rhfField.value || undefined}
                             onSelect={(date) => {
                               if (date) {
                                 form.setValue('dob', date, { shouldValidate: true });
                                 const formattedDate = formatDate(date, dateFormatString, { locale: dateLocale });
-                                // setDobInputValue(formattedDate); // onMaska should handle this
                                 if (maskaInstanceRef.current) {
                                   maskaInstanceRef.current.masked = formattedDate;
+                                } else {
+                                    setDobInputValue(formattedDate); // Fallback if maska not ready
                                 }
                               } else {
                                 form.setValue('dob', null, { shouldValidate: true });
-                                // setDobInputValue(''); // onMaska should handle this
                                 if (maskaInstanceRef.current) {
                                   maskaInstanceRef.current.masked = '';
+                                } else {
+                                    setDobInputValue(''); // Fallback
                                 }
                               }
                               setIsCalendarOpen(false);
                             }}
-                            disabled={(date) => {
-                                const today = new Date();
-                                today.setHours(0, 0, 0, 0);
-                        
-                                const currentDateTimestamp = new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
-                        
-                                const minDateValue = isFarsi
-                                ? parseDateInput('1279/01/01', 'yyyy/MM/dd', new Date(), { locale: dateLocale }) 
-                                : new Date("1900-01-01");
-                                
-                                const minDateTimestamp = isValidDate(minDateValue) ? minDateValue.getTime() : 0;
-                                
-                                return currentDateTimestamp > today.getTime() || currentDateTimestamp < minDateTimestamp;
-                            }}
+                            fromDate={minDateForPicker}
+                            toDate={maxDateForPicker}
                             initialFocus
                             captionLayout="dropdown-buttons"
                             fromYear={calendarMinYear} 
@@ -356,3 +368,4 @@ export function StepUserInfo({ dictionary, formData, updateFormData, onValidatio
   );
 }
 
+    
