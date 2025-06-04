@@ -6,8 +6,8 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/auth-context';
 import type { Locale } from "@/i18n-config";
 import Link from "next/link";
-import Image from "next/image";
 import { Button } from "@/components/ui/button";
+import { Logo } from '@/components/layout/logo'; // Changed import from next/image to the Logo component
 
 interface LandingPageTexts {
   welcomeTitle: string;
@@ -15,7 +15,7 @@ interface LandingPageTexts {
   registerButton: string;
   loginButton: string;
   termsPolicyLink: string;
-  redirectingMessage: string; // Added for redirect message
+  redirectingMessage: string;
 }
 
 interface LandingPageClientProps {
@@ -46,14 +46,10 @@ export function LandingPageClient({ lang, dictionary }: LandingPageClientProps) 
 
   return (
     <div className="flex flex-col items-center justify-center text-center px-4 py-4 sm:py-6 md:py-8 flex-grow">
-      <Image
-        src="https://placehold.co/200x133.png"
-        alt={dictionary.appName}
-        width={200}
-        height={133}
-        className="mb-4 sm:mb-6 rounded-lg shadow-lg max-w-[150px] h-auto sm:max-w-[180px] md:max-w-[200px]"
-        data-ai-hint="mental wellness abstract"
-        priority
+      <Logo
+        locale={lang}
+        appName={dictionary.appName}
+        className="mb-6 sm:mb-8 [&_svg]:h-16 [&_svg]:w-16 sm:[&_svg]:h-20 sm:[&_svg]:w-20 [&_span]:text-4xl sm:[&_span]:text-5xl"
       />
       <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-headline font-bold tracking-tight text-primary">
         {dictionary.landingPage.welcomeTitle}
