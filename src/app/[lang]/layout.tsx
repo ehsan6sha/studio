@@ -18,6 +18,7 @@ export default function LocaleLayout({
   children: ReactNode;
 }) {
   const params = useParams();
+  // Ensure lang is correctly determined, falling back to defaultLocale if necessary
   let lang: Locale = i18n.defaultLocale;
   const langFromParams = Array.isArray(params.lang) ? params.lang[0] : params.lang;
   if (langFromParams && i18n.locales.includes(langFromParams as Locale)) {
@@ -46,6 +47,7 @@ export default function LocaleLayout({
       document.body.classList.add('font-body');
       document.body.classList.remove('font-vazir');
     }
+    // Cleanup function to remove classes when component unmounts or lang changes
     return () => {
       document.body.classList.remove('font-vazir');
       document.body.classList.remove('font-body');
@@ -55,15 +57,12 @@ export default function LocaleLayout({
   const pageVariants = React.useMemo(() => ({
     initial: {
       opacity: 0,
-      scale: 0.95,
     },
     in: {
       opacity: 1,
-      scale: 1,
     },
     out: {
       opacity: 0,
-      scale: 0.95,
     },
   }), []);
 
@@ -77,6 +76,7 @@ export default function LocaleLayout({
   const appNameFromDict = dictionary?.appName;
   const navigationDict = dictionary?.navigation;
 
+  // Default footer text if dictionary is not loaded
   const defaultFooterText = lang === 'fa' ? 'تمامی حقوق محفوظ است.' : 'All rights reserved.';
   const footerRightsText = dictionary?.termsPage?.contactInformation
     ? (lang === 'fa' ? 'تمامی حقوق محفوظ است.' : 'All rights reserved.')
@@ -91,8 +91,8 @@ export default function LocaleLayout({
       <div className="flex min-h-screen flex-col">
         <SiteHeader
           lang={lang}
-          dictionary={navigationDict}
-          appName={appNameFromDict}
+          dictionary={navigationDict} // Pass potentially null dictionary
+          appName={appNameFromDict}    // Pass potentially null appName
         />
         <main className="flex-1 container mx-auto px-4 py-8 sm:px-6 lg:px-8 overflow-x-hidden">
           <AnimatePresence mode="wait" initial={false}>
