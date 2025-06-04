@@ -107,6 +107,7 @@ body {
   body {
     @apply bg-background text-foreground;
     @apply min-h-screen flex flex-col;
+    overflow-x: hidden; /* Added to prevent scrollbars during animation */
   }
   main {
     @apply flex-grow;
