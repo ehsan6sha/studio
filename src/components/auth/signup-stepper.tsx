@@ -46,7 +46,7 @@ export interface SignupFormData {
   emailOrPhone?: string;
   password?: string;
   name?: string;
-  dob?: string;
+  dob?: string; // Stored as 'yyyy-MM-dd'
   verificationCode?: string;
   isYouth?: boolean | null;
   adultRolesSelected?: {
@@ -90,6 +90,17 @@ export function SignupStepper({
     isYouth: null,
     adultRolesSelected: {},
     youthConnections: [],
+    // Initialize other fields to prevent undefined issues if localStorage is empty or old
+    acceptedMandatoryTerms: false,
+    acceptedOptionalCommunications: false,
+    acceptedOptionalMarketing: false,
+    emailOrPhone: '',
+    password: '',
+    name: '',
+    dob: undefined,
+    verificationCode: '',
+    clinicCode: '',
+    schoolCode: '',
   });
   const [isLoaded, setIsLoaded] = useState(false);
   const [direction, setDirection] = useState(1);
@@ -99,6 +110,7 @@ export function SignupStepper({
   const calculateAge = useCallback((dobString?: string): number | null => {
     if (!dobString) return null;
     try {
+      // dobString is expected to be 'yyyy-MM-dd' from formData
       const birthDate = parseGregorianOriginal(dobString, 'yyyy-MM-dd', new Date());
       if (isNaN(birthDate.getTime())) return null;
 
@@ -123,19 +135,46 @@ export function SignupStepper({
 
   useEffect(() => {
     const storedData = localStorage.getItem('signupFormData');
+    let effectiveFormData = { // Start with a default, complete structure
+      isYouth: null,
+      adultRolesSelected: {},
+      youthConnections: [],
+      acceptedMandatoryTerms: false,
+      acceptedOptionalCommunications: false,
+      acceptedOptionalMarketing: false,
+      emailOrPhone: '',
+      password: '',
+      name: '',
+      dob: undefined,
+      verificationCode: '',
+      clinicCode: '',
+      schoolCode: '',
+    };
+
     if (storedData) {
       const parsedData = JSON.parse(storedData);
-      if (!parsedData.adultRolesSelected) parsedData.adultRolesSelected = {};
-      parsedData.youthConnections = parsedData.youthConnections || [];
-      setFormData(parsedData);
+      effectiveFormData = {
+        ...effectiveFormData, // Ensure all keys are present
+        ...parsedData,        // Override with parsed data
+        adultRolesSelected: parsedData.adultRolesSelected || {},
+        youthConnections: parsedData.youthConnections || [],
+      };
     }
-    
+    setFormData(effectiveFormData);
+
     const stepFromQuery = searchParams.get('step');
     const validatedInitialStep = stepFromQuery ? parseInt(stepFromQuery, 10) : initialStep;
-    const saneInitialStep = Math.max(1, Math.min(validatedInitialStep, getCurrentTotalSteps()));
+    
+    let currentTotalStepsCalc;
+    if (effectiveFormData.isYouth === true) currentTotalStepsCalc = BASE_TOTAL_STEPS_YOUTH;
+    else if (effectiveFormData.isYouth === false) currentTotalStepsCalc = BASE_TOTAL_STEPS_ADULT;
+    else currentTotalStepsCalc = BASE_TOTAL_STEPS_ADULT;
+
+    const saneInitialStep = Math.max(1, Math.min(validatedInitialStep, currentTotalStepsCalc));
+    
     setCurrentStep(saneInitialStep);
     setIsLoaded(true);
-  }, [searchParams, initialStep, getCurrentTotalSteps]);
+  }, [searchParams, initialStep]);
 
 
   useEffect(() => {
@@ -156,30 +195,16 @@ export function SignupStepper({
 
   useEffect(() => {
     if (!isLoaded) return;
-    const totalStepsForValidation = getCurrentTotalSteps();
 
-    if (currentStep === 1) setIsStepValid(true); // Information
-    else if (currentStep === 2) setIsStepValid(!!formData.acceptedMandatoryTerms); // Terms
-    // Step 3 (User Info) validation is handled by its onValidation prop
-    else if (currentStep === 4) setIsStepValid(!!formData.verificationCode && formData.verificationCode.length === 5); // Verification
-    else if (currentStep === 5) {
-      if (formData.isYouth === true) { // Youth: Sharing Preferences (always valid as optional)
-        setIsStepValid(true);
-      } else if (formData.isYouth === false) { // Adult: Role Selection (validation via onValidation prop)
-        // Validity is set by StepRoleSelection via its onValidation prop
-      } else {
-        setIsStepValid(false); // isYouth not determined
-      }
-    } else if (currentStep === 6) { // Adult: Sharing Preferences (always valid as optional)
-      if (formData.isYouth === false) {
-        setIsStepValid(true);
-      } else {
-        setIsStepValid(false); // Should not be reachable by youth
-      }
+    if (currentStep === 1) { // StepInformation doesn't call onValidation
+      setIsStepValid(true);
     }
-    else if (currentStep > totalStepsForValidation) setIsStepValid(false);
-
-  }, [currentStep, formData, isLoaded, getCurrentTotalSteps]);
+    // For Step 2 (Terms), StepUserInfo (3), StepVerification (4),
+    // StepRoleSelection (5 Adult), StepSharingPreferences (5 Youth / 6 Adult),
+    // `isStepValid` is set by `handleStepValidation` which is called by child components.
+    // `setIsStepValid(false)` is called in `handleNext` and `handlePrevious` to reset
+    // validity when navigating, allowing the new step's component to assert its validity.
+  }, [currentStep, isLoaded]);
 
 
   const handleNext = useCallback(async () => {
@@ -191,25 +216,25 @@ export function SignupStepper({
     }
 
     let nextStepNumber = currentStep + 1;
-    let newFormData = { ...formData };
-    const actualTotalSteps = getCurrentTotalSteps();
+    let newFormData = { ...formData }; // Use a mutable copy for this scope
+    const age = calculateAge(formData.dob); // Calculate age based on current formData.dob
 
-    if (currentStep === 4) { // After Verification
-      const age = calculateAge(formData.dob);
+    if (currentStep === 4) { // After Verification, determine if user is youth
       const isUserYouth = age !== null && age < 18;
       newFormData = { ...newFormData, isYouth: isUserYouth };
-      setFormData(newFormData); 
+      setFormData(newFormData); // Update the main formData state
       // Next step is 5 for both youth (sharing) and adults (role selection)
     }
     
     setDirection(1);
+    const actualTotalSteps = getCurrentTotalSteps(); // Get total steps based on potentially updated formData
 
     if (currentStep < actualTotalSteps) {
       setCurrentStep(nextStepNumber);
       updateUrl(nextStepNumber);
       setIsStepValid(false); 
     } else { // currentStep === actualTotalSteps (finish registration)
-      console.log('Finalizing registration:', newFormData);
+      console.log('Finalizing registration:', newFormData); // Use newFormData which has the latest isYouth status
 
       if (finishButtonRef.current) {
         const rect = finishButtonRef.current.getBoundingClientRect();
@@ -220,7 +245,7 @@ export function SignupStepper({
             x: (rect.left + rect.width / 2) / window.innerWidth,
             y: (rect.top + rect.height / 2) / window.innerHeight
           },
-          angle: 315, // Shoots upwards and to the right
+          angle: 315, // Shoots upwards and to the right (45 deg from vertical up)
           startVelocity: 45, 
           gravity: 0.9,      
           drift: Math.random() * 0.2 - 0.1, 
@@ -240,12 +265,13 @@ export function SignupStepper({
       let prevStep = currentStep - 1;
       setCurrentStep(prevStep);
       updateUrl(prevStep);
-      setIsStepValid(true); 
+      setIsStepValid(true); // Assume previous step was valid; new step will re-validate if needed
     }
   };
 
   const updateFormDataAndValidate = useCallback((data: Partial<SignupFormData>) => {
     setFormData((prev) => ({ ...prev, ...data }));
+    // Validation for the current step will be triggered by child component's onValidation or the stepper's own useEffect
   }, []);
 
 
@@ -269,7 +295,8 @@ export function SignupStepper({
     }),
   };
 
-  if (!isLoaded || (formData.isYouth === null && currentStep > 4)) {
+  if (!isLoaded || (formData.isYouth === null && currentStep > 4 && currentStep <= actualTotalSteps)) {
+     // Show loading if isYouth is not determined yet and we are past step 4 but not beyond total steps.
     return <div className="flex-grow flex items-center justify-center">{dictionary.loading || "Loading..."}</div>;
   }
 
@@ -323,9 +350,12 @@ export function SignupStepper({
         onValidation={handleStepValidation}
         lang={lang}
       />;
+    } else {
+      // Fallback if isYouth is null at step 5 (should be caught by loading state earlier)
+      currentStepComponent = <div className="flex-grow flex items-center justify-center">{dictionary.loadingRoleInfo || "Determining your pathway..."}</div>;
     }
   } else if (currentStep === 6) { 
-    if (formData.isYouth === false) { // Only adults reach step 6
+    if (formData.isYouth === false) { // Only adults reach step 6 for sharing
       currentStepComponent = <StepSharingPreferences
         dictionary={dictionary.stepSharingPreferences}
         formData={formData}
@@ -333,6 +363,12 @@ export function SignupStepper({
         onValidation={handleStepValidation} 
         lang={lang}
       />;
+    } else {
+      // Youth should not reach step 6. Redirect or show error?
+      // This case implies an issue with step logic if reached by youth.
+      // For now, effectively treat as end for youth.
+       console.error("Youth user reached step 6, which should not happen.");
+       // Potentially redirect or show a generic "completed" view if this state is somehow reached.
     }
   }
 
@@ -344,7 +380,7 @@ export function SignupStepper({
       <div className="flex-grow overflow-hidden flex flex-col">
         <AnimatePresence initial={false} custom={direction} mode="wait">
           <motion.div
-            key={`${currentStep}-${formData.isYouth}`} 
+            key={`${currentStep}-${formData.isYouth}`} // Key change helps reset animation state if isYouth changes step 5 component
             custom={direction}
             variants={variants}
             initial="enter"
