@@ -108,17 +108,18 @@
       "emailOrPhoneLabel": "ایمیل یا شماره تلفن",
       "emailOrPhonePlaceholder": "مثال: user@example.com یا 09123456789",
       "dobLabel": "تاریخ تولد",
-      "dobPlaceholder": "مثال: ۱۳۷۰/۰۱/۱۵ (شمسی)",
+      "dobPlaceholderShamsi": "مثال: ۱۳۷۰/۰۱/۱۵ (شمسی)",
+      "dobPlaceholderGregorian": "مثال: 1990-01-15 (میلادی)",
       "passwordLabel": "رمز عبور",
       "confirmPasswordLabel": "تکرار رمز عبور",
-      "showPassword": "نمایش رمز عبور",
-      "hidePassword": "پنهان کردن رمز عبور",
+      "showPasswordAriaLabel": "نمایش رمز عبور",
+      "hidePasswordAriaLabel": "پنهان کردن رمز عبور",
       "errors": {
         "nameRequired": "نام کامل الزامی است.",
         "emailOrPhoneRequired": "ایمیل یا شماره تلفن الزامی است.",
         "invalidEmailOrPhone": "لطفا ایمیل یا شماره تلفن معتبر وارد کنید.",
         "dobRequired": "تاریخ تولد الزامی است.",
-        "dobInvalid": "فرمت تاریخ نامعتبر است.",
+        "dobInvalid": "فرمت تاریخ نامعتبر است. لطفاً از فرمت شمسی (مثال: ۱۳۷۰/۰۱/۱۵) یا میلادی (مثال: 1990-01-15) استفاده کنید.",
         "passwordMinLength": "رمز عبور باید حداقل ۶ کاراکتر باشد.",
         "confirmPasswordMinLength": "تکرار رمز عبور باید حداقل ۶ کاراکتر باشد.",
         "passwordsDontMatch": "رمزهای عبور یکسان نیستند."
@@ -128,7 +129,7 @@
       "title": "تأیید حساب کاربری",
       "descriptionEmail": "یک کد تأیید به {emailOrPhone} ارسال شد. لطفاً آن را در زیر وارد کنید.",
       "descriptionPhone": "یک کد تأیید به {emailOrPhone} ارسال شد. لطفاً آن را در زیر وارد کنید.",
-      "descriptionGeneric": "لطفا کد تایید را وارد کنید.",
+      "descriptionGeneric": "لطفا کد تایید ارسال شده به ایمیل یا تلفن خود را وارد کنید.",
       "pasteButton": "چسباندن کد",
       "openEmailButton": "باز کردن {domain}",
       "didNotReceiveCode": "کد را دریافت نکردید؟",
@@ -142,6 +143,46 @@
         "pasteErrorFailed": "خواندن از کلیپ‌بورد ناموفق بود. لطفاً کد را دستی وارد کنید.",
         "pasteIncompleteTitle": "کد ناقص",
         "pasteIncompleteDescription": "{count} رقم چسبانده شد. لطفا کد ۵ رقمی را کامل کنید."
+      }
+    },
+    "stepAgeInfo": {
+      "title": "پروفایل سلامت هیجانی",
+      "description": "چند قدم دیگر تا شخصی‌سازی تجربه شما.",
+      "mainContent": "در ادامه، چند سوال در مورد سلامت هیجانی شما خواهیم پرسید. این به ما کمک می‌کند تا روان‌همراه را متناسب با نیازهای شما تنظیم کنیم."
+    },
+    "stepRoleSelection": {
+      "title": "نقش شما",
+      "descriptionAdult": "لطفاً نقشی که به بهترین شکل شما را توصیف می‌کند، انتخاب کنید.",
+      "descriptionYouth": "در صورت تمایل، به شما کمک می‌کنیم تا با بزرگسالان مورد اعتماد ارتباط برقرار کنید.",
+      "loadingRoleInfo": "درحال تعیین مسیر شما...",
+      "selectRoleLabel": "نقش خود را انتخاب کنید:",
+      "roles": {
+        "parent": "والدین / مراقبین",
+        "therapist": "تراپیست",
+        "schoolConsultant": "مشاور مدرسه",
+        "supervisor": "سوپروایزر",
+        "youth": "نوجوان"
+      },
+      "clinicCodeLabel": "کد کلینیک (برای تراپیست‌ها)",
+      "clinicCodePlaceholder": "کد کلینیک خود را وارد کنید",
+      "schoolNameLabel": "نام مدرسه (برای مشاورین مدرسه)",
+      "schoolNamePlaceholder": "نام مدرسه خود را وارد کنید",
+      "youthRoleDisplayLabel": "نقش شما",
+      "youthConnections": {
+        "title": "ارتباط با افراد حامی (اختیاری)",
+        "description": "آدرس ایمیل بزرگسالانی که مایل به برقراری ارتباط با آنها هستید را وارد کنید.",
+        "parentEmailLabel": "ایمیل والدین/مراقب",
+        "therapistEmailLabel": "ایمیل تراپیست",
+        "schoolConsultantEmailLabel": "ایمیل مشاور مدرسه",
+        "supervisorEmailLabel": "ایمیل سوپروایزر",
+        "emailPlaceholder": "آدرس ایمیل را وارد کنید",
+        "addEmailButton": "افزودن ایمیل"
+      },
+      "errors": {
+        "roleRequired": "لطفاً یک نقش انتخاب کنید.",
+        "clinicCodeRequired": "کد کلینیک برای تراپیست‌ها الزامی است.",
+        "schoolNameRequired": "نام مدرسه برای مشاورین مدرسه الزامی است.",
+        "invalidEmail": "لطفاً یک آدرس ایمیل معتبر وارد کنید."
       }
     },
     "appTermsContent": {

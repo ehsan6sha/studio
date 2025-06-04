@@ -8,11 +8,13 @@ import { StepInformation } from './steps/step-information';
 import { StepTerms } from './steps/step-terms';
 import { StepUserInfo } from './steps/step-user-info';
 import { StepVerification } from './steps/step-verification';
+import { StepAgeInfo } from './steps/step-age-info';
+import { StepRoleSelection } from './steps/step-role-selection';
 import { Button } from '@/components/ui/button';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Progress } from "@/components/ui/progress";
 
-const TOTAL_STEPS = 4;
+const TOTAL_STEPS = 6; // Increased from 4 to 6
 
 export interface SignupFormData {
   acceptedMandatoryTerms?: boolean;
@@ -23,6 +25,15 @@ export interface SignupFormData {
   name?: string;
   dob?: string; // Store as ISO string 'YYYY-MM-DD'
   verificationCode?: string;
+  isYouth?: boolean | null; // New: null initially, then true or false
+  selectedRole?: string; // New: 'parent', 'therapist', 'school_consultant', 'supervisor', 'youth_self'
+  clinicCode?: string; // New for therapist
+  schoolName?: string; // New for school consultant
+  // For Youth connections - simplified for now to one email per category
+  connectedParentEmail?: string;
+  connectedTherapistEmail?: string;
+  connectedSchoolConsultantEmail?: string;
+  connectedSupervisorEmail?: string;
 }
 
 interface SignupStepperProps {
@@ -49,7 +60,7 @@ export function SignupStepper({
   const searchParams = useSearchParams();
 
   const [currentStep, setCurrentStep] = useState(initialStep < 1 || initialStep > TOTAL_STEPS ? 1 : initialStep);
-  const [formData, setFormData] = useState<SignupFormData>({});
+  const [formData, setFormData] = useState<SignupFormData>({isYouth: null}); // Initialize isYouth
   const [isLoaded, setIsLoaded] = useState(false);
   const [direction, setDirection] = useState(1); 
   const [isStepValid, setIsStepValid] = useState(false);
@@ -64,8 +75,6 @@ export function SignupStepper({
     const saneInitialStep = Math.max(1, Math.min(validatedInitialStep, TOTAL_STEPS));
     setCurrentStep(saneInitialStep);
     setIsLoaded(true);
-    // Set initial validation state based on current step and loaded data
-    // This is tricky because validation depends on the step's content
   }, []);
 
   useEffect(() => {
@@ -80,22 +89,41 @@ export function SignupStepper({
     router.push(`${pathname}?${newSearchParams.toString()}`, { scroll: false });
   };
   
-  // Effect to set initial validation state when step or formData changes
+  const calculateAge = (dobString?: string): number | null => {
+    if (!dobString) return null;
+    try {
+      const birthDate = new Date(dobString);
+      if (isNaN(birthDate.getTime())) return null;
+
+      const today = new Date();
+      let age = today.getFullYear() - birthDate.getFullYear();
+      const m = today.getMonth() - birthDate.getMonth();
+      if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+        age--;
+      }
+      return age;
+    } catch (e) {
+      return null;
+    }
+  };
+
   useEffect(() => {
     if (!isLoaded) return;
 
     if (currentStep === 1) {
-      setIsStepValid(true); // Step 1 is always valid
+      setIsStepValid(true); 
     } else if (currentStep === 2) {
       setIsStepValid(!!formData.acceptedMandatoryTerms);
     } else if (currentStep === 3) {
-      // For Step 3 (UserInfo), validation is handled by its internal form
-      // The StepUserInfo component calls onValidation prop
-      // For now, let's assume it's invalid until its internal form says otherwise
-      // This will be updated by the StepUserInfo component via onValidation
+      // Validation handled by StepUserInfo via onValidation
     } else if (currentStep === 4) {
-      // For Step 4 (Verification)
       setIsStepValid(!!formData.verificationCode && formData.verificationCode.length === 5);
+    } else if (currentStep === 5) {
+      // Step 5 (Age Info) is informational, always valid to proceed.
+      // Age calculation and setting formData.isYouth happens here or on proceed.
+      setIsStepValid(true); 
+    } else if (currentStep === 6) {
+      // Validation handled by StepRoleSelection via onValidation
     }
   }, [currentStep, formData, isLoaded]);
 
@@ -105,16 +133,22 @@ export function SignupStepper({
       if (currentStep === 2 && !formData.acceptedMandatoryTerms) {
          alert(dictionary.errorMandatoryTerms);
       }
-      // Potentially show other alerts or rely on form field errors for step 3
       return;
     }
+
+    if (currentStep === 5) { // Before proceeding from Step 5
+      const age = calculateAge(formData.dob);
+      const isUserYouth = age !== null && age < 18;
+      updateFormDataAndValidate({ isYouth: isUserYouth });
+    }
+
 
     setDirection(1);
     if (currentStep < TOTAL_STEPS) {
       const nextStep = currentStep + 1;
       setCurrentStep(nextStep);
       updateUrl(nextStep);
-      setIsStepValid(false); // Reset validation state for the new step
+      setIsStepValid(false); 
     } else {
       console.log('Finalizing registration:', formData);
       // toast({ title: dictionary.registrationCompleteTitle, description: dictionary.registrationCompleteMessage });
@@ -129,9 +163,6 @@ export function SignupStepper({
       const prevStep = currentStep - 1;
       setCurrentStep(prevStep);
       updateUrl(prevStep);
-      // When going back, the previous step should generally be considered valid
-      // if it was completed, or re-validate based on its criteria.
-      // For simplicity, let's set to true, can be refined.
       setIsStepValid(true); 
     }
   };
@@ -174,7 +205,7 @@ export function SignupStepper({
     <div className="w-full max-w-xl mx-auto flex flex-col flex-grow" dir={lang === 'fa' ? 'rtl' : 'ltr'}>
       <Progress value={progressValue} className="w-full mb-4 md:mb-6" />
       
-      <div className="flex-grow overflow-hidden flex flex-col">
+      <div className="flex-grow overflow-hidden flex flex-col"> {/* Ensure this div takes up space */}
         <AnimatePresence initial={false} custom={direction} mode="wait">
           <motion.div
             key={currentStep}
@@ -187,7 +218,7 @@ export function SignupStepper({
               x: { type: 'spring', stiffness: 300, damping: 30 },
               opacity: { duration: 0.2 },
             }}
-            className="w-full flex-1 overflow-y-auto p-1 sm:p-2 md:p-4" 
+            className="w-full flex-1 overflow-y-auto p-1 sm:p-2 md:p-4" // flex-1 will allow it to grow
           >
             {currentStep === 1 && (
               <StepInformation dictionary={dictionary.stepInformation} />
@@ -222,6 +253,24 @@ export function SignupStepper({
                     onValidation={handleStepValidation}
                     lang={lang}
                 />
+            )}
+            {currentStep === 5 && (
+              <StepAgeInfo
+                dictionary={dictionary.stepAgeInfo}
+                formData={formData}
+                updateFormData={updateFormDataAndValidate}
+                onValidation={handleStepValidation} // Step 5 might always be valid
+                lang={lang}
+              />
+            )}
+            {currentStep === 6 && (
+              <StepRoleSelection
+                dictionary={dictionary.stepRoleSelection}
+                formData={formData}
+                updateFormData={updateFormDataAndValidate}
+                onValidation={handleStepValidation}
+                lang={lang}
+              />
             )}
           </motion.div>
         </AnimatePresence>

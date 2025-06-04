@@ -108,17 +108,18 @@
       "emailOrPhoneLabel": "Email or Phone Number",
       "emailOrPhonePlaceholder": "e.g., user@example.com or +1234567890",
       "dobLabel": "Date of Birth",
-      "dobPlaceholder": "YYYY-MM-DD",
+      "dobPlaceholderGregorian": "YYYY-MM-DD (e.g. 1990-01-15)",
+      "dobPlaceholderShamsi": "YYYY/MM/DD (e.g. 1368/10/25) - Gregorian",
       "passwordLabel": "Password",
       "confirmPasswordLabel": "Confirm Password",
-      "showPassword": "Show password",
-      "hidePassword": "Hide password",
+      "showPasswordAriaLabel": "Show password",
+      "hidePasswordAriaLabel": "Hide password",
       "errors": {
         "nameRequired": "Full name is required.",
         "emailOrPhoneRequired": "Email or phone number is required.",
         "invalidEmailOrPhone": "Please enter a valid email or phone number.",
         "dobRequired": "Date of birth is required.",
-        "dobInvalid": "Invalid date format.",
+        "dobInvalid": "Invalid date format. Please use YYYY-MM-DD.",
         "passwordMinLength": "Password must be at least 6 characters.",
         "confirmPasswordMinLength": "Confirm password must be at least 6 characters.",
         "passwordsDontMatch": "Passwords do not match."
@@ -128,7 +129,7 @@
       "title": "Account Verification",
       "descriptionEmail": "A verification code has been sent to {emailOrPhone}. Please enter it below.",
       "descriptionPhone": "A verification code has been sent to {emailOrPhone}. Please enter it below.",
-      "descriptionGeneric": "Please enter the verification code.",
+      "descriptionGeneric": "Please enter the verification code sent to your email or phone.",
       "pasteButton": "Paste Code",
       "openEmailButton": "Open {domain}",
       "didNotReceiveCode": "Didn't receive the code?",
@@ -142,6 +143,46 @@
         "pasteErrorFailed": "Could not read from clipboard. Please type the code manually.",
         "pasteIncompleteTitle": "Incomplete Code",
         "pasteIncompleteDescription": "Pasted {count} digits. Please complete the 5-digit code."
+      }
+    },
+    "stepAgeInfo": {
+      "title": "Emotional Health Profile",
+      "description": "A few more steps to personalize your experience.",
+      "mainContent": "Next, we'll ask some questions about your emotional health. This will help us tailor RavanHamrah to your needs."
+    },
+    "stepRoleSelection": {
+      "title": "Your Role",
+      "descriptionAdult": "Please select the role that best describes you.",
+      "descriptionYouth": "We'll help you connect with trusted adults if you wish.",
+      "loadingRoleInfo": "Determining your pathway...",
+      "selectRoleLabel": "Select your role:",
+      "roles": {
+        "parent": "Parent / Caregiver",
+        "therapist": "Therapist",
+        "schoolConsultant": "School Consultant",
+        "supervisor": "Supervisor",
+        "youth": "Youth"
+      },
+      "clinicCodeLabel": "Clinic Code (for Therapists)",
+      "clinicCodePlaceholder": "Enter your clinic code",
+      "schoolNameLabel": "School Name (for School Consultants)",
+      "schoolNamePlaceholder": "Enter your school's name",
+      "youthRoleDisplayLabel": "Your Role",
+      "youthConnections": {
+        "title": "Connect with Support (Optional)",
+        "description": "Enter the email addresses of adults you'd like to connect with.",
+        "parentEmailLabel": "Parent/Caregiver Email",
+        "therapistEmailLabel": "Therapist Email",
+        "schoolConsultantEmailLabel": "School Consultant Email",
+        "supervisorEmailLabel": "Supervisor Email",
+        "emailPlaceholder": "Enter email address",
+        "addEmailButton": "Add Email"
+      },
+      "errors": {
+        "roleRequired": "Please select a role.",
+        "clinicCodeRequired": "Clinic code is required for therapists.",
+        "schoolNameRequired": "School name is required for school consultants.",
+        "invalidEmail": "Please enter a valid email address."
       }
     },
     "appTermsContent": {
