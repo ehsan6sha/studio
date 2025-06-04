@@ -78,5 +78,56 @@
     "registerButton": "Register",
     "loginButton": "Login",
     "termsPolicyLink": "Terms and Policy"
+  },
+  "termsPage": {
+    "mainTitle": "Terms and Conditions",
+    "lastUpdated": "Last Updated: July 26, 2024",
+    "introduction": {
+      "title": "1. Introduction",
+      "content1": "Welcome to RavanHamrah (\"Company\", \"we\", \"our\", \"us\")! These Terms and Conditions (\"Terms\") govern your use of our website and mobile application (collectively, the \"Service\") offered by RavanHamrah.",
+      "content2": "By accessing or using our Service, you agree to be bound by these Terms. If you disagree with any part of the terms, then you may not access the Service. Please read them carefully."
+    },
+    "services": {
+      "title": "2. Our Services",
+      "content1": "RavanHamrah provides a platform for mental wellness, including but not limited to:",
+      "item1": "AI-driven insights based on user-provided data.",
+      "item2": "Tools for daily journaling and mood tracking.",
+      "item3": "Suggestions for relevant specialists based on user needs.",
+      "disclaimer": "Our Service is not a substitute for professional medical advice, diagnosis, or treatment. Always seek the advice of your physician or other qualified health provider with any questions you may have regarding a medical condition."
+    },
+    "userAccounts": {
+      "title": "3. User Accounts",
+      "content1": "When you create an account with us, you must provide us with information that is accurate, complete, and current at all times. Failure to do so constitutes a breach of the Terms, which may result in immediate termination of your account on our Service.",
+      "content2": "You are responsible for safeguarding the password that you use to access the Service and for any activities or actions under your password, whether your password is with our Service or a third-party service. You agree not to disclose your password to any third party. You must notify us immediately upon becoming aware of any breach of security or unauthorized use of your account."
+    },
+    "userContent": {
+      "title": "4. User Content",
+      "content1": "Our Service may allow you to post, link, store, share and otherwise make available certain information, text, graphics, videos, or other material (\"Content\"). You are responsible for the Content that you post to the Service, including its legality, reliability, and appropriateness."
+    },
+    "privacyPolicy": {
+      "title": "5. Privacy Policy",
+      "content1": "Our Privacy Policy describes how we handle the information you provide to us when you use our Services. You understand that through your use of the Services you consent to the collection and use (as set forth in the Privacy Policy) of this information. Please review our ",
+      "linkText": "Privacy Policy"
+    },
+    "termination": {
+      "title": "6. Termination",
+      "content1": "We may terminate or suspend your account immediately, without prior notice or liability, for any reason whatsoever, including without limitation if you breach the Terms. Upon termination, your right to use the Service will immediately cease."
+    },
+    "disclaimerOfWarranties": {
+      "title": "7. Disclaimer of Warranties",
+      "content1": "The Service is provided on an \"AS IS\" and \"AS AVAILABLE\" basis. The Service is provided without warranties of any kind, whether express or implied, including, but not limited to, implied warranties of merchantability, fitness for a particular purpose, non-infringement or course of performance."
+    },
+    "limitationOfLiability": {
+      "title": "8. Limitation of Liability",
+      "content1": "In no event shall RavanHamrah, nor its directors, employees, partners, agents, suppliers, or affiliates, be liable for any indirect, incidental, special, consequential or punitive damages, including without limitation, loss of profits, data, use, goodwill, or other intangible losses, resulting from your access to or use of or inability to access or use the Service."
+    },
+    "changesToTerms": {
+      "title": "9. Changes to Terms",
+      "content1": "We reserve the right, at our sole discretion, to modify or replace these Terms at any time. If a revision is material we will try to provide at least 30 days' notice prior to any new terms taking effect. What constitutes a material change will be determined at our sole discretion. By continuing to access or use our Service after those revisions become effective, you agree to be bound by the revised terms."
+    },
+    "contactInformation": {
+      "title": "10. Contact Us",
+      "content1": "If you have any questions about these Terms, please contact us at: support@ravanhamrah.example.com"
+    }
   }
 }
