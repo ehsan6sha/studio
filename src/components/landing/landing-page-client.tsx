@@ -7,7 +7,7 @@ import { useAuth } from '@/context/auth-context';
 import type { Locale } from "@/i18n-config";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Logo } from '@/components/layout/logo'; // Changed import from next/image to the Logo component
+import { Logo } from '@/components/layout/logo';
 
 interface LandingPageTexts {
   welcomeTitle: string;
@@ -49,7 +49,8 @@ export function LandingPageClient({ lang, dictionary }: LandingPageClientProps) 
       <Logo
         locale={lang}
         appName={dictionary.appName}
-        className="mb-6 sm:mb-8 [&_svg]:h-16 [&_svg]:w-16 sm:[&_svg]:h-20 sm:[&_svg]:w-20 [&_span]:text-4xl sm:[&_span]:text-5xl"
+        iconOnly={true}
+        className="mb-6 sm:mb-8 [&_svg]:h-16 [&_svg]:w-16 sm:[&_svg]:h-20 sm:[&_svg]:w-20"
       />
       <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-headline font-bold tracking-tight text-primary">
         {dictionary.landingPage.welcomeTitle}
