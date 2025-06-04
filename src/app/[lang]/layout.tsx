@@ -18,7 +18,7 @@ export default function LocaleLayout({
   children: ReactNode;
 }) {
   const params = useParams();
-  let lang: Locale = i18n.defaultLocale; // Default to 'fa'
+  let lang: Locale = i18n.defaultLocale;
 
   if (params.lang && typeof params.lang === 'string' && i18n.locales.includes(params.lang as Locale)) {
     lang = params.lang as Locale;
@@ -81,7 +81,7 @@ export default function LocaleLayout({
   const navigationDict = dictionary?.navigation;
   const footerRightsText = dictionary
     ? (lang === 'fa' ? 'تمامی حقوق محفوظ است.' : 'All rights reserved.')
-    : (lang === 'fa' ? 'تمامی حقوق محفوظ است.' : 'All rights reserved.'); // Default text
+    : (lang === 'fa' ? 'تمامی حقوق محفوظ است.' : 'All rights reserved.');
 
   return (
     <AuthProvider>
@@ -101,7 +101,6 @@ export default function LocaleLayout({
               exit="out"
               variants={pageVariants}
               transition={pageTransition}
-              className="h-full"
             >
               {children}
             </motion.div>
