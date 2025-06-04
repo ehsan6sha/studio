@@ -16,14 +16,14 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import type { SignupFormData } from '../signup-stepper';
 import type { Locale } from '@/i18n-config';
 import { PlusCircle, Trash2 } from 'lucide-react';
 
 interface StepRoleSelectionProps {
-  dictionary: any; // Contains translations for roles, labels, placeholders
+  dictionary: any; 
   formData: SignupFormData;
   updateFormData: (data: Partial<SignupFormData>) => void;
   onValidation: (isValid: boolean) => void;
@@ -33,20 +33,24 @@ interface StepRoleSelectionProps {
 export function StepRoleSelection({ dictionary, formData, updateFormData, onValidation, lang }: StepRoleSelectionProps) {
   const { isYouth } = formData;
 
-  // Define Zod schemas based on whether the user is a youth or not
   const adultRoleSchema = z.object({
-    selectedRole: z.string().min(1, { message: dictionary.errors.roleRequired }),
-    clinicCode: z.string().optional(), // Optional for now, make required if role is therapist
-    schoolName: z.string().optional(), // Optional, make required if role is school_consultant
+    adultRolesSelected: z.object({
+      parent: z.boolean().optional(),
+      therapist: z.boolean().optional(),
+      school_consultant: z.boolean().optional(),
+      supervisor: z.boolean().optional(),
+    }).optional(),
+    clinicCode: z.string().optional(),
+    schoolName: z.string().optional(),
   }).superRefine((data, ctx) => {
-    if (data.selectedRole === 'therapist' && !data.clinicCode) {
+    if (data.adultRolesSelected?.therapist && (!data.clinicCode || data.clinicCode.trim() === '')) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         message: dictionary.errors.clinicCodeRequired,
         path: ['clinicCode'],
       });
     }
-    if (data.selectedRole === 'school_consultant' && !data.schoolName) {
+    if (data.adultRolesSelected?.school_consultant && (!data.schoolName || data.schoolName.trim() === '')) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         message: dictionary.errors.schoolNameRequired,
@@ -54,10 +58,10 @@ export function StepRoleSelection({ dictionary, formData, updateFormData, onVali
       });
     }
   });
-
-  // Simplified schema for youth for now. Can be expanded.
+  
   const youthSchema = z.object({
-    selectedRole: z.literal('youth_self', { errorMap: () => ({ message: "Role must be youth" }) }),
+    // For youth, adultRolesSelected is not relevant for their own role.
+    // selectedRole might be implicitly 'youth_self' or not needed if isYouth flag is the primary determinant.
     connectedParentEmail: z.string().email({ message: dictionary.errors.invalidEmail }).optional().or(z.literal('')),
     connectedTherapistEmail: z.string().email({ message: dictionary.errors.invalidEmail }).optional().or(z.literal('')),
     connectedSchoolConsultantEmail: z.string().email({ message: dictionary.errors.invalidEmail }).optional().or(z.literal('')),
@@ -69,7 +73,7 @@ export function StepRoleSelection({ dictionary, formData, updateFormData, onVali
   const form = useForm<z.infer<typeof currentSchema>>({
     resolver: zodResolver(currentSchema),
     defaultValues: {
-      selectedRole: formData.selectedRole || (isYouth ? 'youth_self' : ''),
+      adultRolesSelected: formData.adultRolesSelected || { parent: false, therapist: false, school_consultant: false, supervisor: false },
       clinicCode: formData.clinicCode || '',
       schoolName: formData.schoolName || '',
       connectedParentEmail: formData.connectedParentEmail || '',
@@ -81,10 +85,8 @@ export function StepRoleSelection({ dictionary, formData, updateFormData, onVali
   });
 
   useEffect(() => {
-    // Reset form with potentially new defaultValues if formData or isYouth changes
-    // This also handles the initial load
     form.reset({
-      selectedRole: formData.selectedRole || (isYouth ? 'youth_self' : ''),
+      adultRolesSelected: formData.adultRolesSelected || { parent: false, therapist: false, school_consultant: false, supervisor: false },
       clinicCode: formData.clinicCode || '',
       schoolName: formData.schoolName || '',
       connectedParentEmail: formData.connectedParentEmail || '',
@@ -106,7 +108,6 @@ export function StepRoleSelection({ dictionary, formData, updateFormData, onVali
     onValidation(form.formState.isValid);
   }, [form.formState.isValid, onValidation]);
   
-  // Trigger validation on mount and when schema might change (due to isYouth)
   useEffect(() => {
     const timer = setTimeout(() => form.trigger(), 0);
     return () => clearTimeout(timer);
@@ -114,11 +115,11 @@ export function StepRoleSelection({ dictionary, formData, updateFormData, onVali
 
 
   const adultRoles = [
-    { value: 'parent', label: dictionary.roles.parent },
-    { value: 'therapist', label: dictionary.roles.therapist },
-    { value: 'school_consultant', label: dictionary.roles.schoolConsultant },
-    { value: 'supervisor', label: dictionary.roles.supervisor },
-  ];
+    { id: 'parent', label: dictionary.roles.parent },
+    { id: 'therapist', label: dictionary.roles.therapist },
+    { id: 'school_consultant', label: dictionary.roles.schoolConsultant },
+    { id: 'supervisor', label: dictionary.roles.supervisor },
+  ] as const;
 
   const youthConnectionFields = [
     { name: 'connectedParentEmail', label: dictionary.youthConnections.parentEmailLabel, placeholder: dictionary.youthConnections.emailPlaceholder },
@@ -151,9 +152,6 @@ export function StepRoleSelection({ dictionary, formData, updateFormData, onVali
               {isYouth ? (
                 <>
                   <p className="text-center font-semibold">{dictionary.youthRoleDisplayLabel}: {dictionary.roles.youth}</p>
-                  {/* Hidden field for youth_self role for schema validation */}
-                  <input type="hidden" {...form.register("selectedRole")} value="youth_self" />
-
                   {youthConnectionFields.map(fieldInfo => (
                     <FormField
                       key={fieldInfo.name}
@@ -172,39 +170,42 @@ export function StepRoleSelection({ dictionary, formData, updateFormData, onVali
                   ))}
                 </>
               ) : (
-                // Adult Role Selection
+                // Adult Role Selection with Checkboxes
                 <FormField
                   control={form.control}
-                  name="selectedRole"
-                  render={({ field }) => (
+                  name="adultRolesSelected" // This name might need adjustment depending on how RHF handles object of booleans for checkboxes
+                  render={() => ( // Render prop might not be needed directly on FormField for group
                     <FormItem className="space-y-3">
-                      <FormLabel>{dictionary.selectRoleLabel}</FormLabel>
-                      <FormControl>
-                        <RadioGroup
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
-                          className="flex flex-col space-y-2"
-                        >
-                          {adultRoles.map((role) => (
-                            <FormItem key={role.value} className="flex items-center space-x-3 space-y-0 rtl:space-x-reverse">
-                              <FormControl>
-                                <RadioGroupItem value={role.value} />
-                              </FormControl>
-                              <FormLabel className="font-normal">
-                                {role.label}
-                              </FormLabel>
-                            </FormItem>
-                          ))}
-                        </RadioGroup>
-                      </FormControl>
-                      <FormMessage />
+                      <FormLabel>{dictionary.selectRolesLabel}</FormLabel> {/* Updated label */}
+                      <div className="space-y-2">
+                        {adultRoles.map((role) => (
+                          <FormField
+                            key={role.id}
+                            control={form.control}
+                            name={`adultRolesSelected.${role.id}`}
+                            render={({ field }) => (
+                              <FormItem className="flex flex-row items-start space-x-3 space-y-0 rtl:space-x-reverse">
+                                <FormControl>
+                                  <Checkbox
+                                    checked={field.value}
+                                    onCheckedChange={field.onChange}
+                                  />
+                                </FormControl>
+                                <FormLabel className="font-normal">
+                                  {role.label}
+                                </FormLabel>
+                              </FormItem>
+                            )}
+                          />
+                        ))}
+                      </div>
+                      <FormMessage /> {/* For errors related to the group, if any */}
                     </FormItem>
                   )}
                 />
               )}
 
-              {/* Conditional fields for Adults */}
-              {!isYouth && form.watch('selectedRole') === 'therapist' && (
+              {!isYouth && form.watch('adultRolesSelected.therapist') && (
                 <FormField
                   control={form.control}
                   name="clinicCode"
@@ -220,7 +221,7 @@ export function StepRoleSelection({ dictionary, formData, updateFormData, onVali
                 />
               )}
 
-              {!isYouth && form.watch('selectedRole') === 'school_consultant' && (
+              {!isYouth && form.watch('adultRolesSelected.school_consultant') && (
                 <FormField
                   control={form.control}
                   name="schoolName"

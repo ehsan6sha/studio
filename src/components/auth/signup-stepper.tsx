@@ -14,7 +14,7 @@ import { Button } from '@/components/ui/button';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Progress } from "@/components/ui/progress";
 
-const TOTAL_STEPS = 6; // Increased from 4 to 6
+const TOTAL_STEPS = 6; 
 
 export interface SignupFormData {
   acceptedMandatoryTerms?: boolean;
@@ -23,13 +23,17 @@ export interface SignupFormData {
   emailOrPhone?: string;
   password?: string;
   name?: string;
-  dob?: string; // Store as ISO string 'YYYY-MM-DD'
+  dob?: string; 
   verificationCode?: string;
-  isYouth?: boolean | null; // New: null initially, then true or false
-  selectedRole?: string; // New: 'parent', 'therapist', 'school_consultant', 'supervisor', 'youth_self'
-  clinicCode?: string; // New for therapist
-  schoolName?: string; // New for school consultant
-  // For Youth connections - simplified for now to one email per category
+  isYouth?: boolean | null; 
+  adultRolesSelected?: { // Changed from selectedRole: string
+    parent?: boolean;
+    therapist?: boolean;
+    school_consultant?: boolean;
+    supervisor?: boolean;
+  };
+  clinicCode?: string; 
+  schoolName?: string; 
   connectedParentEmail?: string;
   connectedTherapistEmail?: string;
   connectedSchoolConsultantEmail?: string;
@@ -60,7 +64,7 @@ export function SignupStepper({
   const searchParams = useSearchParams();
 
   const [currentStep, setCurrentStep] = useState(initialStep < 1 || initialStep > TOTAL_STEPS ? 1 : initialStep);
-  const [formData, setFormData] = useState<SignupFormData>({isYouth: null}); // Initialize isYouth
+  const [formData, setFormData] = useState<SignupFormData>({isYouth: null, adultRolesSelected: {}}); 
   const [isLoaded, setIsLoaded] = useState(false);
   const [direction, setDirection] = useState(1); 
   const [isStepValid, setIsStepValid] = useState(false);
@@ -68,7 +72,12 @@ export function SignupStepper({
   useEffect(() => {
     const storedData = localStorage.getItem('signupFormData');
     if (storedData) {
-      setFormData(JSON.parse(storedData));
+      const parsedData = JSON.parse(storedData);
+      // Ensure adultRolesSelected is initialized if not present in stored data
+      if (!parsedData.adultRolesSelected) {
+        parsedData.adultRolesSelected = {};
+      }
+      setFormData(parsedData);
     }
     const stepFromQuery = searchParams.get('step');
     const validatedInitialStep = stepFromQuery ? parseInt(stepFromQuery, 10) : 1;
@@ -119,8 +128,6 @@ export function SignupStepper({
     } else if (currentStep === 4) {
       setIsStepValid(!!formData.verificationCode && formData.verificationCode.length === 5);
     } else if (currentStep === 5) {
-      // Step 5 (Age Info) is informational, always valid to proceed.
-      // Age calculation and setting formData.isYouth happens here or on proceed.
       setIsStepValid(true); 
     } else if (currentStep === 6) {
       // Validation handled by StepRoleSelection via onValidation
@@ -136,7 +143,7 @@ export function SignupStepper({
       return;
     }
 
-    if (currentStep === 5) { // Before proceeding from Step 5
+    if (currentStep === 5) { 
       const age = calculateAge(formData.dob);
       const isUserYouth = age !== null && age < 18;
       updateFormDataAndValidate({ isYouth: isUserYouth });
@@ -259,7 +266,7 @@ export function SignupStepper({
                 dictionary={dictionary.stepAgeInfo}
                 formData={formData}
                 updateFormData={updateFormDataAndValidate}
-                onValidation={handleStepValidation} // Step 5 might always be valid
+                onValidation={handleStepValidation} 
                 lang={lang}
               />
             )}

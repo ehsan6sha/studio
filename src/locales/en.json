@@ -109,7 +109,7 @@
       "emailOrPhonePlaceholder": "e.g., user@example.com or +1234567890",
       "dobLabel": "Date of Birth",
       "dobPlaceholderGregorian": "YYYY-MM-DD (e.g. 1990-01-15)",
-      "dobPlaceholderShamsi": "YYYY/MM/DD (e.g. 1368/10/25) - Gregorian",
+      "dobPlaceholderShamsi": "YYYY/MM/DD (e.g. 1368/10/25) - Gregorian date",
       "passwordLabel": "Password",
       "confirmPasswordLabel": "Confirm Password",
       "showPasswordAriaLabel": "Show password",
@@ -152,10 +152,10 @@
     },
     "stepRoleSelection": {
       "title": "Your Role",
-      "descriptionAdult": "Please select the role that best describes you.",
+      "descriptionAdult": "Please select the role(s) that best describe you. You can select multiple or none.",
       "descriptionYouth": "We'll help you connect with trusted adults if you wish.",
       "loadingRoleInfo": "Determining your pathway...",
-      "selectRoleLabel": "Select your role:",
+      "selectRolesLabel": "Select your role(s):",
       "roles": {
         "parent": "Parent / Caregiver",
         "therapist": "Therapist",
@@ -180,8 +180,8 @@
       },
       "errors": {
         "roleRequired": "Please select a role.",
-        "clinicCodeRequired": "Clinic code is required for therapists.",
-        "schoolNameRequired": "School name is required for school consultants.",
+        "clinicCodeRequired": "Clinic code is required if 'Therapist' role is selected.",
+        "schoolNameRequired": "School name is required if 'School Consultant' role is selected.",
         "invalidEmail": "Please enter a valid email address."
       }
     },
