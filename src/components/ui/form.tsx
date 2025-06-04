@@ -1,3 +1,4 @@
+
 "use client"
 
 import * as React from "react"
@@ -30,7 +31,7 @@ const FormFieldContext = React.createContext<FormFieldContextValue>(
 
 const FormField = <
   TFieldValues extends FieldValues = FieldValues,
-  TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>
+  TName extends FieldPath<TFieldValues> = Path<TFieldValues>
 >({
   ...props
 }: ControllerProps<TFieldValues, TName>) => {
@@ -60,7 +61,7 @@ const useFormField = () => {
     formItemId: `${id}-form-item`,
     formDescriptionId: `${id}-form-item-description`,
     formMessageId: `${id}-form-item-message`,
-    ...fieldState,
+    ...fieldState, // This includes 'error' and 'isTouched'
   }
 }
 
@@ -90,12 +91,13 @@ const FormLabel = React.forwardRef<
   React.ElementRef<typeof LabelPrimitive.Root>,
   React.ComponentPropsWithoutRef<typeof LabelPrimitive.Root>
 >(({ className, ...props }, ref) => {
-  const { error, formItemId } = useFormField()
+  const { error, formItemId, isTouched } = useFormField() // Destructure isTouched
 
   return (
     <Label
       ref={ref}
-      className={cn(error && "text-destructive", className)}
+      // Only apply destructive class if there's an error AND the field has been touched
+      className={cn(error && isTouched && "text-destructive", className)}
       htmlFor={formItemId}
       {...props}
     />
@@ -146,10 +148,11 @@ const FormMessage = React.forwardRef<
   HTMLParagraphElement,
   React.HTMLAttributes<HTMLParagraphElement>
 >(({ className, children, ...props }, ref) => {
-  const { error, formMessageId } = useFormField()
+  const { error, formMessageId, isTouched } = useFormField() // Destructure isTouched
   const body = error ? String(error?.message ?? "") : children
 
-  if (!body) {
+  // If there's no message content, or if there is an error but the field hasn't been touched, render nothing.
+  if (!body || (error && !isTouched)) {
     return null
   }
 
