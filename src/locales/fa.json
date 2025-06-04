@@ -1,0 +1,77 @@
+{
+  "appName": "روان‌همراه",
+  "tagline": "همراه شخصی سلامت روان شما",
+  "navigation": {
+    "dashboard": "داشبورد",
+    "journal": "یادداشت روزانه",
+    "insights": "بینش‌ها",
+    "specialists": "متخصصین",
+    "settings": "تنظیمات",
+    "login": "ورود",
+    "signup": "ثبت نام",
+    "logout": "خروج",
+    "profile": "پروفایل"
+  },
+  "dashboardPage": {
+    "title": "داشبورد",
+    "welcome": "به روان‌همراه خوش آمدید!",
+    "moodChartTitle": "روند خلق و خو",
+    "biometricChartTitle": "داده های بیومتریک"
+  },
+  "journalPage": {
+    "title": "یادداشت روزانه",
+    "formTitle": "امروز چطور بودید؟",
+    "moodLabel": "حال امروزتون چطور بود؟",
+    "moodOptions": {
+      "excellent": "عالی",
+      "good": "خوب",
+      "average": "متوسط",
+      "bad": "بد",
+      "very_bad": "خیلی بد"
+    },
+    "sleepLabel": "کیفیت خوابتون چطور بود؟ (۱ کم - ۵ زیاد)",
+    "consumptionLabel": "عادات مصرفی (اختیاری)",
+    "entryLabel": "یادداشت امروز شما:",
+    "submitButton": "ثبت یادداشت",
+    "journalSavedSuccess": "یادداشت با موفقیت ذخیره شد."
+  },
+  "insightsPage": {
+    "title": "بینش‌های هوشمند",
+    "description": "در اینجا بینش‌های شخصی‌سازی شده بر اساس داده‌های شما نمایش داده می‌شود."
+  },
+  "specialistsPage": {
+    "title": "ارجاع به متخصص",
+    "description": "بر اساس نیازهای شما، متخصصین مرتبط پیشنهاد داده می‌شوند."
+  },
+  "settingsPage": {
+    "title": "تنظیمات",
+    "language": "زبان",
+    "theme": "پوسته",
+    "light": "روشن",
+    "dark": "تیره"
+  },
+  "loginPage": {
+    "title": "ورود به حساب کاربری",
+    "emailLabel": "ایمیل",
+    "phoneLabel": "شماره تلفن",
+    "passwordLabel": "رمز عبور",
+    "loginButton": "ورود",
+    "noAccount": "حساب کاربری ندارید؟",
+    "signupLink": "ثبت نام کنید"
+  },
+  "signupPage": {
+    "title": "ایجاد حساب کاربری",
+    "emailLabel": "ایمیل",
+    "phoneLabel": "شماره تلفن",
+    "passwordLabel": "رمز عبور",
+    "confirmPasswordLabel": "تکرار رمز عبور",
+    "signupButton": "ثبت نام",
+    "hasAccount": "قبلا ثبت نام کرده‌اید؟",
+    "loginLink": "وارد شوید"
+  },
+  "landingPage": {
+    "welcomeTitle": "به روان‌همراه خوش آمدید",
+    "welcomeMessage": "همراه هوشمند شما برای سلامت روان. ما به شما کمک می‌کنیم تا با بینش‌های مبتنی بر هوش مصنوعی و ابزارهای کاربردی، مسیر خود را به سوی آرامش و بهزیستی پیدا کنید.",
+    "getStartedButton": "شروع کنید"
+  }
+}

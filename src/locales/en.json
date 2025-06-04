@@ -1,0 +1,77 @@
+{
+  "appName": "RavanHamrah",
+  "tagline": "Your Personal Mental Wellness Companion",
+  "navigation": {
+    "dashboard": "Dashboard",
+    "journal": "Daily Journal",
+    "insights": "Insights",
+    "specialists": "Specialists",
+    "settings": "Settings",
+    "login": "Login",
+    "signup": "Sign Up",
+    "logout": "Logout",
+    "profile": "Profile"
+  },
+  "dashboardPage": {
+    "title": "Dashboard",
+    "welcome": "Welcome to RavanHamrah!",
+    "moodChartTitle": "Mood Trends",
+    "biometricChartTitle": "Biometric Data"
+  },
+  "journalPage": {
+    "title": "Daily Journaling",
+    "formTitle": "How was your day?",
+    "moodLabel": "How are you feeling today?",
+    "moodOptions": {
+      "excellent": "Excellent",
+      "good": "Good",
+      "average": "Average",
+      "bad": "Bad",
+      "very_bad": "Very Bad"
+    },
+    "sleepLabel": "How was your sleep quality? (1 Low - 5 High)",
+    "consumptionLabel": "Consumption Habits (Optional)",
+    "entryLabel": "Your journal entry for today:",
+    "submitButton": "Submit Entry",
+    "journalSavedSuccess": "Journal entry saved successfully."
+  },
+  "insightsPage": {
+    "title": "AI Insights",
+    "description": "Personalized insights based on your data will be displayed here."
+  },
+  "specialistsPage": {
+    "title": "Specialist Referrals",
+    "description": "Relevant specialists will be suggested based on your needs."
+  },
+  "settingsPage": {
+    "title": "Settings",
+    "language": "Language",
+    "theme": "Theme",
+    "light": "Light",
+    "dark": "Dark"
+  },
+  "loginPage": {
+    "title": "Login to Your Account",
+    "emailLabel": "Email",
+    "phoneLabel": "Phone Number",
+    "passwordLabel": "Password",
+    "loginButton": "Login",
+    "noAccount": "Don't have an account?",
+    "signupLink": "Sign up"
+  },
+  "signupPage": {
+    "title": "Create Your Account",
+    "emailLabel": "Email",
+    "phoneLabel": "Phone Number",
+    "passwordLabel": "Password",
+    "confirmPasswordLabel": "Confirm Password",
+    "signupButton": "Sign Up",
+    "hasAccount": "Already have an account?",
+    "loginLink": "Log in"
+  },
+  "landingPage": {
+    "welcomeTitle": "Welcome to RavanHamrah",
+    "welcomeMessage": "Your intelligent companion for mental well-being. We help you find your path to peace and wellness with AI-driven insights and practical tools.",
+    "getStartedButton": "Get Started"
+  }
+}
