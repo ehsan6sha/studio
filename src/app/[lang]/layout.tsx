@@ -10,9 +10,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { usePathname, useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
-export async function generateStaticParams() {
-  return i18n.locales.map((locale) => ({ lang: locale }));
-}
+// generateStaticParams removed from here as it's a client component
 
 export default function LocaleLayout({
   children,
@@ -63,7 +61,7 @@ export default function LocaleLayout({
   const pageVariants = {
     initial: {
       opacity: 0,
-      x: '100vw', // Start from right
+      x: lang === 'fa' ? '-100vw' : '100vw', // Adjust based on LTR/RTL for natural slide
     },
     in: {
       opacity: 1,
@@ -71,7 +69,7 @@ export default function LocaleLayout({
     },
     out: {
       opacity: 0,
-      x: '-100vw', // Exit to left
+      x: lang === 'fa' ? '100vw' : '-100vw', // Adjust based on LTR/RTL for natural slide
     },
   };
 

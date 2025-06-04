@@ -2,8 +2,13 @@
 import { Button } from "@/components/ui/button";
 import { getDictionary } from "@/lib/dictionaries";
 import type { Locale } from "@/i18n-config";
+import { i18n } from "@/i18n-config";
 import Link from "next/link";
 import Image from "next/image";
+
+export async function generateStaticParams() {
+  return i18n.locales.map((locale) => ({ lang: locale }));
+}
 
 export default async function LangRootPage({ params }: { params: { lang: Locale } }) {
   const { lang } = params; // Destructure lang here
