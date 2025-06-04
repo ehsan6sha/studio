@@ -10,16 +10,12 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { usePathname, useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
-// generateStaticParams removed from here as it's a client component
-
 export default function LocaleLayout({
   children,
 }: {
   children: ReactNode;
 }) {
   const params = useParams();
-  // Ensure lang is a valid Locale, falling back to default if necessary.
-  // This handles cases where params.lang might be undefined or an array.
   let lang: Locale = i18n.defaultLocale;
   if (params.lang && typeof params.lang === 'string' && i18n.locales.includes(params.lang as Locale)) {
     lang = params.lang as Locale;
@@ -29,39 +25,31 @@ export default function LocaleLayout({
 
 
   const pathname = usePathname();
-  const [dictionary, setDictionary] = useState<any>(null); // Consider defining a more specific type for dictionary
+  const [dictionary, setDictionary] = useState<any>(null); 
 
   useEffect(() => {
-    // This effect hook will run on the client after the component mounts
-    // and whenever `lang` changes.
     if (lang) {
       getDictionary(lang).then(setDictionary);
     }
   }, [lang]);
 
   if (!dictionary) {
-    // Render a basic loading state or a skeleton screen
-    // Ensure essential html structure for DynamicHtmlAttributes to work if it relies on documentElement
+    // Render a basic loading state. This content will be placed inside the <body>
+    // rendered by the RootLayout.
     return (
-      <html lang={lang} dir={lang === 'fa' ? 'rtl' : 'ltr'} suppressHydrationWarning>
-        <head>
-          <link rel="preconnect" href="https://fonts.googleapis.com" />
-          <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-          <link href="https://fonts.googleapis.com/css2?family=Alegreya:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet" />
-        </head>
-        <body>
-          <div className="flex min-h-screen flex-col items-center justify-center">
-            Loading...
-          </div>
-        </body>
-      </html>
+      <>
+        <DynamicHtmlAttributes locale={lang} /> {/* Still useful for setting lang/dir early on client */}
+        <div className="flex min-h-screen flex-col items-center justify-center">
+          Loading...
+        </div>
+      </>
     );
   }
 
   const pageVariants = {
     initial: {
       opacity: 0,
-      x: lang === 'fa' ? '-100vw' : '100vw', // Adjust based on LTR/RTL for natural slide
+      x: lang === 'fa' ? '-100vw' : '100vw', 
     },
     in: {
       opacity: 1,
@@ -69,7 +57,7 @@ export default function LocaleLayout({
     },
     out: {
       opacity: 0,
-      x: lang === 'fa' ? '100vw' : '-100vw', // Adjust based on LTR/RTL for natural slide
+      x: lang === 'fa' ? '100vw' : '-100vw', 
     },
   };
 
