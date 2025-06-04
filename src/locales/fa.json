@@ -109,7 +109,7 @@
       "emailOrPhonePlaceholder": "مثال: user@example.com یا 09123456789",
       "dobLabel": "تاریخ تولد",
       "dobPlaceholderShamsi": "مثال: ۱۳۷۰/۰۱/۱۵ (تاریخ شمسی)",
-      "dobPlaceholderGregorian": "مثال: 1990-01-15 (تاریخ میلادی)",
+      "dobPlaceholderGregorian": "YYYY/MM/DD (e.g. 1990/01/15)",
       "passwordLabel": "رمز عبور",
       "confirmPasswordLabel": "تکرار رمز عبور",
       "showPasswordAriaLabel": "نمایش رمز عبور",
@@ -119,7 +119,7 @@
         "emailOrPhoneRequired": "ایمیل یا شماره تلفن الزامی است.",
         "invalidEmailOrPhone": "لطفا ایمیل یا شماره تلفن معتبر وارد کنید.",
         "dobRequired": "تاریخ تولد الزامی است.",
-        "dobInvalid": "فرمت تاریخ نامعتبر است. لطفاً از فرمت شمسی (مثال: ۱۳۷۰/۰۱/۱۵) یا میلادی (مثال: 1990-01-15) استفاده کنید.",
+        "dobInvalid": "فرمت تاریخ نامعتبر است. لطفاً از فرمت YYYY/MM/DD استفاده کنید.",
         "passwordMinLength": "رمز عبور باید حداقل ۶ کاراکتر باشد.",
         "confirmPasswordMinLength": "تکرار رمز عبور باید حداقل ۶ کاراکتر باشد.",
         "passwordsDontMatch": "رمزهای عبور یکسان نیستند."
@@ -163,10 +163,10 @@
         "supervisor": "سوپروایزر",
         "youth": "نوجوان"
       },
-      "clinicCodeLabel": "کد کلینیک (برای تراپیست‌ها)",
-      "clinicCodePlaceholder": "کد کلینیک خود را وارد کنید",
-      "schoolNameLabel": "نام مدرسه (برای مشاورین مدرسه)",
-      "schoolNamePlaceholder": "نام مدرسه خود را وارد کنید",
+      "clinicCodeLabel": "کد کلینیک (برای تراپیست‌ها - اختیاری)",
+      "clinicCodePlaceholder": "کد کلینیک خود را وارد کنید (اختیاری)",
+      "schoolCodeLabel": "کد مدرسه (برای مشاورین مدرسه)",
+      "schoolCodePlaceholder": "کد مدرسه خود را وارد کنید",
       "youthRoleDisplayLabel": "نقش شما",
       "youthConnections": {
         "title": "ارتباط با افراد حامی (اختیاری)",
@@ -180,8 +180,7 @@
       },
       "errors": {
         "roleRequired": "لطفاً یک نقش انتخاب کنید.",
-        "clinicCodeRequired": "کد کلینیک برای نقش 'تراپیست' الزامی است.",
-        "schoolNameRequired": "نام مدرسه برای نقش 'مشاور مدرسه' الزامی است.",
+        "schoolCodeRequired": "کد مدرسه برای نقش 'مشاور مدرسه' الزامی است.",
         "invalidEmail": "لطفاً یک آدرس ایمیل معتبر وارد کنید."
       }
     },

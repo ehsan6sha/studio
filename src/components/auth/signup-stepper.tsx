@@ -13,8 +13,8 @@ import { StepRoleSelection } from './steps/step-role-selection';
 import { Button } from '@/components/ui/button';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Progress } from "@/components/ui/progress";
-import { useAuth } from '@/context/auth-context'; // Added useAuth
-import { useToast } from '@/hooks/use-toast'; // Added useToast
+import { useAuth } from '@/context/auth-context';
+import { useToast } from '@/hooks/use-toast';
 
 const TOTAL_STEPS = 6; 
 
@@ -35,7 +35,7 @@ export interface SignupFormData {
     supervisor?: boolean;
   };
   clinicCode?: string; 
-  schoolName?: string; 
+  schoolCode?: string; // Renamed from schoolName
   connectedParentEmail?: string;
   connectedTherapistEmail?: string;
   connectedSchoolConsultantEmail?: string;
@@ -61,11 +61,11 @@ export function SignupStepper({
   dataProcessingConsentContent,
   marketingConsentContent,
 }: SignupStepperProps) {
-  const router = useRouter(); // Still used for URL updates
+  const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const auth = useAuth(); // Use auth context
-  const { toast } = useToast(); // Use toast context
+  const auth = useAuth();
+  const { toast } = useToast();
 
   const [currentStep, setCurrentStep] = useState(initialStep < 1 || initialStep > TOTAL_STEPS ? 1 : initialStep);
   const [formData, setFormData] = useState<SignupFormData>({isYouth: null, adultRolesSelected: {}}); 
@@ -87,7 +87,7 @@ export function SignupStepper({
     const saneInitialStep = Math.max(1, Math.min(validatedInitialStep, TOTAL_STEPS));
     setCurrentStep(saneInitialStep);
     setIsLoaded(true);
-  }, [searchParams]); // Added searchParams dependency
+  }, [searchParams]); 
 
   useEffect(() => {
     if (isLoaded) {
@@ -104,7 +104,7 @@ export function SignupStepper({
   const calculateAge = (dobString?: string): number | null => {
     if (!dobString) return null;
     try {
-      const birthDate = new Date(dobString);
+      const birthDate = new Date(dobString); // Assumes dobString is YYYY-MM-DD (Gregorian from step 3)
       if (isNaN(birthDate.getTime())) return null;
 
       const today = new Date();
@@ -149,7 +149,7 @@ export function SignupStepper({
     if (currentStep === 5) { 
       const age = calculateAge(formData.dob);
       const isUserYouth = age !== null && age < 18;
-      updateFormDataAndValidate({ isYouth: isUserYouth }); // updateFormDataAndValidate ensures formData state is updated
+      setFormData(prev => ({ ...prev, isYouth: isUserYouth })); 
     }
 
 
@@ -163,10 +163,9 @@ export function SignupStepper({
       console.log('Finalizing registration:', formData);
       toast({ title: dictionary.registrationCompleteTitle, description: dictionary.registrationCompleteMessage });
       localStorage.removeItem('signupFormData');
-      // Call auth.signup to set state and handle redirect
       auth.signup({ name: formData.name, emailOrPhone: formData.emailOrPhone }, lang);
     }
-  }, [currentStep, formData, dictionary, lang, isStepValid, toast, auth, updateUrl]); // Added dependencies
+  }, [currentStep, formData, dictionary, lang, isStepValid, toast, auth, updateUrl]); 
 
   const handlePrevious = () => {
     setDirection(-1);
