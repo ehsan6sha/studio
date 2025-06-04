@@ -13,6 +13,8 @@ import { StepRoleSelection } from './steps/step-role-selection';
 import { Button } from '@/components/ui/button';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Progress } from "@/components/ui/progress";
+import { useAuth } from '@/context/auth-context'; // Added useAuth
+import { useToast } from '@/hooks/use-toast'; // Added useToast
 
 const TOTAL_STEPS = 6; 
 
@@ -26,7 +28,7 @@ export interface SignupFormData {
   dob?: string; 
   verificationCode?: string;
   isYouth?: boolean | null; 
-  adultRolesSelected?: { // Changed from selectedRole: string
+  adultRolesSelected?: { 
     parent?: boolean;
     therapist?: boolean;
     school_consultant?: boolean;
@@ -59,9 +61,11 @@ export function SignupStepper({
   dataProcessingConsentContent,
   marketingConsentContent,
 }: SignupStepperProps) {
-  const router = useRouter();
+  const router = useRouter(); // Still used for URL updates
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const auth = useAuth(); // Use auth context
+  const { toast } = useToast(); // Use toast context
 
   const [currentStep, setCurrentStep] = useState(initialStep < 1 || initialStep > TOTAL_STEPS ? 1 : initialStep);
   const [formData, setFormData] = useState<SignupFormData>({isYouth: null, adultRolesSelected: {}}); 
@@ -73,7 +77,6 @@ export function SignupStepper({
     const storedData = localStorage.getItem('signupFormData');
     if (storedData) {
       const parsedData = JSON.parse(storedData);
-      // Ensure adultRolesSelected is initialized if not present in stored data
       if (!parsedData.adultRolesSelected) {
         parsedData.adultRolesSelected = {};
       }
@@ -84,7 +87,7 @@ export function SignupStepper({
     const saneInitialStep = Math.max(1, Math.min(validatedInitialStep, TOTAL_STEPS));
     setCurrentStep(saneInitialStep);
     setIsLoaded(true);
-  }, []);
+  }, [searchParams]); // Added searchParams dependency
 
   useEffect(() => {
     if (isLoaded) {
@@ -138,7 +141,7 @@ export function SignupStepper({
   const handleNext = useCallback(async () => {
     if (!isStepValid) {
       if (currentStep === 2 && !formData.acceptedMandatoryTerms) {
-         alert(dictionary.errorMandatoryTerms);
+         toast({ title: dictionary.errorMandatoryTerms, variant: "destructive" });
       }
       return;
     }
@@ -146,7 +149,7 @@ export function SignupStepper({
     if (currentStep === 5) { 
       const age = calculateAge(formData.dob);
       const isUserYouth = age !== null && age < 18;
-      updateFormDataAndValidate({ isYouth: isUserYouth });
+      updateFormDataAndValidate({ isYouth: isUserYouth }); // updateFormDataAndValidate ensures formData state is updated
     }
 
 
@@ -158,11 +161,12 @@ export function SignupStepper({
       setIsStepValid(false); 
     } else {
       console.log('Finalizing registration:', formData);
-      // toast({ title: dictionary.registrationCompleteTitle, description: dictionary.registrationCompleteMessage });
+      toast({ title: dictionary.registrationCompleteTitle, description: dictionary.registrationCompleteMessage });
       localStorage.removeItem('signupFormData');
-      router.push(`/${lang}/dashboard`); 
+      // Call auth.signup to set state and handle redirect
+      auth.signup({ name: formData.name, emailOrPhone: formData.emailOrPhone }, lang);
     }
-  }, [currentStep, formData, dictionary, lang, router, pathname, isStepValid]);
+  }, [currentStep, formData, dictionary, lang, isStepValid, toast, auth, updateUrl]); // Added dependencies
 
   const handlePrevious = () => {
     setDirection(-1);
@@ -212,7 +216,7 @@ export function SignupStepper({
     <div className="w-full max-w-xl mx-auto flex flex-col flex-grow" dir={lang === 'fa' ? 'rtl' : 'ltr'}>
       <Progress value={progressValue} className="w-full mb-4 md:mb-6" />
       
-      <div className="flex-grow overflow-hidden flex flex-col"> {/* Ensure this div takes up space */}
+      <div className="flex-grow overflow-hidden flex flex-col">
         <AnimatePresence initial={false} custom={direction} mode="wait">
           <motion.div
             key={currentStep}
@@ -225,7 +229,7 @@ export function SignupStepper({
               x: { type: 'spring', stiffness: 300, damping: 30 },
               opacity: { duration: 0.2 },
             }}
-            className="w-full flex-1 overflow-y-auto p-1 sm:p-2 md:p-4" // flex-1 will allow it to grow
+            className="w-full flex-1 overflow-y-auto p-1 sm:p-2 md:p-4"
           >
             {currentStep === 1 && (
               <StepInformation dictionary={dictionary.stepInformation} />

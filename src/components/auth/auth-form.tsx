@@ -17,18 +17,19 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import Link from 'next/link';
 import type { Locale } from '@/i18n-config';
-import { useRouter } from 'next/navigation';
+// import { useRouter } from 'next/navigation'; // No longer needed directly
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/context/auth-context'; // Added useAuth
 
 interface AuthFormProps {
-  // Type 'signup' is removed, this form is now only for login.
   dictionary: any; 
   lang: Locale;
 }
 
 export function AuthForm({ dictionary, lang }: AuthFormProps) {
-  const router = useRouter();
+  // const router = useRouter(); // Replaced by auth context redirect
   const { toast } = useToast();
+  const auth = useAuth(); // Use auth context
 
   const loginSchema = z.object({
     emailOrPhone: z.string().min(1, { message: lang === 'fa' ? 'ایمیل یا شماره تلفن الزامی است' : 'Email or phone is required' }),
@@ -45,15 +46,14 @@ export function AuthForm({ dictionary, lang }: AuthFormProps) {
 
   async function onSubmit(values: z.infer<typeof loginSchema>) {
     console.log('Login Form submitted with values:', values);
-    // Placeholder for actual login logic
-    // Example:
+    
     toast({ 
         title: dictionary.loginSuccessTitle || 'Login Successful!', 
         description: dictionary.loginSuccessDescription || 'Redirecting to dashboard...' 
     });
-    setTimeout(() => {
-      router.push(`/${lang}/dashboard`);
-    }, 1500);
+
+    // Call auth.login to set state and handle redirect
+    auth.login({ emailOrPhone: values.emailOrPhone, name: values.emailOrPhone }, lang); // Using emailOrPhone as name placeholder
   }
 
   return (

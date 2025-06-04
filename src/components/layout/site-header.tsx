@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useAuth } from '@/context/auth-context'; // Added useAuth
 
 interface SiteHeaderProps {
   lang: Locale;
@@ -19,7 +20,8 @@ interface SiteHeaderProps {
 }
 
 export function SiteHeader({ lang, dictionary, appName }: SiteHeaderProps) {
-  const isAuthenticated = false; 
+  const auth = useAuth(); // Use auth context
+  const isAuthenticated = auth.isAuthenticated; // Get isAuthenticated from context
 
   const router = useRouter();
   const pathname = usePathname();
@@ -53,7 +55,8 @@ export function SiteHeader({ lang, dictionary, appName }: SiteHeaderProps) {
         <MainNav lang={lang} dictionary={dictionary} isAuthenticated={isAuthenticated} />
         <div className="flex flex-1 items-center justify-end space-x-2 rtl:space-x-reverse">
           <LanguageSwitcher currentLocale={lang} />
-          <UserNav lang={lang} dictionary={dictionary} isAuthenticated={isAuthenticated} />
+          {/* UserNav now internally uses useAuth, so no need to pass isAuthenticated prop explicitly if it uses the hook */}
+          <UserNav lang={lang} dictionary={dictionary} />
         </div>
       </div>
     </header>

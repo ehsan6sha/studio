@@ -1,3 +1,4 @@
+
 'use client';
 
 import type { ReactNode } from 'react';
@@ -9,6 +10,7 @@ import { i18n } from '@/i18n-config';
 import { motion, AnimatePresence } from 'framer-motion';
 import { usePathname, useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { AuthProvider } from '@/context/auth-context'; // Added AuthProvider
 
 export default function LocaleLayout({
   children,
@@ -34,13 +36,10 @@ export default function LocaleLayout({
   }, [lang]);
 
   useEffect(() => {
-    // This ensures new Date() is only called on the client, after initial hydration
     setCurrentYear(new Date().getFullYear());
-  }, []); // Empty dependency array ensures this runs once on mount
+  }, []); 
 
   if (!dictionary) {
-    // This loading state is rendered on the client if the dictionary hasn't loaded yet.
-    // It should match what the server would render if it also couldn't resolve the dictionary synchronously.
     return (
       <>
         <DynamicHtmlAttributes locale={lang} />
@@ -72,12 +71,10 @@ export default function LocaleLayout({
     duration: 0.4,
   };
 
-  // displayYear will be an empty string for server render and initial client render if currentYear is null.
-  // It will update to the actual year on the client after useEffect runs.
   const displayYear = currentYear !== null ? currentYear : ""; 
 
   return (
-    <>
+    <AuthProvider> {/* Added AuthProvider Wrapper */}
       <DynamicHtmlAttributes locale={lang} />
       <div className="flex min-h-screen flex-col">
         <SiteHeader lang={lang} dictionary={dictionary.navigation} appName={dictionary.appName} />
@@ -100,6 +97,6 @@ export default function LocaleLayout({
           © {displayYear} {dictionary.appName}. {lang === 'fa' ? 'تمامی حقوق محفوظ است.' : 'All rights reserved.'}
         </footer>
       </div>
-    </>
+    </AuthProvider>
   );
 }
