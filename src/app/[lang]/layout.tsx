@@ -11,11 +11,12 @@ export async function generateStaticParams() {
 
 export default async function LocaleLayout({
   children,
-  params: { lang },
+  params,
 }: {
   children: ReactNode;
   params: { lang: Locale };
 }) {
+  const { lang } = params; // Destructure lang here
   const dictionary = await getDictionary(lang);
 
   return (

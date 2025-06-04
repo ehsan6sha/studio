@@ -5,7 +5,8 @@ import type { Locale } from "@/i18n-config";
 import Link from "next/link";
 import Image from "next/image";
 
-export default async function LangRootPage({ params: { lang } }: { params: { lang: Locale } }) {
+export default async function LangRootPage({ params }: { params: { lang: Locale } }) {
+  const { lang } = params; // Destructure lang here
   const dictionary = await getDictionary(lang);
 
   return (
