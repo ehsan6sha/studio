@@ -21,7 +21,7 @@ import type { SignupFormData } from '../signup-stepper';
 import type { Locale } from '@/i18n-config';
 
 interface StepRoleSelectionProps {
-  dictionary: any; 
+  dictionary: any;
   formData: SignupFormData;
   updateFormData: (data: Partial<SignupFormData>) => void;
   onValidation: (isValid: boolean) => void;
@@ -38,11 +38,9 @@ export function StepRoleSelection({ dictionary, formData, updateFormData, onVali
       school_consultant: z.boolean().optional(),
       supervisor: z.boolean().optional(),
     }).optional(),
-    clinicCode: z.string().optional(), // Clinic code is optional
-    schoolCode: z.string().optional(), // Will be validated conditionally
+    clinicCode: z.string().optional(),
+    schoolCode: z.string().optional(),
   }).superRefine((data, ctx) => {
-    // Clinic code is now optional, so no specific mandatory check here.
-    // If 'School Consultant' role is selected, 'schoolCode' becomes mandatory.
     if (data.adultRolesSelected?.school_consultant && (!data.schoolCode || data.schoolCode.trim() === '')) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
@@ -51,7 +49,7 @@ export function StepRoleSelection({ dictionary, formData, updateFormData, onVali
       });
     }
   });
-  
+
   const youthSchema = z.object({
     connectedParentEmail: z.string().email({ message: dictionary.errors.invalidEmail }).optional().or(z.literal('')),
     connectedTherapistEmail: z.string().email({ message: dictionary.errors.invalidEmail }).optional().or(z.literal('')),
@@ -61,25 +59,30 @@ export function StepRoleSelection({ dictionary, formData, updateFormData, onVali
 
   const currentSchema = isYouth ? youthSchema : adultRoleSchema;
 
+  // Memoize default values based on isYouth and initial formData state
   const defaultValuesForForm = React.useMemo(() => {
-    return {
-      adultRolesSelected: formData.adultRolesSelected || { parent: false, therapist: false, school_consultant: false, supervisor: false },
-      clinicCode: formData.clinicCode || '',
-      schoolCode: formData.schoolCode || '', // Changed from schoolName
-      connectedParentEmail: formData.connectedParentEmail || '',
-      connectedTherapistEmail: formData.connectedTherapistEmail || '',
-      connectedSchoolConsultantEmail: formData.connectedSchoolConsultantEmail || '',
-      connectedSupervisorEmail: formData.connectedSupervisorEmail || '',
-    };
-  }, [
-    JSON.stringify(formData.adultRolesSelected), 
-    formData.clinicCode, 
-    formData.schoolCode, // Changed from schoolName
-    formData.connectedParentEmail, 
-    formData.connectedTherapistEmail, 
-    formData.connectedSchoolConsultantEmail, 
-    formData.connectedSupervisorEmail
-  ]);
+    if (isYouth) {
+      return {
+        connectedParentEmail: formData.connectedParentEmail || '',
+        connectedTherapistEmail: formData.connectedTherapistEmail || '',
+        connectedSchoolConsultantEmail: formData.connectedSchoolConsultantEmail || '',
+        connectedSupervisorEmail: formData.connectedSupervisorEmail || '',
+      };
+    } else {
+      return {
+        adultRolesSelected: formData.adultRolesSelected || { parent: false, therapist: false, school_consultant: false, supervisor: false },
+        clinicCode: formData.clinicCode || '',
+        schoolCode: formData.schoolCode || '',
+      };
+    }
+  }, [isYouth, 
+      // These dependencies ensure defaultValues change only when isYouth changes,
+      // or when these specific fields are initially different in formData.
+      // This makes defaultValues more stable against echoes from this form's own updates.
+      formData.connectedParentEmail, formData.connectedTherapistEmail, formData.connectedSchoolConsultantEmail, formData.connectedSupervisorEmail,
+      JSON.stringify(formData.adultRolesSelected), formData.clinicCode, formData.schoolCode
+    ]);
+
 
   const form = useForm<z.infer<typeof currentSchema>>({
     resolver: zodResolver(currentSchema),
@@ -87,23 +90,64 @@ export function StepRoleSelection({ dictionary, formData, updateFormData, onVali
     mode: 'onChange',
   });
 
+  // Effect to synchronize incoming formData prop changes to the form's state
   useEffect(() => {
-    form.reset(defaultValuesForForm);
-    const timer = setTimeout(() => form.trigger().then(() => onValidation(form.formState.isValid)), 0);
-    return () => clearTimeout(timer);
-  }, [isYouth, defaultValuesForForm, form, onValidation]);
+    if (isYouth === null || isYouth === undefined) return;
+
+    if (isYouth) {
+        if (formData.connectedParentEmail !== form.getValues('connectedParentEmail')) {
+            form.setValue('connectedParentEmail', formData.connectedParentEmail || '', { shouldValidate: true });
+        }
+        if (formData.connectedTherapistEmail !== form.getValues('connectedTherapistEmail')) {
+            form.setValue('connectedTherapistEmail', formData.connectedTherapistEmail || '', { shouldValidate: true });
+        }
+        if (formData.connectedSchoolConsultantEmail !== form.getValues('connectedSchoolConsultantEmail')) {
+            form.setValue('connectedSchoolConsultantEmail', formData.connectedSchoolConsultantEmail || '', { shouldValidate: true });
+        }
+        if (formData.connectedSupervisorEmail !== form.getValues('connectedSupervisorEmail')) {
+            form.setValue('connectedSupervisorEmail', formData.connectedSupervisorEmail || '', { shouldValidate: true });
+        }
+    } else {
+        const currentFormAdultRoles = form.getValues('adultRolesSelected');
+        const propAdultRoles = formData.adultRolesSelected || { parent: false, therapist: false, school_consultant: false, supervisor: false };
+        if (JSON.stringify(propAdultRoles) !== JSON.stringify(currentFormAdultRoles)) {
+            form.setValue('adultRolesSelected', propAdultRoles, { shouldValidate: true });
+        }
+        if (formData.clinicCode !== form.getValues('clinicCode')) {
+            form.setValue('clinicCode', formData.clinicCode || '', { shouldValidate: true });
+        }
+        if (formData.schoolCode !== form.getValues('schoolCode')) {
+            form.setValue('schoolCode', formData.schoolCode || '', { shouldValidate: true });
+        }
+    }
+  }, [
+      formData.adultRolesSelected, formData.clinicCode, formData.schoolCode,
+      formData.connectedParentEmail, formData.connectedTherapistEmail,
+      formData.connectedSchoolConsultantEmail, formData.connectedSupervisorEmail,
+      isYouth, form // form object includes setValue and getValues
+    ]);
 
 
+  // Effect for watching form changes to update parent formData
   useEffect(() => {
     const subscription = form.watch((value) => {
       updateFormData(value as Partial<SignupFormData>);
     });
     return () => subscription.unsubscribe();
-  }, [form, updateFormData]); 
+  }, [form, updateFormData]);
 
+  // Effect for propagating form validity to the parent
   useEffect(() => {
     onValidation(form.formState.isValid);
   }, [form.formState.isValid, onValidation]);
+
+  // Effect to trigger validation upon form instance change (due to key prop related to isYouth)
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      form.trigger();
+    }, 0);
+    return () => clearTimeout(timer);
+  }, [form]);
 
 
   const adultRoles = [
@@ -130,7 +174,7 @@ export function StepRoleSelection({ dictionary, formData, updateFormData, onVali
   }
 
   return (
-    <div className="h-full flex flex-col">
+    <div key={isYouth ? 'youth-form' : 'adult-form'} className="h-full flex flex-col">
       <Card className="w-full shadow-none border-none flex-grow flex flex-col">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl font-headline">{dictionary.title}</CardTitle>
@@ -148,7 +192,7 @@ export function StepRoleSelection({ dictionary, formData, updateFormData, onVali
                     <FormField
                       key={fieldInfo.name}
                       control={form.control}
-                      name={fieldInfo.name as any} 
+                      name={fieldInfo.name as any}
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>{fieldInfo.label}</FormLabel>
@@ -169,12 +213,12 @@ export function StepRoleSelection({ dictionary, formData, updateFormData, onVali
                       <FormField
                         key={role.id}
                         control={form.control}
-                        name={`adultRolesSelected.${role.id}` as any} 
+                        name={`adultRolesSelected.${role.id}` as any}
                         render={({ field }) => (
                           <FormItem className="flex flex-row items-start space-x-3 space-y-0 rtl:space-x-reverse">
                             <FormControl>
                               <Checkbox
-                                checked={!!field.value} 
+                                checked={!!field.value}
                                 onCheckedChange={field.onChange}
                               />
                             </FormControl>
@@ -186,7 +230,7 @@ export function StepRoleSelection({ dictionary, formData, updateFormData, onVali
                       />
                     ))}
                   </div>
-                   <FormMessage /> 
+                   <FormMessage />
                 </FormItem>
               )}
 
@@ -209,12 +253,12 @@ export function StepRoleSelection({ dictionary, formData, updateFormData, onVali
               {!isYouth && form.watch('adultRolesSelected.school_consultant') && (
                 <FormField
                   control={form.control}
-                  name="schoolCode" // Changed from schoolName
+                  name="schoolCode"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>{dictionary.schoolCodeLabel}</FormLabel> {/* Changed from schoolNameLabel */}
+                      <FormLabel>{dictionary.schoolCodeLabel}</FormLabel>
                       <FormControl>
-                        <Input placeholder={dictionary.schoolCodePlaceholder} {...field} /> {/* Changed from schoolNamePlaceholder */}
+                        <Input placeholder={dictionary.schoolCodePlaceholder} {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
