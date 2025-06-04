@@ -8,10 +8,17 @@ import type { Locale } from '@/i18n-config';
 interface MainNavProps {
   lang: Locale;
   dictionary: Record<string, string>;
+  isAuthenticated: boolean;
 }
 
-export function MainNav({ lang, dictionary }: MainNavProps) {
+export function MainNav({ lang, dictionary, isAuthenticated }: MainNavProps) {
   const pathname = usePathname();
+
+  // If user is not authenticated, don't render the main navigation
+  if (!isAuthenticated) {
+    return null;
+  }
+
   const navItems = [
     { href: `/${lang}/dashboard`, label: dictionary.dashboard },
     { href: `/${lang}/journal`, label: dictionary.journal },

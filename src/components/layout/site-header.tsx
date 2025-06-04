@@ -12,14 +12,18 @@ interface SiteHeaderProps {
 }
 
 export function SiteHeader({ lang, dictionary, appName }: SiteHeaderProps) {
+  // Placeholder for authentication state - this should come from an auth provider/context in a real app
+  // Set this to true to simulate an authenticated user, false for logged-out.
+  const isAuthenticated = false; 
+
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 max-w-screen-2xl items-center">
         <Logo locale={lang} appName={appName} />
-        <MainNav lang={lang} dictionary={dictionary} />
+        <MainNav lang={lang} dictionary={dictionary} isAuthenticated={isAuthenticated} />
         <div className="flex flex-1 items-center justify-end space-x-4 rtl:space-x-reverse">
           <LanguageSwitcher currentLocale={lang} />
-          <UserNav lang={lang} dictionary={dictionary} />
+          <UserNav lang={lang} dictionary={dictionary} isAuthenticated={isAuthenticated} />
         </div>
       </div>
     </header>

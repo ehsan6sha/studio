@@ -11,16 +11,15 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import type { Locale } from '@/i18n-config';
-import { User, LogIn, LogOut, Settings, PlusCircle } from 'lucide-react';
+import { User, LogIn, LogOut, Settings } from 'lucide-react'; // Removed PlusCircle as it's not used
 
 interface UserNavProps {
   lang: Locale;
   dictionary: Record<string, string>;
+  isAuthenticated: boolean; 
 }
 
-export function UserNav({ lang, dictionary }: UserNavProps) {
-  // Placeholder for authentication state
-  const isAuthenticated = false; // Replace with actual auth check
+export function UserNav({ lang, dictionary, isAuthenticated }: UserNavProps) {
 
   if (!isAuthenticated) {
     return (
@@ -40,7 +39,7 @@ export function UserNav({ lang, dictionary }: UserNavProps) {
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="relative h-8 w-8 rounded-full">
           <Avatar className="h-8 w-8">
-            <AvatarImage src="https://placehold.co/100x100.png" alt="@shadcn" data-ai-hint="user avatar" />
+            <AvatarImage src="https://placehold.co/100x100.png" alt="User Avatar" data-ai-hint="user avatar" />
             <AvatarFallback>
               <User className="h-5 w-5"/>
             </AvatarFallback>
@@ -50,16 +49,16 @@ export function UserNav({ lang, dictionary }: UserNavProps) {
       <DropdownMenuContent className="w-56" align="end" forceMount>
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-1">
-            <p className="text-sm font-medium leading-none">User Name</p>
+            <p className="text-sm font-medium leading-none">User Name</p> {/* Placeholder */}
             <p className="text-xs leading-none text-muted-foreground">
-              user@example.com
+              user@example.com {/* Placeholder */}
             </p>
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
           <DropdownMenuItem asChild>
-             <Link href={`/${lang}/profile`}>
+             <Link href={`/${lang}/profile`}> {/* Assuming /profile is an authenticated route */}
                 <User className="ltr:mr-2 rtl:ml-2 h-4 w-4" />
                 <span>{dictionary.profile}</span>
              </Link>
@@ -72,7 +71,7 @@ export function UserNav({ lang, dictionary }: UserNavProps) {
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
-        <DropdownMenuItem>
+        <DropdownMenuItem> {/* Add actual logout functionality here */}
           <LogOut className="ltr:mr-2 rtl:ml-2 h-4 w-4" />
           <span>{dictionary.logout}</span>
         </DropdownMenuItem>
