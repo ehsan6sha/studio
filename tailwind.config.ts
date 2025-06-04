@@ -1,3 +1,4 @@
+
 import type {Config} from 'tailwindcss';
 
 export default {
@@ -10,9 +11,9 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        body: ['Alegreya', 'serif'],
-        headline: ['Alegreya', 'serif'],
-        vazir: ['Vazirmatn', 'sans-serif'], // Added Vazirmatn
+        body: ['Alegreya', 'serif'], // Class 'font-body' for English
+        vazir: ['Vazirmatn', 'sans-serif'], // Class 'font-vazir' for Farsi
+        headline: ['var(--current-headline-font)'], // Class 'font-headline' uses CSS variable
         code: ['monospace'],
       },
       colors: {

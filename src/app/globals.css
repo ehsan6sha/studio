@@ -108,6 +108,15 @@ body {
   .font-vazir {
     font-family: 'Vazirmatn', sans-serif;
   }
+
+  /* Define CSS variable for headline font */
+  body {
+    --current-headline-font: 'Alegreya', serif; /* Default for English */
+  }
+
+  body.font-vazir { /* This class is added when lang is 'fa' */
+    --current-headline-font: 'Vazirmatn', sans-serif; /* Override for Farsi */
+  }
 }
 
 @layer base {
