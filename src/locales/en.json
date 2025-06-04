@@ -1,3 +1,4 @@
+
 {
   "appName": "RavanHamrah",
   "tagline": "Your Personal Mental Wellness Companion",
@@ -67,7 +68,9 @@
     "confirmPasswordLabel": "Confirm Password",
     "signupButton": "Sign Up",
     "hasAccount": "Already have an account?",
-    "loginLink": "Log in"
+    "loginLink": "Log in",
+    "signupSuccessTitle": "Signup Successful",
+    "signupSuccessDescription": "Your account has been created. Redirecting to login..."
   },
   "landingPage": {
     "welcomeTitle": "Welcome to RavanHamrah",

@@ -1,3 +1,4 @@
+
 {
   "appName": "روان‌همراه",
   "tagline": "همراه شخصی سلامت روان شما",
@@ -67,7 +68,9 @@
     "confirmPasswordLabel": "تکرار رمز عبور",
     "signupButton": "ثبت نام",
     "hasAccount": "قبلا ثبت نام کرده‌اید؟",
-    "loginLink": "وارد شوید"
+    "loginLink": "وارد شوید",
+    "signupSuccessTitle": "ثبت نام موفق",
+    "signupSuccessDescription": "حساب شما با موفقیت ایجاد شد. در حال انتقال به صفحه ورود..."
   },
   "landingPage": {
     "welcomeTitle": "به روان‌همراه خوش آمدید",

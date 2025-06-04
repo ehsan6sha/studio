@@ -1,3 +1,4 @@
+
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -16,6 +17,8 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import Link from 'next/link';
 import type { Locale } from '@/i18n-config';
+import { useRouter } from 'next/navigation';
+import { useToast } from '@/hooks/use-toast';
 
 interface AuthFormProps {
   type: 'login' | 'signup';
@@ -24,6 +27,9 @@ interface AuthFormProps {
 }
 
 export function AuthForm({ type, dictionary, lang }: AuthFormProps) {
+  const router = useRouter();
+  const { toast } = useToast();
+
   const baseSchema = {
     emailOrPhone: z.string().min(1, { message: lang === 'fa' ? 'ایمیل یا شماره تلفن الزامی است' : 'Email or phone is required' }),
     password: z.string().min(6, { message: lang === 'fa' ? 'رمز عبور باید حداقل ۶ کاراکتر باشد' : 'Password must be at least 6 characters' }),
@@ -50,9 +56,34 @@ export function AuthForm({ type, dictionary, lang }: AuthFormProps) {
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
-    // Placeholder for actual authentication logic
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    console.log('Form submitted with values:', values);
+
+    if (type === 'signup') {
+      // Placeholder for actual signup API call
+      console.log('Attempting signup...');
+      // Simulate API call or actual signup logic here
+      // For now, we'll assume success immediately
+
+      toast({
+        title: dictionary.signupSuccessTitle,
+        description: dictionary.signupSuccessDescription,
+      });
+
+      // Redirect to login page after a short delay to allow toast to be seen
+      setTimeout(() => {
+        router.push(`/${lang}/login`);
+      }, 2500); // 2.5 second delay
+
+    } else if (type === 'login') {
+      // Placeholder for actual login logic
+      console.log('Attempting login...');
+      // Example:
+      // toast({ title: 'Login successful!', description: 'Redirecting to dashboard...' });
+      // setTimeout(() => {
+      //   router.push(`/${lang}/dashboard`);
+      // }, 1500);
+    }
   }
 
   return (
