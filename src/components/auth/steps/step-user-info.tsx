@@ -16,7 +16,7 @@ import {
   FormMessage,
   useFormField,
 } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
+import { Input } from '@/components/ui/input'; // Keep for other inputs if any, or remove if not used elsewhere
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
@@ -29,7 +29,7 @@ import { faIR as faIRJalaliLocale } from 'date-fns-jalali/locale';
 import { CalendarIcon, Eye, EyeOff } from 'lucide-react';
 import type { SignupFormData } from '../signup-stepper';
 import type { Locale } from '@/i18n-config';
-import { type MaskInput, type MaskDetail } from 'maska';
+import type { MaskInput as MaskaMaskInputType, MaskDetail } from 'maska';
 
 
 interface StepUserInfoProps {
@@ -48,7 +48,7 @@ export function StepUserInfo({ dictionary, formData, updateFormData, onValidatio
   
   const isFarsi = lang === 'fa';
   const dobInputRef = useRef<HTMLInputElement>(null);
-  const maskaInstanceRef = useRef<MaskInput | null>(null);
+  const maskaInstanceRef = useRef<MaskaMaskInputType | null>(null);
 
   const { formatDate, parseDateInput, isValidDate, dateLocale, dateFormatString, getYearForCalendar, calendarMinYear, calendarMaxYear } = React.useMemo(() => {
     if (isFarsi) {
@@ -85,7 +85,7 @@ export function StepUserInfo({ dictionary, formData, updateFormData, onValidatio
       invalid_type_error: dictionary.errors.dobInvalid,
       required_error: dictionary.errors.dobRequired,
     })
-    .max(new Date(), { message: dictionary.errors.dobInFuture || "Date of birth cannot be in the future." })
+    .max(new Date(new Date().setHours(0, 0, 0, 0)), { message: dictionary.errors.dobInFuture || "Date of birth cannot be in the future." })
     .nullable(), 
     password: z.string().min(6, { message: dictionary.errors.passwordMinLength }),
     confirmPassword: z.string().min(6, { message: dictionary.errors.confirmPasswordMinLength }),
@@ -99,13 +99,24 @@ export function StepUserInfo({ dictionary, formData, updateFormData, onValidatio
     }
   });
   
-  const defaultFormValues = React.useMemo(() => ({
-    name: formData.name || '',
-    emailOrPhone: formData.emailOrPhone || '',
-    dob: formData.dob ? parseGregorianOriginal(formData.dob, 'yyyy-MM-dd', new Date()) : null,
-    password: formData.password || '',
-    confirmPassword: '', 
-  }), [formData.name, formData.emailOrPhone, formData.dob, formData.password]);
+  const defaultFormValues = React.useMemo(() => {
+    let initialDobDate: Date | null = null;
+    if (formData.dob) {
+        try {
+            initialDobDate = parseGregorianOriginal(formData.dob, 'yyyy-MM-dd', new Date());
+            if(!isValidGregorianDateOriginal(initialDobDate)) initialDobDate = null;
+        } catch {
+            initialDobDate = null;
+        }
+    }
+    return {
+        name: formData.name || '',
+        emailOrPhone: formData.emailOrPhone || '',
+        dob: initialDobDate,
+        password: formData.password || '',
+        confirmPassword: '', 
+    };
+  }, [formData.name, formData.emailOrPhone, formData.dob, formData.password]);
 
   const form = useForm<z.infer<typeof UserInfoSchema>>({
     resolver: zodResolver(UserInfoSchema),
@@ -133,43 +144,50 @@ export function StepUserInfo({ dictionary, formData, updateFormData, onValidatio
   const handleMaskaDetail = useCallback((detail: MaskDetail) => {
     setDobInputValue(detail.masked);
     let parsedInputDate: Date | null = null;
-    if (detail.completed) { // Use detail.completed to check if mask is filled
+    if (detail.completed) {
       try {
-        parsedInputDate = parseDateInput(detail.masked, dateFormatString, new Date(), { locale: dateLocale });
-        if (!isValidDate(parsedInputDate)) {
-          parsedInputDate = null;
+        const tempDate = parseDateInput(detail.masked, dateFormatString, new Date(), { locale: dateLocale });
+        if (isValidDate(tempDate)) {
+          parsedInputDate = tempDate;
         }
       } catch {
-        parsedInputDate = null;
+        // Parsing failed, leave as null
       }
     }
-    form.setValue('dob', parsedInputDate, { shouldValidate: true });
-  }, [form, parseDateInput, dateFormatString, dateLocale, isValidDate]);
+    form.setValue('dob', parsedInputDate, { shouldValidate: true, shouldTouch: true });
+  }, [form, parseDateInput, dateFormatString, dateLocale, isValidDate, setDobInputValue]);
+
 
   useEffect(() => {
     if (dobInputRef.current && !maskaInstanceRef.current) {
-      const MaskaLib = require('maska'); // Dynamically import Maska
-      const instance = new MaskaLib.MaskInput(dobInputRef.current, {
-        mask: "####/##/##",
-        onMaska: handleMaskaDetail,
-        eager: true,
-      });
-      maskaInstanceRef.current = instance;
-      if (dobInputRef.current.value) {
-         instance.masked = dobInputRef.current.value;
+      const { MaskInput } = require('maska'); 
+      if (MaskInput) {
+        const instance = new MaskInput(dobInputRef.current, {
+          mask: "####/##/##",
+          onMaska: handleMaskaDetail,
+          eager: true,
+        });
+        maskaInstanceRef.current = instance;
+        
+        if (dobInputValue && dobInputRef.current) {
+            instance.masked = dobInputValue;
+        }
+      } else {
+        console.error("Maska MaskInput could not be loaded.");
       }
     }
     return () => {
       maskaInstanceRef.current?.destroy();
       maskaInstanceRef.current = null;
     };
-  }, [handleMaskaDetail]);
+  }, [handleMaskaDetail, dobInputValue]); // Added dobInputValue dependency
 
   useEffect(() => {
     const subscription = form.watch((currentRHFValues) => {
       updateFormData({
         name: currentRHFValues.name,
         emailOrPhone: currentRHFValues.emailOrPhone,
+        // Ensure dob is stored in yyyy-MM-dd format (Gregorian) for consistency
         dob: currentRHFValues.dob ? formatGregorian(currentRHFValues.dob, 'yyyy-MM-dd') : undefined,
         password: currentRHFValues.password,
       });
@@ -188,19 +206,19 @@ export function StepUserInfo({ dictionary, formData, updateFormData, onValidatio
     let currentLocale = undefined;
 
     if (isFarsi) {
-        dateStr = '1279/01/01';
+        dateStr = '1279/01/01'; 
         parseFn = parseJalaliOriginal;
         isValidFn = isValidJalaliDateOriginal;
         currentLocale = faIRJalaliLocale;
     }
     
     const parsed = parseFn(dateStr, 'yyyy/MM/dd', new Date(), { locale: currentLocale });
-    return isValidFn(parsed) ? parsed : new Date(1900, 0, 1); // Fallback
+    return isValidFn(parsed) ? parsed : new Date(1900, 0, 1);
   }, [isFarsi]);
 
   const maxDateForPicker = React.useMemo(() => {
     const today = new Date();
-    today.setHours(0,0,0,0); // Set to start of today for accurate comparison
+    today.setHours(0,0,0,0);
     return today;
   }, []);
 
@@ -254,7 +272,7 @@ export function StepUserInfo({ dictionary, formData, updateFormData, onValidatio
                         type="text"
                         id={formItemId || "dob-input"}
                         ref={dobInputRef} 
-                        defaultValue={dobInputValue} 
+                        defaultValue={dobInputValue} // Use defaultValue as Maska controls the value
                         onBlur={rhfField.onBlur} 
                         placeholder={isFarsi ? dictionary.dobPlaceholderShamsi : dictionary.dobPlaceholderGregorian}
                         className={cn(
@@ -272,25 +290,25 @@ export function StepUserInfo({ dictionary, formData, updateFormData, onValidatio
                         </PopoverTrigger>
                         <PopoverContent className="w-auto p-0" align="start">
                           <Calendar
-                            key={lang} // Ensures re-mount on lang change
+                            key={lang}
                             mode="single"
                             selected={rhfField.value ?? undefined} 
                             defaultMonth={rhfField.value || undefined}
                             onSelect={(date) => {
                               if (date) {
-                                form.setValue('dob', date, { shouldValidate: true });
+                                form.setValue('dob', date, { shouldValidate: true, shouldTouch: true });
                                 const formattedDate = formatDate(date, dateFormatString, { locale: dateLocale });
                                 if (maskaInstanceRef.current) {
-                                  maskaInstanceRef.current.masked = formattedDate;
+                                  maskaInstanceRef.current.masked = formattedDate; 
                                 } else {
-                                    setDobInputValue(formattedDate); // Fallback if maska not ready
+                                    setDobInputValue(formattedDate); 
                                 }
                               } else {
-                                form.setValue('dob', null, { shouldValidate: true });
+                                form.setValue('dob', null, { shouldValidate: true, shouldTouch: true });
                                 if (maskaInstanceRef.current) {
                                   maskaInstanceRef.current.masked = '';
                                 } else {
-                                    setDobInputValue(''); // Fallback
+                                    setDobInputValue('');
                                 }
                               }
                               setIsCalendarOpen(false);
@@ -306,7 +324,7 @@ export function StepUserInfo({ dictionary, formData, updateFormData, onValidatio
                         </PopoverContent>
                       </Popover>
                     </div>
-                    {fieldState.isTouched && <FormMessage id={`${formItemId}-form-item-message`} />}
+                     {fieldState.isTouched && <FormMessage id={`${formItemId}-form-item-message`} />}
                   </FormItem>
                 )}}
               />
@@ -367,5 +385,3 @@ export function StepUserInfo({ dictionary, formData, updateFormData, onValidatio
     </div>
   );
 }
-
-    
