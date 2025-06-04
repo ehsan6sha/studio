@@ -9,7 +9,7 @@ import { DynamicHtmlAttributes } from '@/components/layout/dynamic-html-attribut
 import { i18n } from '@/i18n-config';
 import { motion, AnimatePresence } from 'framer-motion';
 import { usePathname, useParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react'; // Import React
 import { AuthProvider } from '@/context/auth-context';
 
 export default function LocaleLayout({
@@ -18,14 +18,12 @@ export default function LocaleLayout({
   children: ReactNode;
 }) {
   const params = useParams();
+  // Ensure lang is correctly determined, falling back to defaultLocale if necessary
   let lang: Locale = i18n.defaultLocale;
-
-  if (params.lang && typeof params.lang === 'string' && i18n.locales.includes(params.lang as Locale)) {
-    lang = params.lang as Locale;
-  } else if (Array.isArray(params.lang) && params.lang.length > 0 && i18n.locales.includes(params.lang[0] as Locale)) {
-    lang = params.lang[0] as Locale;
+  const langFromParams = Array.isArray(params.lang) ? params.lang[0] : params.lang;
+  if (langFromParams && i18n.locales.includes(langFromParams as Locale)) {
+    lang = langFromParams as Locale;
   }
-
 
   const pathname = usePathname();
   const [dictionary, setDictionary] = useState<any>(null);
@@ -49,13 +47,14 @@ export default function LocaleLayout({
       document.body.classList.add('font-body');
       document.body.classList.remove('font-vazir');
     }
+    // Cleanup function to remove classes when component unmounts or lang changes
     return () => {
       document.body.classList.remove('font-vazir');
       document.body.classList.remove('font-body');
     };
   }, [lang]);
 
-  const pageVariants = {
+  const pageVariants = React.useMemo(() => ({ // Memoize pageVariants
     initial: {
       opacity: 0,
       x: lang === 'fa' ? -50 : 50,
@@ -68,20 +67,26 @@ export default function LocaleLayout({
       opacity: 0,
       x: lang === 'fa' ? 50 : -50,
     },
-  };
+  }), [lang]);
 
-  const pageTransition = {
+  const pageTransition = React.useMemo(() => ({ // Memoize pageTransition
     type: 'tween',
     ease: 'easeInOut',
     duration: 0.3,
-  };
+  }), []);
 
   const displayYear = currentYear !== null ? currentYear : "";
   const appNameFromDict = dictionary?.appName;
   const navigationDict = dictionary?.navigation;
-  const footerRightsText = dictionary
+
+  // Default footer text if dictionary is not loaded
+  const defaultFooterText = lang === 'fa' ? 'تمامی حقوق محفوظ است.' : 'All rights reserved.';
+  const footerRightsText = dictionary?.termsPage?.contactInformation // Example, adjust path if needed
     ? (lang === 'fa' ? 'تمامی حقوق محفوظ است.' : 'All rights reserved.')
-    : (lang === 'fa' ? 'تمامی حقوق محفوظ است.' : 'All rights reserved.');
+    : defaultFooterText;
+
+  const defaultAppName = lang === 'fa' ? 'اپلیکیشن' : 'Application';
+
 
   return (
     <AuthProvider>
@@ -89,8 +94,8 @@ export default function LocaleLayout({
       <div className="flex min-h-screen flex-col">
         <SiteHeader
           lang={lang}
-          dictionary={navigationDict}
-          appName={appNameFromDict}
+          dictionary={navigationDict} // Pass potentially null dictionary
+          appName={appNameFromDict}    // Pass potentially null appName
         />
         <main className="flex-1 container mx-auto px-4 py-8 sm:px-6 lg:px-8 overflow-x-hidden">
           <AnimatePresence mode="wait" initial={false}>
@@ -101,13 +106,14 @@ export default function LocaleLayout({
               exit="out"
               variants={pageVariants}
               transition={pageTransition}
+              // className="h-full" // Removed previously
             >
               {children}
             </motion.div>
           </AnimatePresence>
         </main>
         <footer className="py-6 text-center text-sm text-muted-foreground">
-          © {displayYear} {appNameFromDict || (lang === 'fa' ? 'اپلیکیشن' : 'Application')}. {footerRightsText}
+          © {displayYear} {appNameFromDict || defaultAppName}. {footerRightsText}
         </footer>
       </div>
     </AuthProvider>
