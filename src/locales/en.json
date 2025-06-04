@@ -148,7 +148,7 @@
     },
     "stepRoleSelection": {
       "title": "Your Role",
-      "descriptionAdult": "Please select your role(s). You'll be able to set sharing preferences in the next step.",
+      "descriptionAdult": "Please select any roles that apply to you (optional). You can set sharing preferences in the next step.",
       "loadingRoleInfo": "Determining your pathway...",
       "selectRolesLabel": "Select your role(s):",
       "roles": {
@@ -170,7 +170,7 @@
     },
     "stepSharingPreferences": {
       "title": "Sharing Preferences",
-      "description": "If you wish, you can share information with trusted contacts.",
+      "description": "If you wish, you can share information with trusted contacts (optional).",
       "sharingConnections": {
         "shareWithLabel": "Share with:",
         "addConnectionButton": "Add Contact to Share With",
@@ -310,3 +310,5 @@
     }
   }
 }
+
+    
