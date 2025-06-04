@@ -6,9 +6,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { getDictionary } from "@/lib/dictionaries";
 import type { Locale } from "@/i18n-config";
-import { TrendingUp, Activity } from "lucide-react"; // Removed unused LucideBarChartIcon, LucideLineChartIcon
+import { TrendingUp, Activity } from "lucide-react";
 import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLegendContent } from "@/components/ui/chart";
-import { Bar, CartesianGrid, XAxis, YAxis, Line, ResponsiveContainer, Tooltip as RechartsTooltip } from "recharts";
+import { Bar, BarChart, LineChart, CartesianGrid, XAxis, YAxis, Line, ResponsiveContainer, Tooltip as RechartsTooltip } from "recharts";
 import Image from "next/image";
 
 const moodData = [
@@ -51,29 +51,23 @@ const chartConfigBiometric = {
 
 
 export default function DashboardPage({ params: paramsFromProps }: { params: { lang: Locale } }) {
-  // Address the Next.js warning: "params is now a Promise and should be unwrapped with React.use()"
-  // React.use() can handle both Promise and direct values.
-  // If paramsFromProps is not a Promise, use() will return it directly.
-  // If Next.js does wrap it as a Promise for client components in some cases, use() will unwrap it.
-  const resolvedParams = use(paramsFromProps as any); // Using 'as any' as use expects Promise or Context.
-                                                  // If paramsFromProps is {lang: Locale}, it works.
+  const resolvedParams = use(paramsFromProps as any);
   const { lang } = resolvedParams;
 
   const [dictionary, setDictionary] = useState<any>(null);
-  const isRTL = lang === 'fa'; // Directly derive isRTL from the resolved lang
+  const isRTL = lang === 'fa';
 
   useEffect(() => {
     async function loadDictionary() {
-      if (lang) { // Ensure lang is available
+      if (lang) {
         const dict = await getDictionary(lang);
         setDictionary(dict);
       }
     }
     loadDictionary();
-  }, [lang]); // Re-fetch dictionary if lang changes
+  }, [lang]);
 
   if (!dictionary) {
-    // You might want to show a loading skeleton here
     return <div>Loading...</div>;
   }
 
