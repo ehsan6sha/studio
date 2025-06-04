@@ -22,11 +22,11 @@ import { Calendar } from '@/components/ui/calendar';
 import { cn } from '@/lib/utils';
 
 // Standard date-fns for English/Gregorian
-import { format as formatGregorian, parse as parseGregorian, isValid as isValidGregorianDateOriginal, getYear as getYearGregorian } from 'date-fns';
-import { faIR as faIRLocale } from 'date-fns/locale/fa-IR'; // Gregorian Farsi locale (for display text)
+import { format as formatGregorian, parse as parseGregorianOriginal, isValid as isValidGregorianDateOriginal, getYear as getYearGregorian } from 'date-fns';
+import { faIR as faIRLocaleGregorian } from 'date-fns/locale/fa-IR'; // For displaying Gregorian dates with Farsi text
 
 // For Farsi/Shamsi (Jalali)
-import { format as formatJalali, parse as parseJalali, isValid as isValidJalaliDateOriginal, getYear as getYearJalali } from 'date-fns-jalali';
+import { format as formatJalaliOriginal, parse as parseJalaliOriginal, isValid as isValidJalaliDateOriginal, getYear as getYearJalali } from 'date-fns-jalali';
 import { faIR as faIRJalaliLocale } from 'date-fns-jalali/locale'; 
 
 
@@ -49,15 +49,30 @@ export function StepUserInfo({ dictionary, formData, updateFormData, onValidatio
   
   const isFarsi = lang === 'fa';
 
-  const formatDate = isFarsi ? formatJalali : formatGregorian;
-  const parseDateInput = isFarsi ? parseJalali : parseGregorian;
-  const isValidDate = isFarsi ? isValidJalaliDateOriginal : isValidGregorianDateOriginal;
-  const dateLocale = isFarsi ? faIRJalaliLocale : undefined; // For react-day-picker with Shamsi
-  const dateFormatString = isFarsi ? 'yyyy/MM/dd' : 'PPP'; // Shamsi format vs. English readable
-  
-  // Gregorian year range for calendar dropdowns
-  const calendarMinGregorianYear = 1900; 
-  const calendarMaxGregorianYear = getYearGregorian(new Date());
+  const { formatDate, parseDateInput, isValidDate, dateLocale, dateFormatString, getYearForCalendar, calendarMinYear, calendarMaxYear } = React.useMemo(() => {
+    if (isFarsi) {
+      return {
+        formatDate: formatJalaliOriginal,
+        parseDateInput: parseJalaliOriginal,
+        isValidDate: isValidJalaliDateOriginal,
+        dateLocale: faIRJalaliLocale,
+        dateFormatString: 'yyyy/MM/dd',
+        getYearForCalendar: getYearJalali,
+        calendarMinYear: 1279, // Approx 1900 Gregorian in Shamsi
+        calendarMaxYear: getYearJalali(new Date()), // Current Shamsi year
+      };
+    }
+    return {
+      formatDate: formatGregorian,
+      parseDateInput: parseGregorianOriginal,
+      isValidDate: isValidGregorianDateOriginal,
+      dateLocale: undefined, // For react-day-picker with Gregorian default (English)
+      dateFormatString: 'PPP', // e.g. "Jan 1st, 2023"
+      getYearForCalendar: getYearGregorian,
+      calendarMinYear: 1900,
+      calendarMaxYear: getYearGregorian(new Date()),
+    };
+  }, [isFarsi]);
 
 
   const UserInfoSchema = z.object({
@@ -85,11 +100,12 @@ export function StepUserInfo({ dictionary, formData, updateFormData, onValidatio
   const defaultFormValues = React.useMemo(() => ({
     name: formData.name || '',
     emailOrPhone: formData.emailOrPhone || '',
-    dob: formData.dob ? parseGregorian(formData.dob, 'yyyy-MM-dd', new Date()) : undefined, // Store as Gregorian Date object
+    // DOB is stored as a standard YYYY-MM-DD string in formData, parse it to Date object for form
+    dob: formData.dob ? parseGregorianOriginal(formData.dob, 'yyyy-MM-dd', new Date()) : undefined,
     password: formData.password || '',
     confirmPassword: '', // Always start confirmPassword empty
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }), [formData.name, formData.emailOrPhone, formData.dob, formData.password]); // parseGregorian is stable
+  }), [formData.name, formData.emailOrPhone, formData.dob, formData.password]);
 
   const form = useForm<z.infer<typeof UserInfoSchema>>({
     resolver: zodResolver(UserInfoSchema),
@@ -99,27 +115,23 @@ export function StepUserInfo({ dictionary, formData, updateFormData, onValidatio
   
   const [dobInputValue, setDobInputValue] = useState<string>('');
 
-  // Effect for initial setup (on mount)
+  // Effect for initializing/resetting form when defaultFormValues change (e.g., from parent formData or mount)
   useEffect(() => {
+    form.reset(defaultFormValues);
+
     const initialDobDate = defaultFormValues.dob;
     if (initialDobDate && isValidDate(initialDobDate)) {
       setDobInputValue(formatDate(initialDobDate, dateFormatString, { locale: dateLocale }));
     } else {
       setDobInputValue('');
     }
-
-    const timerId = setTimeout(() => {
-      form.trigger().then(() => {
-        onValidation(form.formState.isValid);
-      });
-    }, 0);
-    return () => clearTimeout(timerId);
+    // Let mode: 'onChange' and the dedicated form.formState.isValid useEffect handle initial validation reporting
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [defaultFormValues]); // Runs when defaultFormValues change (e.g. initial formData from props)
+  }, [defaultFormValues, form.reset]); // Removed date utils as they are memoized and defaultFormValues depends on them
 
   // Effect for language changes
   useEffect(() => {
-    form.setValue('confirmPassword', '', { shouldValidate: true }); // Clear confirm password on lang change
+    form.setValue('confirmPassword', '', { shouldValidate: true }); 
 
     const currentDob = form.getValues('dob');
     if (currentDob && isValidDate(currentDob)) {
@@ -129,32 +141,25 @@ export function StepUserInfo({ dictionary, formData, updateFormData, onValidatio
     }
     
     const timerId = setTimeout(() => {
-      form.trigger().then(() => onValidation(form.formState.isValid));
+      form.trigger(); // This will update form.formState.isValid for the new lang/locale
     }, 0);
     return () => clearTimeout(timerId);
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [lang, dateFormatString, dateLocale]); // form, formatDate, isValidDate, onValidation are stable
+  }, [lang, dateFormatString, dateLocale, formatDate, isValidDate, form.setValue, form.getValues, form.trigger]);
 
 
-  // Effect for watching form changes and updating parent state / validation
+  // Effect for watching form changes to update parent formData & dobInputValue
   useEffect(() => {
     const subscription = form.watch((currentValues, { name: fieldName, type }) => {
       updateFormData({
         name: currentValues.name,
         emailOrPhone: currentValues.emailOrPhone,
-        // Store DOB as a consistent Gregorian 'yyyy-MM-dd' string in formData
         dob: currentValues.dob ? formatGregorian(currentValues.dob, 'yyyy-MM-dd') : undefined,
         password: currentValues.password,
-        // confirmPassword is not stored in formData
       });
       
-      onValidation(form.formState.isValid);
-      
-      // Update dobInputValue for display, only if 'dob' field itself changed through the calendar
-      // or if it's being cleared, and not while user is typing.
       if (fieldName === 'dob' || (fieldName === undefined && type === undefined)) { 
         if (currentValues.dob && isValidDate(currentValues.dob)) {
-           // Avoid race condition with manual input if DOB input is focused
            if (document.activeElement?.id !== 'dob-input') { 
              setDobInputValue(formatDate(currentValues.dob, dateFormatString, { locale: dateLocale }));
            }
@@ -165,7 +170,13 @@ export function StepUserInfo({ dictionary, formData, updateFormData, onValidatio
     });
     return () => subscription.unsubscribe();
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [form, updateFormData, onValidation]); // formatDate, dateFormatString, dateLocale, isValidDate, formatGregorian are stable
+  }, [form.watch, updateFormData, formatDate, dateFormatString, dateLocale, isValidDate, formatGregorian]);
+
+
+  // Effect for propagating form validity to the parent
+  useEffect(() => {
+    onValidation(form.formState.isValid);
+  }, [form.formState.isValid, onValidation]);
 
 
   const handleDobInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -173,6 +184,8 @@ export function StepUserInfo({ dictionary, formData, updateFormData, onValidatio
     setDobInputValue(textValue);
 
     let parsedInputDate: Date | null = null;
+    // For Farsi, try parsing as yyyy/MM/dd, then yyyy-MM-dd (Shamsi)
+    // For Gregorian, try common formats
     const formatsToTry = isFarsi 
       ? ['yyyy/MM/dd', 'yyyy-MM-dd'] 
       : ['MM/dd/yyyy', 'yyyy-MM-dd', 'M/d/yy', 'P', 'PP', 'PPP'];
@@ -190,6 +203,7 @@ export function StepUserInfo({ dictionary, formData, updateFormData, onValidatio
     if (parsedInputDate && isValidDate(parsedInputDate)) {
       form.setValue('dob', parsedInputDate, { shouldValidate: true });
     } else {
+      // If parsing fails, set dob to null but keep shouldValidate true to show error if field is required
       form.setValue('dob', null, { shouldValidate: true }); 
     }
   };
@@ -233,14 +247,14 @@ export function StepUserInfo({ dictionary, formData, updateFormData, onValidatio
               <FormField
                 control={form.control}
                 name="dob"
-                render={({ fieldState }) => ( // field is not directly used here for input value
+                render={({ fieldState }) => ( 
                   <FormItem className="flex flex-col">
                     <FormLabel>{dictionary.dobLabel}</FormLabel>
                     <div className="relative flex items-center gap-x-2">
                       <FormControl>
                          <Input
                           id="dob-input"
-                          placeholder={isFarsi ? dictionary.dobPlaceholderFarsi : dictionary.dobPlaceholderGregorian}
+                          placeholder={isFarsi ? dictionary.dobPlaceholderShamsi : dictionary.dobPlaceholderGregorian}
                           value={dobInputValue}
                           onChange={handleDobInputChange}
                           className="w-full"
@@ -255,7 +269,7 @@ export function StepUserInfo({ dictionary, formData, updateFormData, onValidatio
                         <PopoverContent className="w-auto p-0" align="start">
                           <Calendar
                             mode="single"
-                            selected={form.getValues('dob') ?? undefined} // Use form.getValues('dob')
+                            selected={form.getValues('dob') ?? undefined} 
                             onSelect={(date) => {
                               form.setValue('dob', date, { shouldValidate: true });
                               if (date && isValidDate(date)) {
@@ -266,12 +280,12 @@ export function StepUserInfo({ dictionary, formData, updateFormData, onValidatio
                               setIsCalendarOpen(false);
                             }}
                             disabled={(date) =>
-                              date > new Date() || date < new Date("1900-01-01")
+                              date > new Date() || date < (isFarsi ? parseDateInput('1279/01/01', 'yyyy/MM/dd', new Date()) : new Date("1900-01-01"))
                             }
                             initialFocus
                             captionLayout="dropdown-buttons"
-                            fromYear={calendarMinGregorianYear} 
-                            toYear={calendarMaxGregorianYear}   
+                            fromYear={calendarMinYear} 
+                            toYear={calendarMaxYear}   
                             locale={dateLocale} 
                           />
                         </PopoverContent>
@@ -296,7 +310,7 @@ export function StepUserInfo({ dictionary, formData, updateFormData, onValidatio
                           size="icon"
                           className="absolute rtl:left-1 ltr:right-1 top-1/2 h-7 w-7 -translate-y-1/2"
                           onClick={() => setShowPassword(!showPassword)}
-                          aria-label={showPassword ? dictionary.hidePassword : dictionary.showPassword}
+                          aria-label={showPassword ? dictionary.hidePasswordAriaLabel : dictionary.showPasswordAriaLabel}
                         >
                           {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                         </Button>
@@ -321,7 +335,7 @@ export function StepUserInfo({ dictionary, formData, updateFormData, onValidatio
                           size="icon"
                            className="absolute rtl:left-1 ltr:right-1 top-1/2 h-7 w-7 -translate-y-1/2"
                           onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                          aria-label={showConfirmPassword ? dictionary.hidePassword : dictionary.showPassword}
+                          aria-label={showConfirmPassword ? dictionary.hidePasswordAriaLabel : dictionary.showPasswordAriaLabel}
                         >
                           {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                         </Button>
@@ -338,4 +352,3 @@ export function StepUserInfo({ dictionary, formData, updateFormData, onValidatio
     </div>
   );
 }
-
