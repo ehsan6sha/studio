@@ -103,7 +103,7 @@ export function StepRoleSelection({ dictionary, formData, updateFormData, onVali
         syncedInformation: z.boolean().optional(),
       }).refine(data => Object.values(data).some(value => value === true), {
         message: dictionary.youthConnections.errorNoPermissionsSelected || "Select at least one permission.",
-         path: ['basicInformation'], 
+         path: ['basicInformation'],
       }),
     })),
     defaultValues: {
@@ -167,7 +167,7 @@ export function StepRoleSelection({ dictionary, formData, updateFormData, onVali
     const updatedConnections = (formData.youthConnections || []).filter(conn => conn.id !== connectionId);
     updateFormData({ youthConnections: updatedConnections });
   };
-  
+
   const getPermissionsSummary = (permissions: YouthConnection['permissions']) => {
     const enabledPermissions = permissionItems
       .filter(item => permissions[item.id])
