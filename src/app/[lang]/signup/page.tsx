@@ -8,9 +8,8 @@ import { useSearchParams } from 'next/navigation';
 import React, { Suspense, useEffect, useState } from 'react'; // Added React import
 
 // Using Suspense for useSearchParams as per Next.js recommendation for Client Components
-function SignupPageContent({ params }: { params: { lang: Locale } }) {
-  const resolvedParams = React.use(params as any); // Unwrap params using React.use()
-  const { lang } = resolvedParams;
+function SignupPageContent({ params: paramsAsProp }: { params: { lang: Locale } }) {
+  const { lang } = paramsAsProp; // Corrected: Direct access
 
   const [dictionary, setDictionary] = useState<any>(null);
   const searchParams = useSearchParams();
