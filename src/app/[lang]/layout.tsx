@@ -24,7 +24,7 @@ export default function LocaleLayout({
   if (langFromParamsRaw && i18n.locales.includes(langFromParamsRaw as Locale)) {
     lang = langFromParamsRaw as Locale;
   }
-
+  
   const pathname = usePathname();
   const [dictionary, setDictionary] = useState<any>(null);
   const [currentYear, setCurrentYear] = useState<number | null>(null);
@@ -59,7 +59,7 @@ export default function LocaleLayout({
   }, [pathname]);
 
   const minimalTransitionRoutes = React.useMemo(() => [
-    `/${lang}`,
+    `/${lang}`, // Home page
     `/${lang}/login`,
     `/${lang}/signup`,
   ], [lang]);
@@ -67,7 +67,6 @@ export default function LocaleLayout({
   const isCurrentPathMinimal = minimalTransitionRoutes.includes(pathname);
   const isPreviousPathMinimal = previousPathnameRef.current ? minimalTransitionRoutes.includes(previousPathnameRef.current) : false;
   
-  // Disable animation if transitioning between any two minimal routes
   const disableAnimation = isCurrentPathMinimal && isPreviousPathMinimal && previousPathnameRef.current !== pathname;
 
   const animatedPageVariants = React.useMemo(() => ({
@@ -81,7 +80,7 @@ export default function LocaleLayout({
     in: { opacity: 1 },
     out: { opacity: 1 },
   }), []);
-
+  
   const animatedPageTransition = React.useMemo(() => ({
     type: 'tween',
     ease: 'easeInOut',
@@ -94,7 +93,7 @@ export default function LocaleLayout({
 
   const currentVariants = disableAnimation ? noAnimationPageVariants : animatedPageVariants;
   const currentTransition = disableAnimation ? noAnimationPageTransition : animatedPageTransition;
-
+  
   const displayYear = currentYear !== null ? currentYear : "";
   const appNameFromDict = dictionary?.appName;
   const navigationDict = dictionary?.navigation;
@@ -102,7 +101,7 @@ export default function LocaleLayout({
   const footerRightsText = dictionary?.termsPage?.contactInformation
     ? (lang === 'fa' ? 'تمامی حقوق محفوظ است.' : 'All rights reserved.')
     : defaultFooterText;
-  const defaultAppName = lang === 'fa' ? 'اپلیکیشن' : 'Application';
+  const defaultAppName = lang === 'fa' ? 'حامی' : 'Hami'; // Updated default app name
 
   return (
     <AuthProvider>
@@ -122,7 +121,6 @@ export default function LocaleLayout({
               exit="out"
               variants={currentVariants}
               transition={currentTransition}
-              // style={{ opacity: 0 }} // Removed: initial opacity handled by variants
             >
               {children}
             </motion.div>

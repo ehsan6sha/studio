@@ -208,7 +208,7 @@ export function StepTerms({
           
           <div className="mt-6 p-3 bg-muted/50 rounded-md text-xs text-muted-foreground space-y-1">
               <p>{dictionary.infoNoteLine1}</p>
-              <p>{dictionary.infoNoteLine2.replace('سنگ صبور', lang === 'fa' ? 'روان‌همراه' : 'RavanHamrah')}</p>
+              <p>{dictionary.infoNoteLine2}</p>
               <p>{dictionary.infoNoteLine3}</p>
           </div>
         </CardContent>

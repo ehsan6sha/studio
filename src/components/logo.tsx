@@ -1,4 +1,5 @@
-import { Brain } from 'lucide-react';
+
+import { Heart } from 'lucide-react'; // Changed from Brain to Heart
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 
@@ -9,6 +10,8 @@ interface LogoProps {
 }
 
 export function Logo({ locale, appName, className }: LogoProps) {
+  // Assuming appName prop will be correctly passed as "Hami" or "حامی"
+  // If not, the component displaying this logo needs to handle the new name.
   return (
     <Link
       href={`/${locale}`}
@@ -17,7 +20,7 @@ export function Logo({ locale, appName, className }: LogoProps) {
         className
       )}
     >
-      <Brain className="h-8 w-8 shrink-0" />
+      <Heart className="h-8 w-8 shrink-0" /> {/* Changed from Brain to Heart */}
       <span className="font-headline text-2xl font-semibold truncate">{appName}</span>
     </Link>
   );

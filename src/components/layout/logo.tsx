@@ -1,5 +1,5 @@
 
-import { Brain } from 'lucide-react';
+import { Heart } from 'lucide-react'; // Changed from Brain to Heart
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 
@@ -10,7 +10,7 @@ interface LogoProps {
 }
 
 export function Logo({ locale, appName, className }: LogoProps) {
-  const displayName = appName || (locale === 'fa' ? 'روان‌همراه' : 'RavanHamrah'); // Default app name
+  const displayName = appName || (locale === 'fa' ? 'حامی' : 'Hami'); // Updated default app name
   return (
     <Link
       href={`/${locale}`}
@@ -19,7 +19,7 @@ export function Logo({ locale, appName, className }: LogoProps) {
         className
       )}
     >
-      <Brain className="h-8 w-8 shrink-0" />
+      <Heart className="h-8 w-8 shrink-0" /> {/* Changed from Brain to Heart */}
       <span className="font-headline text-2xl font-semibold truncate">{displayName}</span>
     </Link>
   );

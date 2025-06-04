@@ -1,11 +1,12 @@
+
 import type { Metadata } from 'next';
 import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
 import { DynamicHtmlAttributes } from '@/components/layout/dynamic-html-attributes';
 
 export const metadata: Metadata = {
-  title: 'RavanHamrah | روان‌همراه',
-  description: 'Personalized mental wellness companion | همراه شخصی سلامت روان شما',
+  title: 'Hami | حامی',
+  description: 'Your supportive companion | همراه حامی شما',
 };
 
 export default function RootLayout({
