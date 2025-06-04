@@ -135,9 +135,9 @@ export function SignupStepper({
   }
 
   return (
-    <div className="w-full max-w-xl mx-auto flex flex-col h-full" dir={lang === 'fa' ? 'rtl' : 'ltr'}>
+    <div className="w-full max-w-xl mx-auto flex flex-col flex-grow" dir={lang === 'fa' ? 'rtl' : 'ltr'}> {/* Changed h-full to flex-grow */}
       <Progress value={progressValue} className="w-full mb-4 md:mb-6" />
-      <div className="flex-grow overflow-hidden relative"> {/* Removed py-4 */}
+      <div className="flex-grow overflow-hidden relative">
         <AnimatePresence initial={false} custom={direction} mode="wait">
           <motion.div
             key={currentStep}
@@ -150,7 +150,7 @@ export function SignupStepper({
               x: { type: 'spring', stiffness: 300, damping: 30 },
               opacity: { duration: 0.2 },
             }}
-            className="w-full absolute top-0 left-0 right-0 bottom-0 overflow-y-auto p-4" // Changed px-1 to p-4 for consistent padding
+            className="w-full absolute top-0 left-0 right-0 bottom-0 overflow-y-auto p-4"
           >
             {currentStep === 1 && (
               <StepInformation dictionary={dictionary.stepInformation} />
@@ -189,4 +189,3 @@ export function SignupStepper({
     </div>
   );
 }
-

@@ -28,7 +28,7 @@ function SignupPageContent({ params }: { params: { lang: Locale } }) {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center flex-grow py-2 sm:py-4 md:py-6 px-4">
+    <div className="flex flex-col items-center flex-grow p-4"> {/* Adjusted padding and removed justify-center */}
       <SignupStepper
         lang={lang}
         dictionary={dictionary.signupStepper}
