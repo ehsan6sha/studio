@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { getDictionary } from "@/lib/dictionaries";
 import type { Locale } from "@/i18n-config";
@@ -23,10 +24,18 @@ export default async function LangRootPage({ params: { lang } }: { params: { lan
       <p className="mt-6 max-w-2xl text-lg leading-8 text-foreground/80">
         {dictionary.landingPage.welcomeMessage}
       </p>
-      <div className="mt-10">
-        <Button asChild size="lg">
-          <Link href={`/${lang}/dashboard`}>{dictionary.landingPage.getStartedButton}</Link>
+      <div className="mt-10 flex flex-col items-center space-y-4 w-full max-w-xs">
+        <Button asChild size="lg" className="w-full">
+          <Link href={`/${lang}/signup`}>{dictionary.landingPage.registerButton}</Link>
         </Button>
+        <Button asChild size="lg" variant="outline" className="w-full">
+          <Link href={`/${lang}/login`}>{dictionary.landingPage.loginButton}</Link>
+        </Button>
+      </div>
+      <div className="mt-12">
+        <Link href={`/${lang}/terms`} className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+          {dictionary.landingPage.termsPolicyLink}
+        </Link>
       </div>
     </div>
   );

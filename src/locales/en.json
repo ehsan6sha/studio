@@ -75,6 +75,8 @@
   "landingPage": {
     "welcomeTitle": "Welcome to RavanHamrah",
     "welcomeMessage": "Your intelligent companion for mental well-being. We help you find your path to peace and wellness with AI-driven insights and practical tools.",
-    "getStartedButton": "Get Started"
+    "registerButton": "Register",
+    "loginButton": "Login",
+    "termsPolicyLink": "Terms and Policy"
   }
 }
