@@ -79,6 +79,8 @@
     "nextButton": "Save & Next",
     "finishButton": "Finish Registration",
     "errorMandatoryTerms": "You must accept the mandatory terms to continue.",
+    "registrationCompleteTitle": "Registration Complete!",
+    "registrationCompleteMessage": "Your account has been successfully created. Redirecting to dashboard...",
     "stepInformation": {
       "title": "Welcome to RavanHamrah Registration!",
       "description": "Let's get you set up.",
@@ -100,11 +102,42 @@
     },
     "stepUserInfo": {
       "title": "Your Details",
-      "description": "Tell us a bit about yourself."
+      "description": "Tell us a bit about yourself.",
+      "nameLabel": "Full Name",
+      "namePlaceholder": "Enter your full name",
+      "emailOrPhoneLabel": "Email or Phone Number",
+      "emailOrPhonePlaceholder": "e.g., user@example.com or +1234567890",
+      "dobLabel": "Date of Birth",
+      "dobPlaceholder": "Select your date of birth",
+      "passwordLabel": "Password",
+      "confirmPasswordLabel": "Confirm Password",
+      "errors": {
+        "nameRequired": "Full name is required.",
+        "emailOrPhoneRequired": "Email or phone number is required.",
+        "invalidEmailOrPhone": "Please enter a valid email or phone number.",
+        "dobRequired": "Date of birth is required.",
+        "dobInvalid": "Invalid date format.",
+        "passwordMinLength": "Password must be at least 6 characters.",
+        "confirmPasswordMinLength": "Confirm password must be at least 6 characters.",
+        "passwordsDontMatch": "Passwords do not match."
+      }
     },
     "stepVerification": {
       "title": "Account Verification",
-      "description": "Let's verify your account."
+      "descriptionEmail": "A verification code has been sent to {emailOrPhone}. Please enter it below.",
+      "descriptionPhone": "A verification code has been sent to {emailOrPhone}. Please enter it below.",
+      "pasteButton": "Paste Code",
+      "openEmailButton": "Open {domain}",
+      "didNotReceiveCode": "Didn't receive the code?",
+      "resendCodeLink": "Resend Code",
+      "toast": {
+        "verifiedTitle": "Code Verified!",
+        "verifiedDescription": "Your account is now (simulated) verified.",
+        "pastedTitle": "Code Pasted",
+        "pasteErrorTitle": "Paste Error",
+        "pasteErrorInvalid": "Pasted text is not a valid OTP code.",
+        "pasteErrorFailed": "Could not read from clipboard. Please type the code manually."
+      }
     },
     "appTermsContent": {
         "title": "Application Terms & Conditions",

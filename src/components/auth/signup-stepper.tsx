@@ -6,14 +6,13 @@ import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import type { Locale } from '@/i18n-config';
 import { StepInformation } from './steps/step-information';
 import { StepTerms } from './steps/step-terms';
-// Import other steps here as they are created
-// import { StepUserInfo } from './steps/step-user-info';
-// import { StepVerification } from './steps/step-verification';
+import { StepUserInfo } from './steps/step-user-info';
+import { StepVerification } from './steps/step-verification';
 import { Button } from '@/components/ui/button';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Progress } from "@/components/ui/progress";
 
-const TOTAL_STEPS = 4; // Update as more steps are added
+const TOTAL_STEPS = 4;
 
 export interface SignupFormData {
   acceptedMandatoryTerms?: boolean;
@@ -22,15 +21,15 @@ export interface SignupFormData {
   emailOrPhone?: string;
   password?: string;
   name?: string;
-  dob?: Date | string;
+  dob?: string; // Store as ISO string 'YYYY-MM-DD'
   verificationCode?: string;
 }
 
 interface SignupStepperProps {
   lang: Locale;
-  dictionary: any; // Dictionary for signup stepper
+  dictionary: any; 
   initialStep: number;
-  termsDictionary: any; // For terms content in dialogs
+  termsDictionary: any; 
   appTermsContent: any;
   dataProcessingConsentContent: any;
   marketingConsentContent: any;
@@ -52,7 +51,8 @@ export function SignupStepper({
   const [currentStep, setCurrentStep] = useState(initialStep < 1 || initialStep > TOTAL_STEPS ? 1 : initialStep);
   const [formData, setFormData] = useState<SignupFormData>({});
   const [isLoaded, setIsLoaded] = useState(false);
-  const [direction, setDirection] = useState(1); // 1 for next, -1 for previous
+  const [direction, setDirection] = useState(1); 
+  const [isStepValid, setIsStepValid] = useState(false);
 
   useEffect(() => {
     const storedData = localStorage.getItem('signupFormData');
@@ -61,9 +61,12 @@ export function SignupStepper({
     }
     const stepFromQuery = searchParams.get('step');
     const validatedInitialStep = stepFromQuery ? parseInt(stepFromQuery, 10) : 1;
-    setCurrentStep(validatedInitialStep < 1 || validatedInitialStep > TOTAL_STEPS ? 1 : validatedInitialStep);
+    const saneInitialStep = Math.max(1, Math.min(validatedInitialStep, TOTAL_STEPS));
+    setCurrentStep(saneInitialStep);
     setIsLoaded(true);
-  }, []); // Ran only once on mount
+    // Set initial validation state based on current step and loaded data
+    // This is tricky because validation depends on the step's content
+  }, []);
 
   useEffect(() => {
     if (isLoaded) {
@@ -76,11 +79,34 @@ export function SignupStepper({
     newSearchParams.set('step', step.toString());
     router.push(`${pathname}?${newSearchParams.toString()}`, { scroll: false });
   };
+  
+  // Effect to set initial validation state when step or formData changes
+  useEffect(() => {
+    if (!isLoaded) return;
+
+    if (currentStep === 1) {
+      setIsStepValid(true); // Step 1 is always valid
+    } else if (currentStep === 2) {
+      setIsStepValid(!!formData.acceptedMandatoryTerms);
+    } else if (currentStep === 3) {
+      // For Step 3 (UserInfo), validation is handled by its internal form
+      // The StepUserInfo component calls onValidation prop
+      // For now, let's assume it's invalid until its internal form says otherwise
+      // This will be updated by the StepUserInfo component via onValidation
+    } else if (currentStep === 4) {
+      // For Step 4 (Verification)
+      setIsStepValid(!!formData.verificationCode && formData.verificationCode.length === 5);
+    }
+  }, [currentStep, formData, isLoaded]);
+
 
   const handleNext = useCallback(async () => {
-    if (currentStep === 2 && !formData.acceptedMandatoryTerms) {
-        alert(dictionary.errorMandatoryTerms); 
-        return;
+    if (!isStepValid) {
+      if (currentStep === 2 && !formData.acceptedMandatoryTerms) {
+         alert(dictionary.errorMandatoryTerms);
+      }
+      // Potentially show other alerts or rely on form field errors for step 3
+      return;
     }
 
     setDirection(1);
@@ -88,13 +114,14 @@ export function SignupStepper({
       const nextStep = currentStep + 1;
       setCurrentStep(nextStep);
       updateUrl(nextStep);
+      setIsStepValid(false); // Reset validation state for the new step
     } else {
-      // Handle final submission
       console.log('Finalizing registration:', formData);
+      // toast({ title: dictionary.registrationCompleteTitle, description: dictionary.registrationCompleteMessage });
       localStorage.removeItem('signupFormData');
-      router.push(`/${lang}/dashboard`); // Or a success page
+      router.push(`/${lang}/dashboard`); 
     }
-  }, [currentStep, formData, dictionary, lang, router, pathname]);
+  }, [currentStep, formData, dictionary, lang, router, pathname, isStepValid]);
 
   const handlePrevious = () => {
     setDirection(-1);
@@ -102,12 +129,21 @@ export function SignupStepper({
       const prevStep = currentStep - 1;
       setCurrentStep(prevStep);
       updateUrl(prevStep);
+      // When going back, the previous step should generally be considered valid
+      // if it was completed, or re-validate based on its criteria.
+      // For simplicity, let's set to true, can be refined.
+      setIsStepValid(true); 
     }
   };
 
-  const updateFormData = (data: Partial<SignupFormData>) => {
+  const updateFormDataAndValidate = useCallback((data: Partial<SignupFormData>) => {
     setFormData((prev) => ({ ...prev, ...data }));
-  };
+  }, []);
+
+  const handleStepValidation = useCallback((isValid: boolean) => {
+    setIsStepValid(isValid);
+  }, []);
+
 
   const progressValue = (currentStep / TOTAL_STEPS) * 100;
 
@@ -129,10 +165,10 @@ export function SignupStepper({
   };
 
   if (!isLoaded) {
-    return <div>{dictionary.loading || "Loading..."}</div>;
+    return <div className="flex-grow flex items-center justify-center">{dictionary.loading || "Loading..."}</div>;
   }
-
-  const isNextButtonDisabled = currentStep === 2 && !formData.acceptedMandatoryTerms;
+  
+  const isNextButtonDisabled = !isStepValid;
 
   return (
     <div className="w-full max-w-xl mx-auto flex flex-col flex-grow" dir={lang === 'fa' ? 'rtl' : 'ltr'}>
@@ -151,7 +187,7 @@ export function SignupStepper({
               x: { type: 'spring', stiffness: 300, damping: 30 },
               opacity: { duration: 0.2 },
             }}
-            className="w-full flex-1 overflow-y-auto p-4" 
+            className="w-full flex-1 overflow-y-auto p-1 sm:p-2 md:p-4" 
           >
             {currentStep === 1 && (
               <StepInformation dictionary={dictionary.stepInformation} />
@@ -160,7 +196,8 @@ export function SignupStepper({
               <StepTerms
                 dictionary={dictionary.stepTerms}
                 formData={formData}
-                updateFormData={updateFormData}
+                updateFormData={updateFormDataAndValidate}
+                onValidation={handleStepValidation}
                 lang={lang}
                 termsDictionary={termsDictionary}
                 appTermsContent={appTermsContent}
@@ -168,8 +205,24 @@ export function SignupStepper({
                 marketingConsentContent={marketingConsentContent}
               />
             )}
-             {currentStep === 3 && <div className="p-6 text-center h-full flex flex-col items-center justify-center"><h2 className="text-xl font-semibold">{dictionary.stepUserInfo?.title || "User Information (Coming Soon)"}</h2><p>{dictionary.stepUserInfo?.description || "This step will collect your personal details."}</p></div>}
-             {currentStep === 4 && <div className="p-6 text-center h-full flex flex-col items-center justify-center"><h2 className="text-xl font-semibold">{dictionary.stepVerification?.title || "Verification (Coming Soon)"}</h2><p>{dictionary.stepVerification?.description || "This step will verify your account."}</p></div>}
+             {currentStep === 3 && (
+                <StepUserInfo
+                    dictionary={dictionary.stepUserInfo}
+                    formData={formData}
+                    updateFormData={updateFormDataAndValidate}
+                    onValidation={handleStepValidation}
+                    lang={lang}
+                />
+            )}
+             {currentStep === 4 && (
+                <StepVerification
+                    dictionary={dictionary.stepVerification}
+                    formData={formData}
+                    updateFormData={updateFormDataAndValidate}
+                    onValidation={handleStepValidation}
+                    lang={lang}
+                />
+            )}
           </motion.div>
         </AnimatePresence>
       </div>

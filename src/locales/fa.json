@@ -79,6 +79,8 @@
     "nextButton": "ذخیره و بعدی",
     "finishButton": "پایان ثبت نام",
     "errorMandatoryTerms": "برای ادامه باید شرایط اجباری را بپذیرید.",
+    "registrationCompleteTitle": "ثبت نام تکمیل شد!",
+    "registrationCompleteMessage": "حساب کاربری شما با موفقیت ایجاد شد. در حال انتقال به داشبورد...",
     "stepInformation": {
       "title": "به ثبت نام روان‌همراه خوش آمدید!",
       "description": "بیایید شما را آماده کنیم.",
@@ -100,11 +102,42 @@
     },
     "stepUserInfo": {
       "title": "اطلاعات شما",
-      "description": "کمی درباره خودتان به ما بگویید."
+      "description": "کمی درباره خودتان به ما بگویید.",
+      "nameLabel": "نام کامل",
+      "namePlaceholder": "نام کامل خود را وارد کنید",
+      "emailOrPhoneLabel": "ایمیل یا شماره تلفن",
+      "emailOrPhonePlaceholder": "مثال: user@example.com یا 09123456789",
+      "dobLabel": "تاریخ تولد",
+      "dobPlaceholder": "تاریخ تولد خود را انتخاب کنید",
+      "passwordLabel": "رمز عبور",
+      "confirmPasswordLabel": "تکرار رمز عبور",
+      "errors": {
+        "nameRequired": "نام کامل الزامی است.",
+        "emailOrPhoneRequired": "ایمیل یا شماره تلفن الزامی است.",
+        "invalidEmailOrPhone": "لطفا ایمیل یا شماره تلفن معتبر وارد کنید.",
+        "dobRequired": "تاریخ تولد الزامی است.",
+        "dobInvalid": "فرمت تاریخ نامعتبر است.",
+        "passwordMinLength": "رمز عبور باید حداقل ۶ کاراکتر باشد.",
+        "confirmPasswordMinLength": "تکرار رمز عبور باید حداقل ۶ کاراکتر باشد.",
+        "passwordsDontMatch": "رمزهای عبور یکسان نیستند."
+      }
     },
     "stepVerification": {
       "title": "تأیید حساب کاربری",
-      "description": "بیایید حساب شما را تأیید کنیم."
+      "descriptionEmail": "یک کد تأیید به {emailOrPhone} ارسال شد. لطفاً آن را در زیر وارد کنید.",
+      "descriptionPhone": "یک کد تأیید به {emailOrPhone} ارسال شد. لطفاً آن را در زیر وارد کنید.",
+      "pasteButton": "چسباندن کد",
+      "openEmailButton": "باز کردن {domain}",
+      "didNotReceiveCode": "کد را دریافت نکردید؟",
+      "resendCodeLink": "ارسال مجدد کد",
+      "toast": {
+        "verifiedTitle": "کد تأیید شد!",
+        "verifiedDescription": "حساب شما (به صورت شبیه‌سازی شده) تأیید شد.",
+        "pastedTitle": "کد چسبانده شد",
+        "pasteErrorTitle": "خطا در چسباندن",
+        "pasteErrorInvalid": "متن چسبانده شده کد OTP معتبری نیست.",
+        "pasteErrorFailed": "خواندن از کلیپ‌بورد ناموفق بود. لطفاً کد را دستی وارد کنید."
+      }
     },
     "appTermsContent": {
         "title": "شرایط و قوانین برنامه",

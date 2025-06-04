@@ -45,13 +45,14 @@ const chartConfigBiometric = {
   },
   heartRate: {
     label: "Heart Rate (bpm)",
-    color: "hsl(var(--secondary))",
+    color: "hsl(var(--secondary))", // Assuming you might have a secondary color for charts
   },
 };
 
 
 export default function DashboardPage({ params: paramsFromProps }: { params: { lang: Locale } }) {
-  const resolvedParams = use(paramsFromProps as any);
+  // Properly resolve params if it's a promise (for newer Next.js versions)
+  const resolvedParams = use(paramsFromProps as any); // Use React.use() to unwrap params
   const { lang } = resolvedParams;
 
   const [dictionary, setDictionary] = useState<any>(null);
@@ -59,7 +60,7 @@ export default function DashboardPage({ params: paramsFromProps }: { params: { l
 
   useEffect(() => {
     async function loadDictionary() {
-      if (lang) {
+      if (lang) { // Check if lang is defined
         const dict = await getDictionary(lang);
         setDictionary(dict);
       }
@@ -68,7 +69,7 @@ export default function DashboardPage({ params: paramsFromProps }: { params: { l
   }, [lang]);
 
   if (!dictionary) {
-    return <div>Loading...</div>;
+    return <div>Loading...</div>; // Or a more sophisticated loading skeleton
   }
 
 
@@ -159,4 +160,3 @@ export default function DashboardPage({ params: paramsFromProps }: { params: { l
     </div>
   );
 }
-
