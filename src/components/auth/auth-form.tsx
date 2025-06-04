@@ -21,69 +21,39 @@ import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
 
 interface AuthFormProps {
-  type: 'login' | 'signup';
-  dictionary: any; // specific dictionary slice for login/signup
+  // Type 'signup' is removed, this form is now only for login.
+  dictionary: any; 
   lang: Locale;
 }
 
-export function AuthForm({ type, dictionary, lang }: AuthFormProps) {
+export function AuthForm({ dictionary, lang }: AuthFormProps) {
   const router = useRouter();
   const { toast } = useToast();
 
-  const baseSchema = {
+  const loginSchema = z.object({
     emailOrPhone: z.string().min(1, { message: lang === 'fa' ? 'ایمیل یا شماره تلفن الزامی است' : 'Email or phone is required' }),
     password: z.string().min(6, { message: lang === 'fa' ? 'رمز عبور باید حداقل ۶ کاراکتر باشد' : 'Password must be at least 6 characters' }),
-  };
-
-  const signupSchema = z.object({
-    ...baseSchema,
-    confirmPassword: z.string().min(6),
-  }).refine((data) => data.password === data.confirmPassword, {
-    message: lang === 'fa' ? 'رمزهای عبور یکسان نیستند' : "Passwords don't match",
-    path: ['confirmPassword'],
   });
-
-  const loginSchema = z.object(baseSchema);
   
-  const formSchema = type === 'signup' ? signupSchema : loginSchema;
-
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<z.infer<typeof loginSchema>>({
+    resolver: zodResolver(loginSchema),
     defaultValues: {
       emailOrPhone: '',
       password: '',
-      ...(type === 'signup' && { confirmPassword: '' }),
     },
   });
 
-  async function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log('Form submitted with values:', values);
-
-    if (type === 'signup') {
-      // Placeholder for actual signup API call
-      console.log('Attempting signup...');
-      // Simulate API call or actual signup logic here
-      // For now, we'll assume success immediately
-
-      toast({
-        title: dictionary.signupSuccessTitle,
-        description: dictionary.signupSuccessDescription,
-      });
-
-      // Redirect to login page after a short delay to allow toast to be seen
-      setTimeout(() => {
-        router.push(`/${lang}/login`);
-      }, 2500); // 2.5 second delay
-
-    } else if (type === 'login') {
-      // Placeholder for actual login logic
-      console.log('Attempting login...');
-      // Example:
-      // toast({ title: 'Login successful!', description: 'Redirecting to dashboard...' });
-      // setTimeout(() => {
-      //   router.push(`/${lang}/dashboard`);
-      // }, 1500);
-    }
+  async function onSubmit(values: z.infer<typeof loginSchema>) {
+    console.log('Login Form submitted with values:', values);
+    // Placeholder for actual login logic
+    // Example:
+    toast({ 
+        title: dictionary.loginSuccessTitle || 'Login Successful!', 
+        description: dictionary.loginSuccessDescription || 'Redirecting to dashboard...' 
+    });
+    setTimeout(() => {
+      router.push(`/${lang}/dashboard`);
+    }, 1500);
   }
 
   return (
@@ -92,8 +62,7 @@ export function AuthForm({ type, dictionary, lang }: AuthFormProps) {
         <CardHeader className="text-center">
           <CardTitle className="text-xl md:text-2xl font-headline">{dictionary.title}</CardTitle>
           <CardDescription>
-            {type === 'login' ? (lang === 'fa' ? 'برای ادامه وارد شوید.' : 'Log in to continue.') 
-                             : (lang === 'fa' ? 'برای شروع یک حساب کاربری ایجاد کنید.' : 'Create an account to get started.')}
+            {lang === 'fa' ? 'برای ادامه وارد شوید.' : 'Log in to continue.'}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -104,7 +73,7 @@ export function AuthForm({ type, dictionary, lang }: AuthFormProps) {
                 name="emailOrPhone"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>{type === 'login' ? dictionary.emailLabel : dictionary.emailLabel}</FormLabel> {/* Assuming emailLabel is generic */}
+                    <FormLabel>{dictionary.emailLabel}</FormLabel>
                     <FormControl>
                       <Input placeholder={lang === 'fa' ? 'ایمیل یا شماره تلفن' : 'Email or Phone Number'} {...field} />
                     </FormControl>
@@ -125,43 +94,19 @@ export function AuthForm({ type, dictionary, lang }: AuthFormProps) {
                   </FormItem>
                 )}
               />
-              {type === 'signup' && (
-                <FormField
-                  control={form.control}
-                  name="confirmPassword"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>{dictionary.confirmPasswordLabel}</FormLabel>
-                      <FormControl>
-                        <Input type="password" placeholder="••••••••" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              )}
               <Button type="submit" className="w-full">
-                {type === 'login' ? dictionary.loginButton : dictionary.signupButton}
+                {dictionary.loginButton}
               </Button>
             </form>
           </Form>
         </CardContent>
         <CardFooter className="flex flex-col items-center text-sm">
-          {type === 'login' ? (
             <>
               <span>{dictionary.noAccount}</span>
               <Button variant="link" asChild className="text-primary">
                 <Link href={`/${lang}/signup`}>{dictionary.signupLink}</Link>
               </Button>
             </>
-          ) : (
-            <>
-              <span>{dictionary.hasAccount}</span>
-              <Button variant="link" asChild className="text-primary">
-                <Link href={`/${lang}/login`}>{dictionary.loginLink}</Link>
-              </Button>
-            </>
-          )}
         </CardFooter>
       </Card>
     </div>

@@ -53,12 +53,13 @@
   },
   "loginPage": {
     "title": "Login to Your Account",
-    "emailLabel": "Email",
-    "phoneLabel": "Phone Number",
+    "emailLabel": "Email or Phone Number",
     "passwordLabel": "Password",
     "loginButton": "Login",
     "noAccount": "Don't have an account?",
-    "signupLink": "Sign up"
+    "signupLink": "Sign up",
+    "loginSuccessTitle": "Login Successful!",
+    "loginSuccessDescription": "Redirecting to dashboard..."
   },
   "signupPage": {
     "title": "Create Your Account",
@@ -71,6 +72,94 @@
     "loginLink": "Log in",
     "signupSuccessTitle": "Signup Successful",
     "signupSuccessDescription": "Your account has been created. Redirecting to login..."
+  },
+  "signupStepper": {
+    "loading": "Loading registration...",
+    "previousButton": "Previous",
+    "nextButton": "Save & Next",
+    "finishButton": "Finish Registration",
+    "errorMandatoryTerms": "You must accept the mandatory terms to continue.",
+    "stepInformation": {
+      "title": "Welcome to RavanHamrah Registration!",
+      "description": "Let's get you set up.",
+      "mainContent": "We are going to ask you a few questions to customize your experience. These are professionally crafted questions based on the latest psychology insights to help us tailor RavanHamrah for you."
+    },
+    "stepTerms": {
+      "title": "Terms and Consent",
+      "description": "Please review and accept the following terms.",
+      "mandatoryTermsLabel": "I accept the Terms and Conditions of use for RavanHamrah.",
+      "optionalCommunicationsLabel": "I agree to receive personalized mental wellness information and program suggestions via email, SMS, or notifications. Personalized information is analyzed as described in our Privacy Policy for program purposes.",
+      "optionalMarketingLabel": "I accept the transfer of data for marketing and analysis to Google and Meta.",
+      "viewTermsLink": "View Terms & Conditions",
+      "dataProcessingConsentLink": "View Data Processing Details",
+      "marketingConsentLink": "View Marketing Data Details",
+      "infoNoteLine1": "You can revoke your consent at any time for the future.",
+      "infoNoteLine2": "Please note: If you withdraw your consent for the processing of personal and health data for use in the app, you will no longer have access to RavanHamrah.",
+      "infoNoteLine3": "To withdraw this consent, use the delete account option in Profile > Data & Security, or email support.",
+      "dialogClose": "Close"
+    },
+    "stepUserInfo": {
+      "title": "Your Details",
+      "description": "Tell us a bit about yourself."
+    },
+    "stepVerification": {
+      "title": "Account Verification",
+      "description": "Let's verify your account."
+    },
+    "appTermsContent": {
+        "title": "Application Terms & Conditions",
+        "content": {
+            "introduction": {
+                "title": "1. Introduction",
+                "content1": "These are the main terms for using the RavanHamrah application.",
+                "content2": "By using the app, you agree to these terms."
+            },
+            "services": {
+                "title": "2. Our Services",
+                "content1": "RavanHamrah offers AI insights, journaling, and specialist suggestions.",
+                "item1": "AI-driven insights.",
+                "item2": "Daily journaling.",
+                "item3": "Specialist referrals.",
+                "disclaimer": "This app is not a substitute for professional medical advice."
+            }
+        }
+    },
+    "dataProcessingConsentContent": {
+        "title": "Data Processing & Personalized Communication Consent",
+        "content": {
+             "introduction": {
+                "title": "1. Purpose of Data Processing",
+                "content1": "To provide you with personalized mental wellness information and program suggestions, we need to process certain data you provide.",
+                "content2": "This includes your journal entries, mood inputs, and other interactions with the app."
+            },
+            "services": {
+                "title": "2. Communication Channels",
+                "content1": "If you consent, we may contact you via:",
+                "item1": "Email",
+                "item2": "SMS (text messages)",
+                "item3": "In-app notifications",
+                "disclaimer": "You can manage your communication preferences in the app settings at any time."
+            }
+        }
+    },
+    "marketingConsentContent": {
+        "title": "Marketing & Third-Party Analytics Consent",
+        "content": {
+            "introduction": {
+                "title": "1. Data Transfer for Marketing & Analytics",
+                "content1": "To improve our services and reach more users who might benefit from RavanHamrah, we may share anonymized or aggregated data with third-party services like Google and Meta for marketing and analytics purposes.",
+                "content2": "This data does not include your direct journal entries or specific sensitive health information unless explicitly stated and consented to separately."
+            },
+             "services": {
+                "title": "2. What this means",
+                "content1": "This helps us understand usage patterns and make RavanHamrah better.",
+                "item1": "Analyze app usage trends.",
+                "item2": "Optimize marketing campaigns.",
+                "item3": "Improve user experience.",
+                "disclaimer": "Your privacy is important. We aim to share only what is necessary and in a privacy-preserving manner."
+            }
+        }
+    }
   },
   "landingPage": {
     "welcomeTitle": "Welcome to RavanHamrah",

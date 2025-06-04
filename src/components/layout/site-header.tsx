@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -8,7 +9,7 @@ import type { Locale } from '@/i18n-config';
 import { Logo } from '@/components/logo';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 interface SiteHeaderProps {
@@ -22,14 +23,22 @@ export function SiteHeader({ lang, dictionary, appName }: SiteHeaderProps) {
 
   const router = useRouter();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const isMobile = useIsMobile();
 
   const isHomePage = pathname === `/${lang}` || pathname === `/${lang}/`;
+  
+  const signupStepParam = searchParams.get('step');
+  const currentSignupStep = signupStepParam ? parseInt(signupStepParam, 10) : 0;
+  const isOnSignupPage = pathname.includes(`/${lang}/signup`);
+  const hideMobileBackButtonForSignup = isOnSignupPage && currentSignupStep > 1;
+
+  const showMobileBackButton = isMobile && !isHomePage && !hideMobileBackButtonForSignup;
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 max-w-screen-2xl items-center">
-        {isMobile && !isHomePage && (
+        {showMobileBackButton && (
           <Button
             variant="ghost"
             size="icon"
@@ -40,7 +49,7 @@ export function SiteHeader({ lang, dictionary, appName }: SiteHeaderProps) {
             <ArrowLeft className="h-5 w-5" />
           </Button>
         )}
-        <Logo locale={lang} appName={appName} />
+        <Logo locale={lang} appName={appName} className="min-w-0" />
         <MainNav lang={lang} dictionary={dictionary} isAuthenticated={isAuthenticated} />
         <div className="flex flex-1 items-center justify-end space-x-2 rtl:space-x-reverse">
           <LanguageSwitcher currentLocale={lang} />
