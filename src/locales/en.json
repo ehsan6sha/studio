@@ -235,7 +235,7 @@
   "landingPage": {
     "welcomeTitle": "Welcome to Hami",
     "welcomeMessage": "Your intelligent companion for mental well-being. We help you find your path to peace and wellness with AI-driven insights and practical tools.",
-    "registerButton": "Register",
+    "registerButton": "Start now for free",
     "loginButton": "Login",
     "termsPolicyLink": "Terms and Policy",
     "redirectingMessage": "Redirecting to dashboard..."
@@ -292,3 +292,5 @@
     }
   }
 }
+
+    
