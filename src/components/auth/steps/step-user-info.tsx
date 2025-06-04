@@ -16,7 +16,6 @@ import {
   FormMessage,
   useFormField,
 } from '@/components/ui/form';
-import { Input } from '@/components/ui/input'; // Keep for other inputs if any, or remove if not used elsewhere
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
@@ -85,7 +84,7 @@ export function StepUserInfo({ dictionary, formData, updateFormData, onValidatio
       invalid_type_error: dictionary.errors.dobInvalid,
       required_error: dictionary.errors.dobRequired,
     })
-    .max(new Date(new Date().setHours(0, 0, 0, 0)), { message: dictionary.errors.dobInFuture || "Date of birth cannot be in the future." })
+    .max(new Date(new Date().setHours(0,0,0,0)), { message: dictionary.errors.dobInFuture })
     .nullable(), 
     password: z.string().min(6, { message: dictionary.errors.passwordMinLength }),
     confirmPassword: z.string().min(6, { message: dictionary.errors.confirmPasswordMinLength }),
@@ -130,14 +129,8 @@ export function StepUserInfo({ dictionary, formData, updateFormData, onValidatio
     if (initialDobDate && isValidDate(initialDobDate)) {
         const formattedForDisplay = formatDate(initialDobDate, dateFormatString, { locale: dateLocale });
         setDobInputValue(formattedForDisplay);
-        if (maskaInstanceRef.current) {
-            maskaInstanceRef.current.masked = formattedForDisplay;
-        }
     } else {
         setDobInputValue('');
-        if (maskaInstanceRef.current) {
-            maskaInstanceRef.current.masked = '';
-        }
     }
   }, [defaultFormValues, form, formatDate, dateFormatString, dateLocale, isValidDate]);
 
@@ -159,35 +152,45 @@ export function StepUserInfo({ dictionary, formData, updateFormData, onValidatio
 
 
   useEffect(() => {
-    if (dobInputRef.current && !maskaInstanceRef.current) {
-      const { MaskInput } = require('maska'); 
-      if (MaskInput) {
-        const instance = new MaskInput(dobInputRef.current, {
-          mask: "####/##/##",
-          onMaska: handleMaskaDetail,
-          eager: true,
-        });
-        maskaInstanceRef.current = instance;
-        
-        if (dobInputValue && dobInputRef.current) {
-            instance.masked = dobInputValue;
+    const initAndAttachMaska = async () => {
+      if (dobInputRef.current && !maskaInstanceRef.current) { // Check ref to prevent re-initialization
+        try {
+          const MaskaModule = await import('maska');
+          const MaskInputConstructor = MaskaModule.MaskInput;
+
+          if (MaskInputConstructor) {
+            const instance = new MaskInputConstructor(dobInputRef.current, {
+              mask: "####/##/##",
+              onMaska: handleMaskaDetail, // This callback syncs Maska's state to React/RHF
+              eager: true, // Process defaultValue on init
+            });
+            maskaInstanceRef.current = instance; // Store the instance
+          } else {
+            console.error("MaskInput constructor not found in Maska module after dynamic import. Module:", MaskaModule);
+          }
+        } catch (err) {
+          console.error("Error dynamically importing or initializing Maska:", err);
         }
-      } else {
-        console.error("Maska MaskInput could not be loaded.");
       }
-    }
+    };
+
+    initAndAttachMaska();
+
     return () => {
-      maskaInstanceRef.current?.destroy();
+      if (maskaInstanceRef.current && typeof maskaInstanceRef.current.destroy === 'function') {
+        maskaInstanceRef.current.destroy();
+      }
       maskaInstanceRef.current = null;
     };
-  }, [handleMaskaDetail, dobInputValue]); // Added dobInputValue dependency
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [handleMaskaDetail]); // handleMaskaDetail is memoized. This effect runs primarily on mount.
+
 
   useEffect(() => {
     const subscription = form.watch((currentRHFValues) => {
       updateFormData({
         name: currentRHFValues.name,
         emailOrPhone: currentRHFValues.emailOrPhone,
-        // Ensure dob is stored in yyyy-MM-dd format (Gregorian) for consistency
         dob: currentRHFValues.dob ? formatGregorian(currentRHFValues.dob, 'yyyy-MM-dd') : undefined,
         password: currentRHFValues.password,
       });
@@ -240,7 +243,7 @@ export function StepUserInfo({ dictionary, formData, updateFormData, onValidatio
                   <FormItem>
                     <FormLabel>{dictionary.nameLabel}</FormLabel>
                     <FormControl>
-                      <Input placeholder={dictionary.namePlaceholder} {...field} />
+                      <input placeholder={dictionary.namePlaceholder} {...field} className={cn("flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm", fieldState.error && "border-destructive")}/>
                     </FormControl>
                     {fieldState.isTouched && <FormMessage />}
                   </FormItem>
@@ -253,7 +256,7 @@ export function StepUserInfo({ dictionary, formData, updateFormData, onValidatio
                   <FormItem>
                     <FormLabel>{dictionary.emailOrPhoneLabel}</FormLabel>
                     <FormControl>
-                      <Input placeholder={dictionary.emailOrPhonePlaceholder} {...field} />
+                      <input placeholder={dictionary.emailOrPhonePlaceholder} {...field} className={cn("flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm", fieldState.error && "border-destructive")} />
                     </FormControl>
                     {fieldState.isTouched && <FormMessage />}
                   </FormItem>
@@ -272,7 +275,7 @@ export function StepUserInfo({ dictionary, formData, updateFormData, onValidatio
                         type="text"
                         id={formItemId || "dob-input"}
                         ref={dobInputRef} 
-                        defaultValue={dobInputValue} // Use defaultValue as Maska controls the value
+                        defaultValue={dobInputValue} 
                         onBlur={rhfField.onBlur} 
                         placeholder={isFarsi ? dictionary.dobPlaceholderShamsi : dictionary.dobPlaceholderGregorian}
                         className={cn(
@@ -290,7 +293,7 @@ export function StepUserInfo({ dictionary, formData, updateFormData, onValidatio
                         </PopoverTrigger>
                         <PopoverContent className="w-auto p-0" align="start">
                           <Calendar
-                            key={lang}
+                            key={lang} // Ensures re-render on lang change for locale
                             mode="single"
                             selected={rhfField.value ?? undefined} 
                             defaultMonth={rhfField.value || undefined}
@@ -298,17 +301,18 @@ export function StepUserInfo({ dictionary, formData, updateFormData, onValidatio
                               if (date) {
                                 form.setValue('dob', date, { shouldValidate: true, shouldTouch: true });
                                 const formattedDate = formatDate(date, dateFormatString, { locale: dateLocale });
-                                if (maskaInstanceRef.current) {
-                                  maskaInstanceRef.current.masked = formattedDate; 
-                                } else {
-                                    setDobInputValue(formattedDate); 
+                                setDobInputValue(formattedDate); // Update React state for input's defaultValue
+                                if(dobInputRef.current){
+                                  dobInputRef.current.value = formattedDate; // Directly set input value
+                                   // Dispatch input event to make Maska re-process the value
+                                  dobInputRef.current.dispatchEvent(new Event('input', { bubbles: true, cancelable: true }));
                                 }
                               } else {
                                 form.setValue('dob', null, { shouldValidate: true, shouldTouch: true });
-                                if (maskaInstanceRef.current) {
-                                  maskaInstanceRef.current.masked = '';
-                                } else {
-                                    setDobInputValue('');
+                                setDobInputValue('');
+                                if(dobInputRef.current){
+                                   dobInputRef.current.value = '';
+                                   dobInputRef.current.dispatchEvent(new Event('input', { bubbles: true, cancelable: true }));
                                 }
                               }
                               setIsCalendarOpen(false);
@@ -336,7 +340,7 @@ export function StepUserInfo({ dictionary, formData, updateFormData, onValidatio
                     <FormLabel>{dictionary.passwordLabel}</FormLabel>
                     <FormControl>
                       <div className="relative">
-                        <Input type={showPassword ? "text" : "password"} placeholder="••••••••" {...field} />
+                        <input type={showPassword ? "text" : "password"} placeholder="••••••••" {...field} className={cn("flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm pr-10", fieldState.error && "border-destructive")} />
                         <Button
                           type="button"
                           variant="ghost"
@@ -361,7 +365,7 @@ export function StepUserInfo({ dictionary, formData, updateFormData, onValidatio
                     <FormLabel>{dictionary.confirmPasswordLabel}</FormLabel>
                     <FormControl>
                       <div className="relative">
-                        <Input type={showConfirmPassword ? "text" : "password"} placeholder="••••••••" {...field} />
+                        <input type={showConfirmPassword ? "text" : "password"} placeholder="••••••••" {...field} className={cn("flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm pr-10", fieldState.error && "border-destructive")} />
                         <Button
                           type="button"
                           variant="ghost"
@@ -385,3 +389,5 @@ export function StepUserInfo({ dictionary, formData, updateFormData, onValidatio
     </div>
   );
 }
+
+    
