@@ -9,7 +9,7 @@ import { DynamicHtmlAttributes } from '@/components/layout/dynamic-html-attribut
 import { i18n } from '@/i18n-config';
 import { motion, AnimatePresence } from 'framer-motion';
 import { usePathname, useParams } from 'next/navigation';
-import React, { useEffect, useState } from 'react'; // Import React
+import React, { useEffect, useState, useRef } from 'react';
 import { AuthProvider } from '@/context/auth-context';
 
 export default function LocaleLayout({
@@ -18,17 +18,17 @@ export default function LocaleLayout({
   children: ReactNode;
 }) {
   const params = useParams();
-  // Ensure lang is correctly determined, falling back to defaultLocale if necessary
   let lang: Locale = i18n.defaultLocale;
-  const langFromParams = Array.isArray(params.lang) ? params.lang[0] : params.lang;
+  const langFromParamsRaw = Array.isArray(params?.lang) ? params.lang[0] : params?.lang;
 
-  if (langFromParams && i18n.locales.includes(langFromParams as Locale)) {
-    lang = langFromParams as Locale;
+  if (langFromParamsRaw && i18n.locales.includes(langFromParamsRaw as Locale)) {
+    lang = langFromParamsRaw as Locale;
   }
 
   const pathname = usePathname();
   const [dictionary, setDictionary] = useState<any>(null);
   const [currentYear, setCurrentYear] = useState<number | null>(null);
+  const previousPathnameRef = useRef<string | null>(null);
 
   useEffect(() => {
     if (lang) {
@@ -48,37 +48,61 @@ export default function LocaleLayout({
       document.body.classList.add('font-body');
       document.body.classList.remove('font-vazir');
     }
-    // Cleanup function to remove classes when component unmounts or lang changes
     return () => {
       document.body.classList.remove('font-vazir');
       document.body.classList.remove('font-body');
     };
   }, [lang]);
 
-  const pageVariants = React.useMemo(() => ({
+  useEffect(() => {
+    previousPathnameRef.current = pathname;
+  }, [pathname]);
+
+  const minimalTransitionRoutes = React.useMemo(() => [
+    `/${lang}`,
+    `/${lang}/login`,
+    `/${lang}/signup`,
+  ], [lang]);
+
+  const isCurrentPathMinimal = minimalTransitionRoutes.includes(pathname);
+  const isPreviousPathMinimal = previousPathnameRef.current ? minimalTransitionRoutes.includes(previousPathnameRef.current) : false;
+  
+  // Disable animation if transitioning between any two minimal routes
+  const disableAnimation = isCurrentPathMinimal && isPreviousPathMinimal && previousPathnameRef.current !== pathname;
+
+  const animatedPageVariants = React.useMemo(() => ({
     initial: { opacity: 0 },
     in: { opacity: 1 },
     out: { opacity: 0 },
   }), []);
 
-  const pageTransition = React.useMemo(() => ({
+  const noAnimationPageVariants = React.useMemo(() => ({
+    initial: { opacity: 1 },
+    in: { opacity: 1 },
+    out: { opacity: 1 },
+  }), []);
+
+  const animatedPageTransition = React.useMemo(() => ({
     type: 'tween',
     ease: 'easeInOut',
     duration: 0.3,
   }), []);
 
+  const noAnimationPageTransition = React.useMemo(() => ({
+    duration: 0,
+  }), []);
+
+  const currentVariants = disableAnimation ? noAnimationPageVariants : animatedPageVariants;
+  const currentTransition = disableAnimation ? noAnimationPageTransition : animatedPageTransition;
+
   const displayYear = currentYear !== null ? currentYear : "";
   const appNameFromDict = dictionary?.appName;
   const navigationDict = dictionary?.navigation;
-
-  // Default footer text if dictionary is not loaded
   const defaultFooterText = lang === 'fa' ? 'تمامی حقوق محفوظ است.' : 'All rights reserved.';
   const footerRightsText = dictionary?.termsPage?.contactInformation
     ? (lang === 'fa' ? 'تمامی حقوق محفوظ است.' : 'All rights reserved.')
     : defaultFooterText;
-
   const defaultAppName = lang === 'fa' ? 'اپلیکیشن' : 'Application';
-
 
   return (
     <AuthProvider>
@@ -86,8 +110,8 @@ export default function LocaleLayout({
       <div className="flex min-h-screen flex-col">
         <SiteHeader
           lang={lang}
-          dictionary={navigationDict} // Pass potentially null dictionary
-          appName={appNameFromDict}    // Pass potentially null appName
+          dictionary={navigationDict}
+          appName={appNameFromDict}
         />
         <main className="flex-1 container mx-auto px-4 py-8 sm:px-6 lg:px-8 overflow-x-hidden">
           <AnimatePresence mode="wait" initial={false}>
@@ -96,9 +120,9 @@ export default function LocaleLayout({
               initial="initial"
               animate="in"
               exit="out"
-              variants={pageVariants}
-              transition={pageTransition}
-              style={{ opacity: 0 }} // Force initial opacity to 0
+              variants={currentVariants}
+              transition={currentTransition}
+              // style={{ opacity: 0 }} // Removed: initial opacity handled by variants
             >
               {children}
             </motion.div>
