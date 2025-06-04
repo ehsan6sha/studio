@@ -118,7 +118,7 @@
         "emailOrPhoneRequired": "Email or phone number is required.",
         "invalidEmailOrPhone": "Please enter a valid email or phone number.",
         "dobRequired": "Date of birth is required.",
-        "dobInvalid": "Invalid date format. Please use YYYY-MM-DD.",
+        "dobInvalid": "Invalid date format.",
         "passwordMinLength": "Password must be at least 6 characters.",
         "confirmPasswordMinLength": "Confirm password must be at least 6 characters.",
         "passwordsDontMatch": "Passwords do not match."

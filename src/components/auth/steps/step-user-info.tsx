@@ -20,8 +20,15 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
 import { cn } from '@/lib/utils';
-import { format, parse, isValid as isValidDate } from 'date-fns';
-import { faIR } from 'date-fns/locale/fa-IR';
+
+// Standard date-fns for English/Gregorian
+import { format as formatGregorian, parse as parseGregorian, isValid as isValidGregorianDate } from 'date-fns';
+import { faIR as faIRGregorian } from 'date-fns/locale';
+
+// date-fns-jalali for Farsi/Shamsi
+import { format as formatJalali, parse as parseJalali, isValid as isValidJalaliDate } from 'date-fns-jalali';
+import { faIR as faIRJalali } from 'date-fns-jalali/locale';
+
 import { CalendarIcon, Eye, EyeOff } from 'lucide-react';
 import type { SignupFormData } from '../signup-stepper';
 import type { Locale } from '@/i18n-config';
@@ -39,6 +46,14 @@ export function StepUserInfo({ dictionary, formData, updateFormData, onValidatio
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
   
+  // Determine which date functions and locale to use
+  const isFarsi = lang === 'fa';
+  const formatDate = isFarsi ? formatJalali : formatGregorian;
+  const parseDate = isFarsi ? parseJalali : parseGregorian;
+  const isValidDate = isFarsi ? isValidJalaliDate : isValidGregorianDate;
+  const dateLocale = isFarsi ? faIRJalali : faIRGregorian; // faIRGregorian for English month names if needed, or undefined for default English
+  const dateFormatString = isFarsi ? 'yyyy/MM/dd' : 'PPP'; // PPP for "Jan 1st, 2024"
+
   const UserInfoSchema = z.object({
     name: z.string().min(1, { message: dictionary.errors.nameRequired }),
     emailOrPhone: z.string().min(1, { message: dictionary.errors.emailOrPhoneRequired })
@@ -46,9 +61,8 @@ export function StepUserInfo({ dictionary, formData, updateFormData, onValidatio
         message: dictionary.errors.invalidEmailOrPhone,
       }),
     dob: z.date({
-      // required_error: dictionary.errors.dobRequired, // Making DOB optional as per initial schema
       invalid_type_error: dictionary.errors.dobInvalid,
-    }).optional().nullable(), // Allow null for when input is cleared or invalid
+    }).optional().nullable(),
     password: z.string().min(6, { message: dictionary.errors.passwordMinLength }),
     confirmPassword: z.string().min(6, { message: dictionary.errors.confirmPasswordMinLength }),
   }).superRefine(({ confirmPassword, password }, ctx) => {
@@ -66,34 +80,35 @@ export function StepUserInfo({ dictionary, formData, updateFormData, onValidatio
     defaultValues: {
       name: formData.name || '',
       emailOrPhone: formData.emailOrPhone || '',
-      dob: formData.dob ? parse(formData.dob, 'yyyy-MM-dd', new Date()) : undefined,
+      dob: formData.dob ? parseGregorian(formData.dob, 'yyyy-MM-dd', new Date()) : undefined, // Stored as Gregorian
       password: formData.password || '',
-      confirmPassword: '', // Always start confirmPassword empty
+      confirmPassword: '',
     },
     mode: 'onChange',
   });
-
+  
   const [dobInputValue, setDobInputValue] = useState<string>(
-    formData.dob ? format(parse(formData.dob, 'yyyy-MM-dd', new Date()), lang === 'fa' ? 'yyyy/MM/dd' : 'PPP', { locale: lang === 'fa' ? faIR : undefined }) : ''
+    formData.dob ? formatDate(parseGregorian(formData.dob, 'yyyy-MM-dd', new Date()), dateFormatString, { locale: dateLocale }) : ''
   );
 
+
   useEffect(() => {
-    const initialDob = formData.dob ? parse(formData.dob, 'yyyy-MM-dd', new Date()) : undefined;
+    const initialDob = formData.dob ? parseGregorian(formData.dob, 'yyyy-MM-dd', new Date()) : undefined;
     form.reset({
       name: formData.name || '',
       emailOrPhone: formData.emailOrPhone || '',
       dob: initialDob,
       password: formData.password || '',
-      confirmPassword: '',
+      confirmPassword: '', // Always reset confirmPassword
     });
-    setDobInputValue(initialDob ? format(initialDob, lang === 'fa' ? 'yyyy/MM/dd' : 'PPP', { locale: lang === 'fa' ? faIR : undefined }) : '');
+    setDobInputValue(initialDob ? formatDate(initialDob, dateFormatString, { locale: dateLocale }) : '');
     
     const timerId = setTimeout(() => {
         onValidation(form.formState.isValid);
     }, 0);
 
     return () => clearTimeout(timerId);
-  }, [formData, form, lang, onValidation]);
+  }, [formData.name, formData.emailOrPhone, formData.dob, formData.password, form, lang, onValidation, formatDate, dateFormatString, dateLocale]);
 
 
   useEffect(() => {
@@ -101,63 +116,52 @@ export function StepUserInfo({ dictionary, formData, updateFormData, onValidatio
       updateFormData({
         name: currentValues.name,
         emailOrPhone: currentValues.emailOrPhone,
-        dob: currentValues.dob ? format(currentValues.dob, 'yyyy-MM-dd') : undefined,
+        // Store DOB as Gregorian ISO string 'yyyy-MM-dd'
+        dob: currentValues.dob ? formatGregorian(currentValues.dob, 'yyyy-MM-dd') : undefined,
         password: currentValues.password,
       });
       onValidation(form.formState.isValid);
       
-      // Sync input display if RHF date changes (e.g. from calendar)
       if (currentValues.dob) {
-        if (document.activeElement?.id !== 'dob-input') { // Avoid loop if user is typing
-           setDobInputValue(format(currentValues.dob, lang === 'fa' ? 'yyyy/MM/dd' : 'PPP', { locale: lang === 'fa' ? faIR : undefined }));
+        if (document.activeElement?.id !== 'dob-input') {
+           setDobInputValue(formatDate(currentValues.dob, dateFormatString, { locale: dateLocale }));
         }
       } else if (document.activeElement?.id !== 'dob-input') {
          setDobInputValue('');
       }
     });
     return () => subscription.unsubscribe();
-  }, [form, updateFormData, onValidation, lang]);
+  }, [form, updateFormData, onValidation, lang, formatDate, dateFormatString, dateLocale]);
 
 
   const handleDobInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const textValue = e.target.value;
     setDobInputValue(textValue);
 
-    // Attempt to parse the date
-    // For Farsi, user might type yyyy/MM/dd. For English, various formats.
-    // `new Date(textValue)` is locale-dependent and might be unreliable.
-    // For simplicity, we can try parsing common formats or expect YYYY-MM-DD
     let parsedDate: Date | null = null;
-    if (lang === 'fa') {
-        // Very basic parsing for yyyy/MM/dd - not robust for Jalali
-        const parts = textValue.split('/');
-        if (parts.length === 3) {
-            const year = parseInt(parts[0], 10);
-            const month = parseInt(parts[1], 10) -1; // JS months are 0-indexed
-            const day = parseInt(parts[2], 10);
-            if (!isNaN(year) && !isNaN(month) && !isNaN(day)) {
-                 // This still assumes Gregorian numbers typed in yyyy/MM/dd format
-                const tempDate = new Date(year, month, day);
-                if(isValidDate(tempDate) && tempDate.getFullYear() === year && tempDate.getMonth() === month && tempDate.getDate() === day){
-                    parsedDate = tempDate;
-                }
-            }
+    const tryParse = (value: string, fmt: string) => {
+        try {
+            return parseDate(value, fmt, new Date(), { locale: dateLocale });
+        } catch {
+            return null;
         }
+    };
+    
+    if (isFarsi) {
+      // Try parsing Jalali yyyy/MM/dd
+      parsedDate = tryParse(textValue, 'yyyy/MM/dd');
     } else {
-         // Try parsing formats like YYYY-MM-DD, MM/DD/YYYY
-        const tempDate = parse(textValue, 'P', new Date()); // Try 'P' (e.g. 01/15/1990)
-        if (isValidDate(tempDate)) {
-            parsedDate = tempDate;
-        } else {
-            const isoDate = parse(textValue, 'yyyy-MM-dd', new Date()); // Try YYYY-MM-DD
-            if(isValidDate(isoDate)) parsedDate = isoDate;
-        }
+      // Try parsing Gregorian (e.g., MM/dd/yyyy or yyyy-MM-dd)
+      parsedDate = tryParse(textValue, 'P'); // 'P' is a flexible locale-specific short date format
+      if (!parsedDate || !isValidDate(parsedDate)) {
+        parsedDate = tryParse(textValue, 'yyyy-MM-dd');
+      }
     }
     
     if (parsedDate && isValidDate(parsedDate)) {
       form.setValue('dob', parsedDate, { shouldValidate: true });
     } else {
-      form.setValue('dob', null, { shouldValidate: true }); // Set to null if parsing fails
+      form.setValue('dob', null, { shouldValidate: true }); 
     }
   };
 
@@ -208,7 +212,7 @@ export function StepUserInfo({ dictionary, formData, updateFormData, onValidatio
                       <FormControl>
                          <Input
                           id="dob-input"
-                          placeholder={lang === 'fa' ? 'مثال: ۱۳۷۰/۰۱/۱۵ (تاریخ میلادی)' : 'YYYY-MM-DD'}
+                          placeholder={dictionary.dobPlaceholder}
                           value={dobInputValue}
                           onChange={handleDobInputChange}
                           className="w-full"
@@ -223,15 +227,15 @@ export function StepUserInfo({ dictionary, formData, updateFormData, onValidatio
                         <PopoverContent className="w-auto p-0" align="start">
                           <Calendar
                             mode="single"
-                            selected={field.value ?? undefined} // Pass undefined if null
+                            selected={field.value ?? undefined}
                             onSelect={(date) => {
                               form.setValue('dob', date, { shouldValidate: true });
                               if (date) {
-                                setDobInputValue(format(date, lang === 'fa' ? 'yyyy/MM/dd' : 'PPP', { locale: lang === 'fa' ? faIR : undefined }));
+                                setDobInputValue(formatDate(date, dateFormatString, { locale: dateLocale }));
                               } else {
                                 setDobInputValue('');
                               }
-                              setIsCalendarOpen(false); // Close calendar on select
+                              setIsCalendarOpen(false);
                             }}
                             disabled={(date) =>
                               date > new Date() || date < new Date("1900-01-01")
@@ -240,7 +244,7 @@ export function StepUserInfo({ dictionary, formData, updateFormData, onValidatio
                             captionLayout="dropdown-buttons"
                             fromYear={1900}
                             toYear={new Date().getFullYear()}
-                            locale={lang === 'fa' ? faIR : undefined}
+                            locale={dateLocale} // Use the determined locale
                           />
                         </PopoverContent>
                       </Popover>

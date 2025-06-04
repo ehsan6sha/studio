@@ -108,7 +108,7 @@
       "emailOrPhoneLabel": "ایمیل یا شماره تلفن",
       "emailOrPhonePlaceholder": "مثال: user@example.com یا 09123456789",
       "dobLabel": "تاریخ تولد",
-      "dobPlaceholder": "مثال: ۱۳۷۰/۰۱/۱۵ (تاریخ میلادی)",
+      "dobPlaceholder": "مثال: ۱۳۷۰/۰۱/۱۵ (شمسی)",
       "passwordLabel": "رمز عبور",
       "confirmPasswordLabel": "تکرار رمز عبور",
       "showPassword": "نمایش رمز عبور",
@@ -118,7 +118,7 @@
         "emailOrPhoneRequired": "ایمیل یا شماره تلفن الزامی است.",
         "invalidEmailOrPhone": "لطفا ایمیل یا شماره تلفن معتبر وارد کنید.",
         "dobRequired": "تاریخ تولد الزامی است.",
-        "dobInvalid": "فرمت تاریخ نامعتبر است. لطفا از فرمت YYYY/MM/DD استفاده کنید.",
+        "dobInvalid": "فرمت تاریخ نامعتبر است.",
         "passwordMinLength": "رمز عبور باید حداقل ۶ کاراکتر باشد.",
         "confirmPasswordMinLength": "تکرار رمز عبور باید حداقل ۶ کاراکتر باشد.",
         "passwordsDontMatch": "رمزهای عبور یکسان نیستند."
