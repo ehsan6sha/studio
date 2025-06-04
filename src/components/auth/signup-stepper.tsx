@@ -150,23 +150,27 @@ export function SignupStepper({
     router.push(`${pathname}?${newSearchParams.toString()}`, { scroll: false });
   }, [router, pathname, searchParams]);
 
+  const handleStepValidation = useCallback((isValid: boolean) => {
+    setIsStepValid(isValid);
+  }, []);
+
   useEffect(() => {
     if (!isLoaded) return;
     const totalStepsForValidation = getCurrentTotalSteps();
 
     if (currentStep === 1) setIsStepValid(true); // Information
     else if (currentStep === 2) setIsStepValid(!!formData.acceptedMandatoryTerms); // Terms
-    else if (currentStep === 3) {} // User Info (validation via onValidation)
+    else if (currentStep === 3) {} // User Info (validation via onValidation prop passed to child)
     else if (currentStep === 4) setIsStepValid(!!formData.verificationCode && formData.verificationCode.length === 5); // Verification
     else if (currentStep === 5) { // Role Selection (Adult) OR Sharing (Youth)
       if (formData.isYouth === true) setIsStepValid(true); // Sharing is optional for youth
-      // For adults, StepRoleSelection will call onValidation
+      // For adults, StepRoleSelection will call its onValidation prop (which is handleStepValidation here)
     } else if (currentStep === 6) { // Sharing (Adult)
       setIsStepValid(true); // Sharing is optional for adults
     }
     else if (currentStep > totalStepsForValidation) setIsStepValid(false);
 
-  }, [currentStep, formData, isLoaded, getCurrentTotalSteps, onValidation]);
+  }, [currentStep, formData, isLoaded, getCurrentTotalSteps]);
 
 
   const handleNext = useCallback(async () => {
@@ -192,9 +196,9 @@ export function SignupStepper({
     setDirection(1);
 
     if (currentStep < actualTotalSteps) {
-      if (formData.isYouth === false && currentStep === 5) { // Adult finished role selection, going to sharing
-        nextStepNumber = 6;
-      }
+      // This logic ensures correct step transition based on youth status
+      // If adult finishes role selection (step 5), they go to sharing (step 6)
+      // If youth finishes verification (step 4), they go to sharing (step 5)
       setCurrentStep(nextStepNumber);
       updateUrl(nextStepNumber);
       setIsStepValid(false); 
@@ -215,7 +219,6 @@ export function SignupStepper({
           gravity: 0.9,      // How fast they fall
           drift: Math.random() * 0.2 - 0.1, // Slight random horizontal movement
           ticks: 300, // How long particles last
-          // You can customize colors using an array of hex strings, e.g., colors: ['#ff0000', '#00ff00']
         });
       }
 
@@ -229,10 +232,6 @@ export function SignupStepper({
     setDirection(-1);
     if (currentStep > 1) {
       let prevStep = currentStep - 1;
-      // If adult is on step 6 (sharing) and goes back, they should go to step 5 (role selection)
-      if (formData.isYouth === false && currentStep === 6) {
-        prevStep = 5;
-      }
       setCurrentStep(prevStep);
       updateUrl(prevStep);
       setIsStepValid(true); 
@@ -243,9 +242,6 @@ export function SignupStepper({
     setFormData((prev) => ({ ...prev, ...data }));
   }, []);
 
-  const handleStepValidation = useCallback((isValid: boolean) => {
-    setIsStepValid(isValid);
-  }, []);
 
   const actualTotalSteps = getCurrentTotalSteps();
   const progressValue = (currentStep / actualTotalSteps) * 100;
@@ -305,15 +301,15 @@ export function SignupStepper({
         lang={lang}
       />;
   } else if (currentStep === 5) {
-    if (formData.isYouth === true) { // Youth: Step 5 is Sharing Preferences
+    if (formData.isYouth === true) { 
       currentStepComponent = <StepSharingPreferences
         dictionary={dictionary.stepSharingPreferences}
         formData={formData}
         updateFormData={updateFormDataAndValidate}
-        onValidation={handleStepValidation}
+        onValidation={handleStepValidation} // Sharing is optional, so this will typically call onValidation(true)
         lang={lang}
        />;
-    } else if (formData.isYouth === false) { // Adult: Step 5 is Role Selection
+    } else if (formData.isYouth === false) { 
       currentStepComponent = <StepRoleSelection
         dictionary={dictionary.stepRoleSelection}
         formData={formData}
@@ -322,13 +318,13 @@ export function SignupStepper({
         lang={lang}
       />;
     }
-  } else if (currentStep === 6) { // Only for Adults: Step 6 is Sharing Preferences
-    if (formData.isYouth === false) {
+  } else if (currentStep === 6) { 
+    if (formData.isYouth === false) { // Only adults reach step 6
       currentStepComponent = <StepSharingPreferences
         dictionary={dictionary.stepSharingPreferences}
         formData={formData}
         updateFormData={updateFormDataAndValidate}
-        onValidation={handleStepValidation}
+        onValidation={handleStepValidation} // Sharing is optional
         lang={lang}
       />;
     }
@@ -369,7 +365,7 @@ export function SignupStepper({
         <Button 
           onClick={handleNext} 
           disabled={isNextButtonDisabled}
-          ref={currentStep === actualTotalSteps ? finishButtonRef : null} // Attach ref only to finish button
+          ref={currentStep === actualTotalSteps ? finishButtonRef : null} 
         >
           {currentStep === actualTotalSteps ? (dictionary.finishButton || 'Finish') : (dictionary.nextButton || 'Save & Next')}
         </Button>
@@ -377,4 +373,3 @@ export function SignupStepper({
     </div>
   );
 }
-
