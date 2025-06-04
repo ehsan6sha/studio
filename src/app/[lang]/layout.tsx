@@ -23,9 +23,9 @@ export default function LocaleLayout({
     lang = params.lang[0] as Locale;
   }
 
-
   const pathname = usePathname();
-  const [dictionary, setDictionary] = useState<any>(null); 
+  const [dictionary, setDictionary] = useState<any>(null);
+  const [currentYear, setCurrentYear] = useState<number | null>(null); 
 
   useEffect(() => {
     if (lang) {
@@ -33,12 +33,17 @@ export default function LocaleLayout({
     }
   }, [lang]);
 
+  useEffect(() => {
+    // This ensures new Date() is only called on the client, after initial hydration
+    setCurrentYear(new Date().getFullYear());
+  }, []); // Empty dependency array ensures this runs once on mount
+
   if (!dictionary) {
-    // Render a basic loading state. This content will be placed inside the <body>
-    // rendered by the RootLayout.
+    // This loading state is rendered on the client if the dictionary hasn't loaded yet.
+    // It should match what the server would render if it also couldn't resolve the dictionary synchronously.
     return (
       <>
-        <DynamicHtmlAttributes locale={lang} /> {/* Still useful for setting lang/dir early on client */}
+        <DynamicHtmlAttributes locale={lang} />
         <div className="flex min-h-screen flex-col items-center justify-center">
           Loading...
         </div>
@@ -49,7 +54,7 @@ export default function LocaleLayout({
   const pageVariants = {
     initial: {
       opacity: 0,
-      x: lang === 'fa' ? '-100vw' : '100vw', 
+      x: lang === 'fa' ? '-100vw' : '100vw',
     },
     in: {
       opacity: 1,
@@ -57,7 +62,7 @@ export default function LocaleLayout({
     },
     out: {
       opacity: 0,
-      x: lang === 'fa' ? '100vw' : '-100vw', 
+      x: lang === 'fa' ? '100vw' : '-100vw',
     },
   };
 
@@ -67,6 +72,10 @@ export default function LocaleLayout({
     duration: 0.4,
   };
 
+  // displayYear will be an empty string for server render and initial client render if currentYear is null.
+  // It will update to the actual year on the client after useEffect runs.
+  const displayYear = currentYear !== null ? currentYear : ""; 
+
   return (
     <>
       <DynamicHtmlAttributes locale={lang} />
@@ -75,20 +84,20 @@ export default function LocaleLayout({
         <main className="flex-1 container mx-auto px-4 py-8 sm:px-6 lg:px-8 overflow-x-hidden">
           <AnimatePresence mode="wait" initial={false}>
             <motion.div
-              key={pathname} 
+              key={pathname}
               initial="initial"
               animate="in"
               exit="out"
               variants={pageVariants}
               transition={pageTransition}
-              className="h-full" 
+              className="h-full"
             >
               {children}
             </motion.div>
           </AnimatePresence>
         </main>
         <footer className="py-6 text-center text-sm text-muted-foreground">
-          © {new Date().getFullYear()} {dictionary.appName}. {lang === 'fa' ? 'تمامی حقوق محفوظ است.' : 'All rights reserved.'}
+          © {displayYear} {dictionary.appName}. {lang === 'fa' ? 'تمامی حقوق محفوظ است.' : 'All rights reserved.'}
         </footer>
       </div>
     </>
