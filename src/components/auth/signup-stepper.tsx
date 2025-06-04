@@ -135,9 +135,11 @@ export function SignupStepper({
   }
 
   return (
-    <div className="w-full max-w-xl mx-auto flex flex-col flex-grow" dir={lang === 'fa' ? 'rtl' : 'ltr'}> {/* Changed h-full to flex-grow */}
+    <div className="w-full max-w-xl mx-auto flex flex-col flex-grow" dir={lang === 'fa' ? 'rtl' : 'ltr'}>
       <Progress value={progressValue} className="w-full mb-4 md:mb-6" />
-      <div className="flex-grow overflow-hidden relative">
+      
+      {/* This div is the contentWrapper (div[2]) */}
+      <div className="flex-grow overflow-hidden flex flex-col"> {/* Removed 'relative', added 'flex flex-col' */}
         <AnimatePresence initial={false} custom={direction} mode="wait">
           <motion.div
             key={currentStep}
@@ -150,7 +152,8 @@ export function SignupStepper({
               x: { type: 'spring', stiffness: 300, damping: 30 },
               opacity: { duration: 0.2 },
             }}
-            className="w-full absolute top-0 left-0 right-0 bottom-0 overflow-y-auto p-4"
+            // Removed 'absolute top-0 left-0 right-0 bottom-0', added 'flex-1'
+            className="w-full flex-1 overflow-y-auto p-4" 
           >
             {currentStep === 1 && (
               <StepInformation dictionary={dictionary.stepInformation} />
@@ -169,8 +172,8 @@ export function SignupStepper({
             )}
             {/* Render StepUserInfo for currentStep === 3 */}
             {/* Render StepVerification for currentStep === 4 */}
-             {currentStep === 3 && <div className="p-6 text-center"><h2 className="text-xl font-semibold">{dictionary.stepUserInfo?.title || "User Information (Coming Soon)"}</h2><p>{dictionary.stepUserInfo?.description || "This step will collect your personal details."}</p></div>}
-             {currentStep === 4 && <div className="p-6 text-center"><h2 className="text-xl font-semibold">{dictionary.stepVerification?.title || "Verification (Coming Soon)"}</h2><p>{dictionary.stepVerification?.description || "This step will verify your account."}</p></div>}
+             {currentStep === 3 && <div className="p-6 text-center h-full flex flex-col items-center justify-center"><h2 className="text-xl font-semibold">{dictionary.stepUserInfo?.title || "User Information (Coming Soon)"}</h2><p>{dictionary.stepUserInfo?.description || "This step will collect your personal details."}</p></div>}
+             {currentStep === 4 && <div className="p-6 text-center h-full flex flex-col items-center justify-center"><h2 className="text-xl font-semibold">{dictionary.stepVerification?.title || "Verification (Coming Soon)"}</h2><p>{dictionary.stepVerification?.description || "This step will verify your account."}</p></div>}
           </motion.div>
         </AnimatePresence>
       </div>
