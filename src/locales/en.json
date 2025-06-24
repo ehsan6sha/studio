@@ -14,8 +14,8 @@
     "profile": "Profile"
   },
   "dashboardPage": {
-    "title": "Dashboard",
-    "welcome": "Welcome back to RavanHamrah!",
+    "title": "Your Daily Check-in",
+    "welcome": "Hello there. Let's take a moment for you.",
     "quickReactionTitle": "How are you feeling right now?",
     "tasksTitle": "Your Tasks",
     "moodsTab": "Moods",
