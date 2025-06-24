@@ -14,7 +14,7 @@
     "profile": "Profile"
   },
   "dashboardPage": {
-    "title": "Your Daily Check-in",
+    "title": "Your Reflection Space",
     "welcome": "Hello there. Let's take a moment for you.",
     "quickReactionTitle": "How are you feeling right now?",
     "tasksTitle": "Your Tasks",
@@ -36,7 +36,6 @@
   "journalPage": {
     "title": "Daily Journaling",
     "formTitle": "How was your day?",
-    "moodLabel": "How are you feeling today?",
     "moodOptions": {
       "excellent": "Excellent",
       "good": "Good",
