@@ -24,8 +24,8 @@ function SignupPageContent({ params: paramsAsProp }: { params: { lang: Locale } 
   const auth = useAuth();
   const [dictionary, setDictionary] = useState<any>(null);
   const searchParams = useSearchParams();
-  const initialStepQuery = searchParams.get('step');
-  const initialStep = initialStepQuery ? parseInt(initialStepQuery, 10) : 1;
+  const stepQuery = searchParams.get('step');
+  const currentStep = stepQuery ? parseInt(stepQuery, 10) : 1;
 
   useEffect(() => {
     if (lang) { 
@@ -41,6 +41,9 @@ function SignupPageContent({ params: paramsAsProp }: { params: { lang: Locale } 
   if (!dictionary) {
     return <div className="flex flex-col items-center justify-center flex-grow py-6 md:py-12 px-4">Loading...</div>;
   }
+  
+  // Show Google sign-in only before the verification step (step 4)
+  const showGoogleSignIn = currentStep < 4;
 
   return (
     <div className="flex flex-col items-center flex-grow p-4">
@@ -53,24 +56,28 @@ function SignupPageContent({ params: paramsAsProp }: { params: { lang: Locale } 
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-              <Button variant="outline" className="w-full" onClick={handleGoogleSignIn}>
-                <GoogleIcon />
-                {dictionary.signupPage.googleButton || 'Continue with Google'}
-              </Button>
-              <div className="relative">
-                <div className="absolute inset-0 flex items-center">
-                  <span className="w-full border-t" />
+            {showGoogleSignIn && (
+              <>
+                <Button variant="outline" className="w-full" onClick={handleGoogleSignIn}>
+                  <GoogleIcon />
+                  {dictionary.signupPage.googleButton || 'Continue with Google'}
+                </Button>
+                <div className="relative">
+                  <div className="absolute inset-0 flex items-center">
+                    <span className="w-full border-t" />
+                  </div>
+                  <div className="relative flex justify-center text-xs uppercase">
+                    <span className="bg-card px-2 text-muted-foreground">
+                      {dictionary.signupPage.orSeparator || 'OR'}
+                    </span>
+                  </div>
                 </div>
-                <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-card px-2 text-muted-foreground">
-                    {dictionary.signupPage.orSeparator || 'OR'}
-                  </span>
-                </div>
-              </div>
+              </>
+            )}
             <SignupStepper
               lang={lang}
               dictionary={dictionary.signupStepper}
-              initialStep={initialStep}
+              initialStep={currentStep}
               termsDictionary={dictionary.termsPage} 
               appTermsContent={dictionary.signupStepper.appTermsContent}
               dataProcessingConsentContent={dictionary.signupStepper.dataProcessingConsentContent}
