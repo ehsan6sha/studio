@@ -16,7 +16,7 @@
   "dashboardPage": {
     "title": "Your Reflection Space",
     "welcome": "Hello there. Let's take a moment for you.",
-    "quickReactionTitle": "How are you feeling right now?",
+    "quickReactionTitle": "Your overall mood now:",
     "tasksTitle": "Your Tasks",
     "moodsTab": "Moods",
     "biometricsTab": "Biometrics",
@@ -31,6 +31,25 @@
       "okay": "Okay",
       "bad": "Bad",
       "terrible": "Terrible"
+    },
+    "subMoodSheet": {
+      "title": "Want to add more detail?",
+      "description": "Select any of the following that also describe how you're feeling.",
+      "saveButton": "Save Details",
+      "skipButton": "Skip",
+      "saveSuccessTitle": "Details Saved",
+      "saveSuccessDescription": "Your additional {count} mood(s) have been logged.",
+      "subMoods": {
+        "happy": "Happy",
+        "sad": "Sad",
+        "angry": "Angry",
+        "depressed": "Depressed",
+        "excited": "Excited",
+        "romantic": "Romantic",
+        "afraid": "Afraid",
+        "stressed": "Stressed",
+        "confused": "Confused"
+      }
     }
   },
   "journalPage": {

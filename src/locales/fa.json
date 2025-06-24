@@ -16,7 +16,7 @@
   "dashboardPage": {
     "title": "فضای تامل شما",
     "welcome": "سلام. بیا یک لحظه برای خودت وقت بگذاریم.",
-    "quickReactionTitle": "الان چه حسی دارید؟",
+    "quickReactionTitle": "وضعیت کلی روحی شما در حال حاضر:",
     "tasksTitle": "کارهای شما",
     "moodsTab": "روند خلق‌وخو",
     "biometricsTab": "بیومتریک",
@@ -31,6 +31,25 @@
       "okay": "معمولی",
       "bad": "بد",
       "terrible": "خیلی بد"
+    },
+    "subMoodSheet": {
+      "title": "می‌خواهید جزئیات بیشتری اضافه کنید؟",
+      "description": "هر کدام از موارد زیر را که توصیف کننده احساس شماست، انتخاب کنید.",
+      "saveButton": "ذخیره جزئیات",
+      "skipButton": "رد شدن",
+      "saveSuccessTitle": "جزئیات ذخیره شد",
+      "saveSuccessDescription": "{count} حالت روحی دیگر شما ثبت شد.",
+      "subMoods": {
+        "happy": "خوشحال",
+        "sad": "غمگین",
+        "angry": "عصبانی",
+        "depressed": "افسرده",
+        "excited": "هیجان‌زده",
+        "romantic": "رمانتیک",
+        "afraid": "ترسیده",
+        "stressed": "پراسترس",
+        "confused": "سردرگم"
+      }
     }
   },
   "journalPage": {

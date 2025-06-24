@@ -11,6 +11,9 @@ import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLe
 import { Bar, BarChart, LineChart, CartesianGrid, XAxis, YAxis, Line, ResponsiveContainer } from "recharts";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetFooter, SheetClose } from "@/components/ui/sheet";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
 
 
 const moodData = [
@@ -55,6 +58,9 @@ const chartConfigBiometric = {
 export default function DashboardPage({ params: paramsAsProp }: { params: { lang: Locale } }) {
   const { lang } = React.use(paramsAsProp as any);
   const [dictionary, setDictionary] = useState<any>(null);
+  const [isSubMoodSheetOpen, setIsSubMoodSheetOpen] = useState(false);
+  const [selectedPrimaryMood, setSelectedPrimaryMood] = useState<string | null>(null);
+  const [selectedSubMoods, setSelectedSubMoods] = useState<string[]>([]);
   const { toast } = useToast();
   const isRTL = lang === 'fa';
 
@@ -73,6 +79,24 @@ export default function DashboardPage({ params: paramsAsProp }: { params: { lang
         title: lang === 'fa' ? 'حالت شما ثبت شد!' : 'Mood logged!',
         description: `${lang === 'fa' ? 'حس شما به عنوان' : 'You are feeling'} ${mood} ${lang === 'fa' ? 'ثبت شد.' : '.'}`,
     });
+    setSelectedPrimaryMood(mood);
+    setSelectedSubMoods([]); // Reset on new primary mood selection
+    setIsSubMoodSheetOpen(true);
+  };
+  
+  const handleSubMoodChange = (moodId: string, checked: boolean) => {
+    setSelectedSubMoods(prev =>
+      checked ? [...prev, moodId] : prev.filter(id => id !== moodId)
+    );
+  };
+  
+  const handleSubMoodSave = () => {
+    console.log('Primary mood:', selectedPrimaryMood, 'Sub-moods:', selectedSubMoods);
+     toast({
+        title: dictionary.subMoodSheet.saveSuccessTitle,
+        description: dictionary.subMoodSheet.saveSuccessDescription.replace('{count}', selectedSubMoods.length.toString()),
+    });
+    setIsSubMoodSheetOpen(false);
   };
 
   const emojiMoods = [
@@ -81,126 +105,169 @@ export default function DashboardPage({ params: paramsAsProp }: { params: { lang
       { name: 'okay', icon: Meh },
       { name: 'bad', icon: Frown },
       { name: 'terrible', icon: Angry },
-  ]
+  ];
+  
+  const subMoods = dictionary?.subMoodSheet?.subMoods ? [
+      { id: 'happy', label: dictionary.subMoodSheet.subMoods.happy },
+      { id: 'sad', label: dictionary.subMoodSheet.subMoods.sad },
+      { id: 'angry', label: dictionary.subMoodSheet.subMoods.angry },
+      { id: 'depressed', label: dictionary.subMoodSheet.subMoods.depressed },
+      { id: 'excited', label: dictionary.subMoodSheet.subMoods.excited },
+      { id: 'romantic', label: dictionary.subMoodSheet.subMoods.romantic },
+      { id: 'afraid', label: dictionary.subMoodSheet.subMoods.afraid },
+      { id: 'stressed', label: dictionary.subMoodSheet.subMoods.stressed },
+      { id: 'confused', label: dictionary.subMoodSheet.subMoods.confused },
+  ] : [];
+
 
   if (!dictionary) {
     return <div>Loading...</div>; // Or a more sophisticated loading skeleton
   }
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-headline font-bold tracking-tight text-foreground">
-          {dictionary.title}
-        </h1>
-        <p className="mt-2 text-lg text-muted-foreground">
-          {dictionary.welcome}
-        </p>
-      </div>
+    <>
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-3xl font-headline font-bold tracking-tight text-foreground">
+            {dictionary.title}
+          </h1>
+          <p className="mt-2 text-lg text-muted-foreground">
+            {dictionary.welcome}
+          </p>
+        </div>
 
-      {/* Quick Reaction */}
-      <Card>
-        <CardHeader>
-            <CardTitle>{dictionary.quickReactionTitle}</CardTitle>
-        </CardHeader>
-        <CardContent>
-            <div className="flex justify-around p-2">
-                {emojiMoods.map((mood) => (
-                     <Button key={mood.name} variant="ghost" size="icon" className="h-14 w-14 rounded-full transition-transform hover:scale-125" onClick={() => handleMoodClick(dictionary.moodEmojis[mood.name])} aria-label={dictionary.moodEmojis[mood.name]}>
-                        <mood.icon className="h-8 w-8" />
-                    </Button>
-                ))}
-            </div>
-        </CardContent>
-      </Card>
-      
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Tasks */}
-        <Card className="lg:col-span-1">
-            <CardHeader>
-                <CardTitle>{dictionary.tasksTitle}</CardTitle>
-            </CardHeader>
-            <CardContent>
-                <p className="text-muted-foreground">{dictionary.comingSoon}</p>
-            </CardContent>
+        {/* Quick Reaction */}
+        <Card>
+          <CardHeader>
+              <CardTitle>{dictionary.quickReactionTitle}</CardTitle>
+          </CardHeader>
+          <CardContent>
+              <div className="flex justify-around p-2">
+                  {emojiMoods.map((mood) => (
+                       <Button key={mood.name} variant="ghost" size="icon" className="h-14 w-14 rounded-full transition-transform hover:scale-125" onClick={() => handleMoodClick(dictionary.moodEmojis[mood.name])} aria-label={dictionary.moodEmojis[mood.name]}>
+                          <mood.icon className="h-8 w-8" />
+                      </Button>
+                  ))}
+              </div>
+          </CardContent>
         </Card>
-
-         {/* Learn and Earn */}
-        <Card className="lg:col-span-2">
-            <CardHeader>
-                <CardTitle>{dictionary.learnAndEarnTitle}</CardTitle>
-            </CardHeader>
-            <CardContent>
-                <p className="text-muted-foreground">{dictionary.comingSoon}</p>
-            </CardContent>
-        </Card>
-      </div>
-
-
-      {/* Information Section */}
-       <Tabs defaultValue="moods" className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="moods">{dictionary.moodsTab}</TabsTrigger>
-            <TabsTrigger value="biometrics">{dictionary.biometricsTab}</TabsTrigger>
-            <TabsTrigger value="testResults">{dictionary.testResultsTab}</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="moods" className="mt-4">
-            <Card>
+        
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Tasks */}
+          <Card className="lg:col-span-1">
               <CardHeader>
-                <CardTitle>{dictionary.moodChartTitle}</CardTitle>
+                  <CardTitle>{dictionary.tasksTitle}</CardTitle>
               </CardHeader>
-              <CardContent className="h-[300px] p-0">
-                  <ChartContainer config={chartConfigMood} className="w-full h-full">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <LineChart data={moodData} margin={{ top: 20, right: isRTL ? 10 : 30, left: isRTL ? 30 : 10, bottom: 5 }}>
-                        <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis dataKey={isRTL ? "day" : "date"} reversed={isRTL} />
-                        <YAxis reversed={isRTL} orientation={isRTL ? 'right' : 'left'} domain={[1, 5]} />
-                        <ChartTooltip content={<ChartTooltipContent />} />
-                        <Line type="monotone" dataKey="mood" stroke="hsl(var(--primary))" strokeWidth={2} dot={{ r: 4, fill: "hsl(var(--primary))" }} />
-                      </LineChart>
-                    </ResponsiveContainer>
-                  </ChartContainer>
+              <CardContent>
+                  <p className="text-muted-foreground">{dictionary.comingSoon}</p>
               </CardContent>
-            </Card>
-          </TabsContent>
+          </Card>
 
-          <TabsContent value="biometrics" className="mt-4">
-            <Card>
+           {/* Learn and Earn */}
+          <Card className="lg:col-span-2">
               <CardHeader>
-                <CardTitle>{dictionary.biometricChartTitle}</CardTitle>
+                  <CardTitle>{dictionary.learnAndEarnTitle}</CardTitle>
               </CardHeader>
-              <CardContent className="h-[300px] p-0">
-                  <ChartContainer config={chartConfigBiometric} className="w-full h-full">
-                    <ResponsiveContainer width="100%" height="100%">
-                       <BarChart data={biometricData} margin={{ top: 20, right: isRTL ? 10 : 30, left: isRTL ? 30 : 10, bottom: 5 }}>
-                        <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis dataKey="date" reversed={isRTL} />
-                        <YAxis yAxisId="left" orientation={isRTL ? 'right' : 'left'} stroke="var(--color-sleep)" reversed={isRTL}/>
-                        <YAxis yAxisId="right" orientation={isRTL ? 'left' : 'right'} stroke="var(--color-heartRate)" reversed={isRTL}/>
-                        <ChartTooltip content={<ChartTooltipContent />} />
-                        <ChartLegend content={<ChartLegendContent />} />
-                        <Bar yAxisId="left" dataKey="sleep" fill="var(--color-sleep)" radius={4} />
-                        <Bar yAxisId="right" dataKey="heartRate" fill="var(--color-heartRate)" radius={4} />
-                      </BarChart>
-                    </ResponsiveContainer>
-                  </ChartContainer>
+              <CardContent>
+                  <p className="text-muted-foreground">{dictionary.comingSoon}</p>
               </CardContent>
-            </Card>
-          </TabsContent>
+          </Card>
+        </div>
 
-          <TabsContent value="testResults" className="mt-4">
-             <Card>
+
+        {/* Information Section */}
+         <Tabs defaultValue="moods" className="w-full">
+            <TabsList className="grid w-full grid-cols-3">
+              <TabsTrigger value="moods">{dictionary.moodsTab}</TabsTrigger>
+              <TabsTrigger value="biometrics">{dictionary.biometricsTab}</TabsTrigger>
+              <TabsTrigger value="testResults">{dictionary.testResultsTab}</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="moods" className="mt-4">
+              <Card>
                 <CardHeader>
-                    <CardTitle>{dictionary.testResultsTab}</CardTitle>
+                  <CardTitle>{dictionary.moodChartTitle}</CardTitle>
                 </CardHeader>
-                <CardContent>
-                    <p className="text-muted-foreground">{dictionary.comingSoon}</p>
+                <CardContent className="h-[300px] p-0">
+                    <ChartContainer config={chartConfigMood} className="w-full h-full">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <LineChart data={moodData} margin={{ top: 20, right: isRTL ? 10 : 30, left: isRTL ? 30 : 10, bottom: 5 }}>
+                          <CartesianGrid strokeDasharray="3 3" />
+                          <XAxis dataKey={isRTL ? "day" : "date"} reversed={isRTL} />
+                          <YAxis reversed={isRTL} orientation={isRTL ? 'right' : 'left'} domain={[1, 5]} />
+                          <ChartTooltip content={<ChartTooltipContent />} />
+                          <Line type="monotone" dataKey="mood" stroke="hsl(var(--primary))" strokeWidth={2} dot={{ r: 4, fill: "hsl(var(--primary))" }} />
+                        </LineChart>
+                      </ResponsiveContainer>
+                    </ChartContainer>
                 </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
-    </div>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="biometrics" className="mt-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle>{dictionary.biometricChartTitle}</CardTitle>
+                </CardHeader>
+                <CardContent className="h-[300px] p-0">
+                    <ChartContainer config={chartConfigBiometric} className="w-full h-full">
+                      <ResponsiveContainer width="100%" height="100%">
+                         <BarChart data={biometricData} margin={{ top: 20, right: isRTL ? 10 : 30, left: isRTL ? 30 : 10, bottom: 5 }}>
+                          <CartesianGrid strokeDasharray="3 3" />
+                          <XAxis dataKey="date" reversed={isRTL} />
+                          <YAxis yAxisId="left" orientation={isRTL ? 'right' : 'left'} stroke="var(--color-sleep)" reversed={isRTL}/>
+                          <YAxis yAxisId="right" orientation={isRTL ? 'left' : 'right'} stroke="var(--color-heartRate)" reversed={isRTL}/>
+                          <ChartTooltip content={<ChartTooltipContent />} />
+                          <ChartLegend content={<ChartLegendContent />} />
+                          <Bar yAxisId="left" dataKey="sleep" fill="var(--color-sleep)" radius={4} />
+                          <Bar yAxisId="right" dataKey="heartRate" fill="var(--color-heartRate)" radius={4} />
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </ChartContainer>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="testResults" className="mt-4">
+               <Card>
+                  <CardHeader>
+                      <CardTitle>{dictionary.testResultsTab}</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                      <p className="text-muted-foreground">{dictionary.comingSoon}</p>
+                  </CardContent>
+              </Card>
+            </TabsContent>
+          </Tabs>
+      </div>
+      <Sheet open={isSubMoodSheetOpen} onOpenChange={setIsSubMoodSheetOpen}>
+          <SheetContent side="bottom" className="rounded-t-lg max-h-[90vh] flex flex-col">
+              <SheetHeader className="text-center">
+                  <SheetTitle>{dictionary.subMoodSheet.title}</SheetTitle>
+                  <SheetDescription>{dictionary.subMoodSheet.description}</SheetDescription>
+              </SheetHeader>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 py-4 overflow-y-auto px-2">
+                  {subMoods.map((mood) => (
+                      <div key={mood.id} className="flex items-center space-x-2 rtl:space-x-reverse">
+                          <Checkbox
+                              id={`submood-${mood.id}`}
+                              checked={selectedSubMoods.includes(mood.id)}
+                              onCheckedChange={(checked) => handleSubMoodChange(mood.id, !!checked)}
+                          />
+                          <Label htmlFor={`submood-${mood.id}`} className="text-sm font-medium leading-none cursor-pointer">
+                              {mood.label}
+                          </Label>
+                      </div>
+                  ))}
+              </div>
+              <SheetFooter className="mt-auto">
+                  <SheetClose asChild>
+                      <Button variant="outline">{dictionary.subMoodSheet.skipButton}</Button>
+                  </SheetClose>
+                  <Button onClick={handleSubMoodSave}>{dictionary.subMoodSheet.saveButton}</Button>
+              </SheetFooter>
+          </SheetContent>
+      </Sheet>
+    </>
   );
 }
