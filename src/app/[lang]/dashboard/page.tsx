@@ -69,7 +69,7 @@ export default function DashboardPage({ params: paramsAsProp }: { params: { lang
 
   const getNoteStorageKey = useCallback(() => {
     const today = new Date().toISOString().split('T')[0];
-    return `ravanhamrah-freeNote-${today}`;
+    return `hami-freeNote-${today}`;
   }, []);
 
   useEffect(() => {

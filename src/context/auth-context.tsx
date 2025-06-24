@@ -22,7 +22,7 @@ interface AuthContextState {
 
 const AuthContext = createContext<AuthContextState | undefined>(undefined);
 
-const AUTH_STORAGE_KEY = 'ravanhamrah-auth';
+const AUTH_STORAGE_KEY = 'hami-auth';
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);

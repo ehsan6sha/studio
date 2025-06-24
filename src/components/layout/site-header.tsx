@@ -6,7 +6,7 @@ import { MainNav } from '@/components/layout/main-nav';
 import { LanguageSwitcher } from '@/components/layout/language-switcher';
 import { UserNav } from '@/components/layout/user-nav';
 import type { Locale } from '@/i18n-config';
-import { Logo } from '@/components/logo';
+import { Logo } from '@/components/layout/logo';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';

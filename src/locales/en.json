@@ -1,6 +1,6 @@
 
 {
-  "appName": "RavanHamrah",
+  "appName": "Hami",
   "tagline": "Your Personal Mental Health Companion",
   "navigation": {
     "dashboard": "Dashboard",
@@ -122,22 +122,22 @@
     "registrationCompleteTitle": "Registration Complete!",
     "registrationCompleteMessage": "Your account has been successfully created. Redirecting to dashboard...",
     "stepInformation": {
-      "title": "Welcome to RavanHamrah Registration!",
+      "title": "Welcome to Hami Registration!",
       "description": "Let's get you set up.",
-      "mainContent": "We are going to ask you a few questions to customize your experience. These are professionally crafted questions based on the latest psychology insights to help us tailor RavanHamrah for you."
+      "mainContent": "We are going to ask you a few questions to customize your experience. These are professionally crafted questions based on the latest psychology insights to help us tailor Hami for you."
     },
     "stepTerms": {
       "title": "Terms and Consent",
       "description": "Please review and accept the following terms.",
-      "mandatoryTermsLabel": "I accept the Terms and Conditions of use for RavanHamrah.",
+      "mandatoryTermsLabel": "I accept the Terms and Conditions of use for Hami.",
       "optionalCommunicationsLabel": "I agree to receive personalized mental wellness information and program suggestions via email, SMS, or notifications. Personalized information is analyzed as described in our Privacy Policy for program purposes.",
       "optionalMarketingLabel": "I accept the transfer of data for marketing and analysis to Google and Meta.",
       "viewTermsLink": "View Terms & Conditions",
       "dataProcessingConsentLink": "View Data Processing Details",
       "marketingConsentLink": "View Marketing Data Details",
       "infoNoteLine1": "You can revoke your consent at any time for the future.",
-      "infoNoteLine2": "Please note: If you withdraw your consent for the processing of personal and health data for use in the app, you will no longer have access to RavanHamrah.",
-      "infoNoteLine3": "To withdraw this consent, use the delete account option in Profile > Data & Security, or email support@ravanhamrah.example.com.",
+      "infoNoteLine2": "Please note: If you withdraw your consent for the processing of personal and health data for use in the app, you will no longer have access to Hami.",
+      "infoNoteLine3": "To withdraw this consent, use the delete account option in Profile > Data & Security, or email support@hami.example.com.",
       "dialogClose": "Close"
     },
     "stepUserInfo": {
@@ -185,12 +185,12 @@
       "content": {
         "introduction": {
           "title": "1. Introduction",
-          "content1": "These are the main terms for using the RavanHamrah application.",
+          "content1": "These are the main terms for using the Hami application.",
           "content2": "By using the app, you agree to these terms."
         },
         "services": {
           "title": "2. Our Services",
-          "content1": "RavanHamrah offers AI insights, journaling, and specialist suggestions.",
+          "content1": "Hami offers AI insights, journaling, and specialist suggestions.",
           "item1": "AI-driven insights.",
           "item2": "Daily journaling.",
           "item3": "Specialist referrals.",
@@ -221,12 +221,12 @@
       "content": {
         "introduction": {
           "title": "1. Data Transfer for Marketing & Analytics",
-          "content1": "To improve our services and reach more users who might benefit from RavanHamrah, we may share anonymized or aggregated data with third-party services like Google and Meta for marketing and analytics purposes.",
+          "content1": "To improve our services and reach more users who might benefit from Hami, we may share anonymized or aggregated data with third-party services like Google and Meta for marketing and analytics purposes.",
           "content2": "This data does not include your direct journal entries or specific sensitive health information unless explicitly stated and consented to separately."
         },
         "services": {
           "title": "2. What this means",
-          "content1": "This helps us understand usage patterns and make RavanHamrah better.",
+          "content1": "This helps us understand usage patterns and make Hami better.",
           "item1": "Analyze app usage trends.",
           "item2": "Optimize marketing campaigns.",
           "item3": "Improve user experience.",
@@ -236,7 +236,7 @@
     }
   },
   "landingPage": {
-    "welcomeTitle": "Welcome to RavanHamrah",
+    "welcomeTitle": "Welcome to Hami",
     "welcomeMessage": "Your intelligent companion for mental well-being. We help you find your path to peace and wellness with AI-driven insights and practical tools.",
     "registerButton": "Start now for free",
     "loginButton": "Login",
@@ -248,12 +248,12 @@
     "lastUpdated": "July 26, 2024",
     "introduction": {
       "title": "1. Introduction",
-      "content1": "Welcome to RavanHamrah (\"Company\", \"we\", \"our\", \"us\")! These Terms and Conditions (\"Terms\") govern your use of our website and mobile application (collectively, the \"Service\") offered by RavanHamrah.",
+      "content1": "Welcome to Hami (\"Company\", \"we\", \"our\", \"us\")! These Terms and Conditions (\"Terms\") govern your use of our website and mobile application (collectively, the \"Service\") offered by Hami.",
       "content2": "By accessing or using our Service, you agree to be bound by these Terms. If you disagree with any part of the terms, then you may not access the Service. Please read them carefully."
     },
     "services": {
       "title": "2. Our Services",
-      "content1": "RavanHamrah provides a platform for mental wellness, including but not limited to:",
+      "content1": "Hami provides a platform for mental wellness, including but not limited to:",
       "item1": "AI-driven insights based on user-provided data.",
       "item2": "Tools for daily journaling and mood tracking.",
       "item3": "Suggestions for relevant specialists based on user needs.",
@@ -283,7 +283,7 @@
     },
     "limitationOfLiability": {
       "title": "8. Limitation of Liability",
-      "content1": "In no event shall RavanHamrah, nor its directors, employees, partners, agents, suppliers, or affiliates, be liable for any indirect, incidental, special, consequential or punitive damages, including without limitation, loss of profits, data, use, goodwill, or other intangible losses, resulting from your access to or use of or inability to access or use the Service."
+      "content1": "In no event shall Hami, nor its directors, employees, partners, agents, suppliers, or affiliates, be liable for any indirect, incidental, special, consequential or punitive damages, including without limitation, loss of profits, data, use, goodwill, or other intangible losses, resulting from your access to or use of or inability to access or use the Service."
     },
     "changesToTerms": {
       "title": "9. Changes to Terms",
@@ -291,7 +291,7 @@
     },
     "contactInformation": {
       "title": "10. Contact Us",
-      "content1": "If you have any questions about these Terms, please contact us at: support@ravanhamrah.example.com"
+      "content1": "If you have any questions about these Terms, please contact us at: support@hami.example.com"
     }
   },
   "chatCompanion": {
