@@ -15,7 +15,7 @@ const ChatMessageSchema = z.object({
   role: z.enum(['user', 'assistant']),
   content: z.string(),
 });
-export const ChatCompanionInputSchema = z.object({
+const ChatCompanionInputSchema = z.object({
   history: z.array(ChatMessageSchema).describe('The conversation history.'),
   message: z.string().describe("The user's latest message."),
 });
