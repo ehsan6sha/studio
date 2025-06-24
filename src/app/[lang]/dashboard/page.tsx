@@ -75,10 +75,6 @@ export default function DashboardPage({ params: paramsAsProp }: { params: { lang
   }, [lang]);
 
   const handleMoodClick = (mood: string) => {
-    toast({
-        title: lang === 'fa' ? 'حالت شما ثبت شد!' : 'Mood logged!',
-        description: `${lang === 'fa' ? 'حس شما به عنوان' : 'You are feeling'} ${mood} ${lang === 'fa' ? 'ثبت شد.' : '.'}`,
-    });
     setSelectedPrimaryMood(mood);
     setSelectedSubMoods([]); // Reset on new primary mood selection
     setIsSubMoodSheetOpen(true);
@@ -244,7 +240,9 @@ export default function DashboardPage({ params: paramsAsProp }: { params: { lang
           <SheetContent side="bottom" className="rounded-t-lg max-h-[90vh] flex flex-col">
               <SheetHeader className="text-center">
                   <SheetTitle>{dictionary.subMoodSheet.title}</SheetTitle>
-                  <SheetDescription>{dictionary.subMoodSheet.description}</SheetDescription>
+                  <SheetDescription>
+                    {selectedPrimaryMood && dictionary.subMoodSheet.description.replace('{mood}', selectedPrimaryMood)}
+                  </SheetDescription>
               </SheetHeader>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 py-4 overflow-y-auto px-2">
                   {subMoods.map((mood) => (

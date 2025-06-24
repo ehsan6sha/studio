@@ -33,8 +33,8 @@
       "terrible": "Terrible"
     },
     "subMoodSheet": {
-      "title": "Want to add more detail?",
-      "description": "Select any of the following that also describe how you're feeling.",
+      "title": "Mood Logged!",
+      "description": "You're feeling '{mood}'. You can optionally add more detail below or skip.",
       "saveButton": "Save Details",
       "skipButton": "Skip",
       "saveSuccessTitle": "Details Saved",
