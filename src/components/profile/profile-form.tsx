@@ -19,6 +19,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuth } from '@/context/auth-context';
 import { useToast } from '@/hooks/use-toast';
 import type { Locale } from '@/i18n-config';
+import { DatePicker } from '@/components/ui/date-picker';
 
 interface ProfileFormProps {
   dictionary: any;
@@ -99,10 +100,15 @@ export function ProfileForm({ dictionary, lang }: ProfileFormProps) {
               control={form.control}
               name="dob"
               render={({ field }) => (
-                <FormItem>
+                <FormItem className="flex flex-col">
                   <FormLabel>{dictionary.dobLabel}</FormLabel>
-                  <FormControl>
-                    <Input type="date" {...field} />
+                   <FormControl>
+                     <DatePicker
+                        lang={lang}
+                        value={field.value}
+                        onChange={field.onChange}
+                        dictionary={{ placeholder: dictionary.dobPlaceholder }}
+                      />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

@@ -311,6 +311,7 @@
     "nameLabel": "Full Name",
     "namePlaceholder": "Enter your full name",
     "dobLabel": "Date of Birth",
+    "dobPlaceholder": "Pick a date",
     "emailLabel": "Email / Phone (not editable)",
     "saveButton": "Save Changes",
     "saveSuccess": "Profile updated successfully."
