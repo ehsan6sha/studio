@@ -27,7 +27,7 @@
     "biometricChartTitle": "Biometric Data",
     "freeNotesTitle": "Free Notes",
     "newNoteLabel": "New Note",
-    "freeNotesPlaceholder": "Jot down your thoughts here... they save automatically.",
+    "freeNotesPlaceholder": "Jot down your thoughts... they save automatically. Your AI companion uses these notes to understand your mood and customize your plan.",
     "autoSaveHint": "Your notes are saved automatically.",
     "moodEmojis": {
       "great": "Great",
@@ -300,3 +300,5 @@
     "sendButtonLabel": "Send"
   }
 }
+
+    
