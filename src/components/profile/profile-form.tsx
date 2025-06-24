@@ -27,7 +27,9 @@ interface ProfileFormProps {
 
 const ProfileFormSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters." }),
-  dob: z.string().optional(), // Make DOB optional for now
+  dob: z.string().refine((val) => val === '' || !isNaN(Date.parse(val)), { // Allow empty string or valid date
+    message: "Invalid date format."
+  }).optional(),
 });
 
 export function ProfileForm({ dictionary, lang }: ProfileFormProps) {
@@ -38,7 +40,7 @@ export function ProfileForm({ dictionary, lang }: ProfileFormProps) {
     resolver: zodResolver(ProfileFormSchema),
     defaultValues: {
       name: user?.name || '',
-      dob: '',
+      dob: user?.dob || '',
     },
   });
   
@@ -47,7 +49,7 @@ export function ProfileForm({ dictionary, lang }: ProfileFormProps) {
     if (user) {
         form.reset({
             name: user.name || '',
-            dob: '', // Populate with user.dob if available in future
+            dob: user.dob || '',
         });
     }
   }, [user, form]);
@@ -56,9 +58,8 @@ export function ProfileForm({ dictionary, lang }: ProfileFormProps) {
     // In a real app, you'd send this to your backend to update the user's profile.
     // For this prototype, we'll update the auth context state.
     const updatedUser = {
-        ...user,
         name: values.name,
-        // dob: values.dob, // Include this when DOB is fully implemented
+        dob: values.dob,
     };
     login(updatedUser, lang); // Using login to update the user state in the context
     

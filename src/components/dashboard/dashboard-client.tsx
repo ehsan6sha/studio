@@ -13,6 +13,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Textarea } from '@/components/ui/textarea';
 import Link from 'next/link';
+import { useAuth } from '@/context/auth-context';
+import { useToast } from '@/hooks/use-toast';
 
 const moodData = [
   { date: "2024-07-01", mood: 3, day: "دوشنبه" },
@@ -64,16 +66,53 @@ export function DashboardClient({ dictionary, lang }: DashboardClientProps) {
   const isRTL = lang === 'fa';
   const wasOpenRef = useRef(false);
   const [freeNote, setFreeNote] = useState('');
-  const [tasks, setTasks] = useState({
+  const { user } = useAuth();
+  const { toast } = useToast();
+  
+  const [taskCompletion, setTaskCompletion] = useState({
     profile: false,
     questionnaire: false,
     share: false,
   });
 
-  const handleTaskChange = (task: keyof typeof tasks, checked: boolean) => {
-    setTasks(prev => ({ ...prev, [task]: checked }));
-    console.log(`Task '${task}' status updated to: ${checked}`);
-  };
+  const checkTasks = useCallback(() => {
+    // Check profile completion
+    const profileComplete = !!(user?.name && user?.emailOrPhone && user?.dob);
+
+    // Check questionnaire completion (simulated)
+    const questionnaireComplete = !!localStorage.getItem('hami-questionnaire-completed');
+
+    // Check share info completion
+    const storedConnections = localStorage.getItem('hami-connections');
+    let shareComplete = false;
+    if (storedConnections) {
+      try {
+        const connections = JSON.parse(storedConnections);
+        shareComplete = Array.isArray(connections) && connections.length > 0;
+      } catch (e) {
+        console.error("Failed to parse connections from localStorage", e);
+      }
+    }
+
+    setTaskCompletion({
+      profile: profileComplete,
+      questionnaire: questionnaireComplete,
+      share: shareComplete,
+    });
+  }, [user]);
+
+  useEffect(() => {
+    checkTasks();
+    
+    // Re-check tasks when returning to the tab or when storage changes elsewhere
+    window.addEventListener('focus', checkTasks);
+    window.addEventListener('storage', checkTasks);
+    
+    return () => {
+      window.removeEventListener('focus', checkTasks);
+      window.removeEventListener('storage', checkTasks);
+    };
+  }, [checkTasks]);
 
   const getNoteStorageKey = useCallback(() => {
     const today = new Date().toISOString().split('T')[0];
@@ -110,10 +149,14 @@ export function DashboardClient({ dictionary, lang }: DashboardClientProps) {
     if (wasOpenRef.current && !isSubMoodSheetOpen) {
       if (selectedSubMoods.length > 0) {
         console.log('Saving moods on close. Primary:', selectedPrimaryMood, 'Sub-moods:', selectedSubMoods);
+        toast({
+          title: dictionary.subMoodSheet.saveSuccessTitle,
+          description: dictionary.subMoodSheet.saveSuccessDescription.replace('{count}', selectedSubMoods.length.toString()),
+        });
       }
     }
     wasOpenRef.current = isSubMoodSheetOpen;
-  }, [isSubMoodSheetOpen, selectedPrimaryMood, selectedSubMoods]);
+  }, [isSubMoodSheetOpen, selectedPrimaryMood, selectedSubMoods, toast, dictionary]);
 
 
   const handleMoodClick = (mood: string) => {
@@ -175,10 +218,10 @@ export function DashboardClient({ dictionary, lang }: DashboardClientProps) {
                 <div className="flex items-center space-x-2 rtl:space-x-reverse">
                   <Checkbox
                     id="task-profile"
-                    checked={tasks.profile}
-                    onCheckedChange={(checked) => handleTaskChange('profile', !!checked)}
+                    checked={taskCompletion.profile}
+                    disabled
                   />
-                  <Label htmlFor="task-profile" className="flex-grow font-normal cursor-pointer">
+                  <Label htmlFor="task-profile" className="flex-grow font-normal cursor-pointer data-[disabled]:cursor-not-allowed">
                     <Link href={`/${lang}/profile`} className="hover:underline">
                       {dictionary.tasks.completeProfile}
                     </Link>
@@ -187,10 +230,10 @@ export function DashboardClient({ dictionary, lang }: DashboardClientProps) {
                 <div className="flex items-center space-x-2 rtl:space-x-reverse">
                   <Checkbox
                     id="task-questionnaire"
-                    checked={tasks.questionnaire}
-                    onCheckedChange={(checked) => handleTaskChange('questionnaire', !!checked)}
+                    checked={taskCompletion.questionnaire}
+                    disabled
                   />
-                  <Label htmlFor="task-questionnaire" className="flex-grow font-normal cursor-pointer">
+                  <Label htmlFor="task-questionnaire" className="flex-grow font-normal cursor-pointer data-[disabled]:cursor-not-allowed">
                     <Link href={`/${lang}/questionnaires`} className="hover:underline">
                       {dictionary.tasks.answerQuestionnaire}
                     </Link>
@@ -199,10 +242,10 @@ export function DashboardClient({ dictionary, lang }: DashboardClientProps) {
                 <div className="flex items-center space-x-2 rtl:space-x-reverse">
                   <Checkbox
                     id="task-share"
-                    checked={tasks.share}
-                    onCheckedChange={(checked) => handleTaskChange('share', !!checked)}
+                    checked={taskCompletion.share}
+                    disabled
                   />
-                  <Label htmlFor="task-share" className="flex-grow font-normal cursor-pointer">
+                  <Label htmlFor="task-share" className="flex-grow font-normal cursor-pointer data-[disabled]:cursor-not-allowed">
                     <Link href={`/${lang}/settings/connect`} className="hover:underline">
                       {dictionary.tasks.shareInformation}
                     </Link>

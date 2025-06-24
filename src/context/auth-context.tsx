@@ -2,19 +2,20 @@
 'use client';
 
 import type { Locale } from '@/i18n-config';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import type { ReactNode} from 'react';
 import { createContext, useContext, useState, useCallback, useEffect } from 'react';
 
 interface User {
   name?: string;
   emailOrPhone?: string;
+  dob?: string;
 }
 
 interface AuthContextState {
   isAuthenticated: boolean;
   user: User | null;
-  login: (userData: User, lang: Locale) => void;
+  login: (userData: Partial<User>, lang: Locale) => void;
   signup: (userData: User, lang: Locale) => void;
   logout: (lang: Locale) => void;
   loginWithGoogle: (lang: Locale) => void;
@@ -28,6 +29,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const router = useRouter();
+  const pathname = usePathname();
   
   // On mount, check for persisted auth state
   useEffect(() => {
@@ -60,12 +62,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
 
-  const login = useCallback((userData: User, lang: Locale) => {
+  const login = useCallback((userData: Partial<User>, lang: Locale) => {
     setIsAuthenticated(true);
-    setUser(userData);
-    persistAuthState(true, userData);
-    router.push(`/${lang}/dashboard`);
-  }, [router]);
+    const updatedUserData = { ...user, ...userData };
+    setUser(updatedUserData as User);
+    persistAuthState(true, updatedUserData as User);
+    
+    // Only redirect from login/signup pages, not from profile update
+    if (pathname && (pathname.endsWith('/login') || pathname.endsWith('/signup'))) {
+        router.push(`/${lang}/dashboard`);
+    }
+  }, [router, user, pathname]);
 
   const signup = useCallback((userData: User, lang: Locale) => {
     setIsAuthenticated(true);
