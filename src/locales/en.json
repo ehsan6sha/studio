@@ -293,7 +293,10 @@
       "title": "10. Contact Us",
       "content1": "If you have any questions about these Terms, please contact us at: support@ravanhamrah.example.com"
     }
+  },
+  "chatCompanion": {
+    "title": "AI Companion",
+    "inputPlaceholder": "Talk about your feelings...",
+    "sendButtonLabel": "Send"
   }
 }
-
-    

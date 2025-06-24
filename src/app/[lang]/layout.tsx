@@ -11,6 +11,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { usePathname, useParams } from 'next/navigation';
 import React, { useEffect, useState, useRef } from 'react';
 import { AuthProvider } from '@/context/auth-context';
+import { ChatCompanionWrapper } from '@/components/chat/ChatCompanionWrapper';
 
 export default function LocaleLayout({
   children,
@@ -131,6 +132,7 @@ export default function LocaleLayout({
             </motion.div>
           </AnimatePresence>
         </main>
+        <ChatCompanionWrapper />
         <footer className="py-6 text-center text-sm text-muted-foreground">
           © {displayYear} {appNameFromDict || defaultAppName}. {footerRightsText}
         </footer>

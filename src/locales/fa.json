@@ -294,7 +294,10 @@
       "title": "۱۰. اطلاعات تماس",
       "content1": "اگر در مورد این شرایط سؤالی دارید، لطفاً با ما تماس بگیرید: support@ravanhamrah.example.com"
     }
+  },
+   "chatCompanion": {
+    "title": "همراه هوش مصنوعی",
+    "inputPlaceholder": "درباره احساساتت صحبت کن...",
+    "sendButtonLabel": "ارسال"
   }
 }
-
-    
