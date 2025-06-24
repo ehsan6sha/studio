@@ -23,5 +23,5 @@ export function ChatCompanionWrapper() {
         return null;
     }
 
-    return <ChatCompanion dictionary={dictionary} />;
+    return <ChatCompanion dictionary={dictionary} lang={lang} />;
 }

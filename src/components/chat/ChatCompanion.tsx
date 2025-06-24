@@ -11,6 +11,8 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { chatWithCompanion } from '@/ai/flows/chat-companion';
 import type { ChatCompanionInput } from '@/ai/flows/chat-companion';
+import type { Locale } from '@/i18n-config';
+import { cn } from '@/lib/utils';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -22,15 +24,18 @@ interface ChatCompanionProps {
         title: string;
         inputPlaceholder: string;
         sendButtonLabel: string;
-    }
+    },
+    lang: Locale;
 }
 
-export function ChatCompanion({ dictionary }: ChatCompanionProps) {
+export function ChatCompanion({ dictionary, lang }: ChatCompanionProps) {
     const [isOpen, setIsOpen] = useState(false);
     const [messages, setMessages] = useState<Message[]>([]);
     const [inputValue, setInputValue] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
+
+    const isRTL = lang === 'fa';
 
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -68,7 +73,10 @@ export function ChatCompanion({ dictionary }: ChatCompanionProps) {
             <Button
                 variant="default"
                 size="icon"
-                className="fixed bottom-4 left-4 h-14 w-14 rounded-full shadow-lg z-50 flex items-center justify-center bg-primary hover:bg-primary/90"
+                className={cn(
+                    "fixed bottom-4 h-14 w-14 rounded-full shadow-lg z-50 flex items-center justify-center bg-primary hover:bg-primary/90",
+                    isRTL ? "left-4" : "right-4"
+                )}
                 onClick={() => setIsOpen(true)}
                 aria-label="Open AI Companion Chat"
             >
@@ -76,7 +84,7 @@ export function ChatCompanion({ dictionary }: ChatCompanionProps) {
             </Button>
 
             <Sheet open={isOpen} onOpenChange={setIsOpen}>
-                <SheetContent side="bottom" className="h-[70vh] flex flex-col p-0 rounded-t-lg sm:max-w-lg mx-auto">
+                <SheetContent side={isRTL ? 'left' : 'right'} className="flex flex-col p-0">
                     <SheetHeader className="p-4 border-b text-left">
                         <SheetTitle className="flex items-center gap-2">
                            <Bot /> {dictionary.title}
