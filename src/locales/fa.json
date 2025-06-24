@@ -144,33 +144,6 @@
         "pasteIncompleteDescription": "{count} رقم چسبانده شد. لطفا کد ۵ رقمی را کامل کنید."
       }
     },
-    "stepSharingPreferences": {
-      "title": "تنظیمات اشتراک‌گذاری",
-      "description": "در صورت تمایل، می‌توانید اطلاعات خود را با مخاطبین مورد اعتماد به اشتراک بگذارید (اختیاری).",
-      "sharingConnections": {
-        "shareWithLabel": "اشتراک‌گذاری با:",
-        "addConnectionButton": "افزودن مخاطب برای اشتراک‌گذاری",
-        "dialogTitle": "اشتراک‌گذاری اطلاعات",
-        "contactLabel": "مخاطب (ایمیل یا شماره تلفن)",
-        "contactPlaceholder": "ایمیل یا شماره تلفن را وارد کنید",
-        "permissionsLabel": "موارد قابل اشتراک را انتخاب کنید:",
-        "permissionBasicInformation": "اطلاعات پایه",
-        "permissionDailyQuizResults": "نتایج آزمون روزانه",
-        "permissionBiometricReports": "گزارشات بیومتریک",
-        "permissionTestResults": "نتایج تست‌ها",
-        "permissionSyncedInformation": "اطلاعات همگام‌شده از سایر سیستم‌ها",
-        "permissionOthersNotes": "یادداشت‌های دیگران",
-        "dialogAddButton": "افزودن ارتباط",
-        "dialogCancelButton": "انصراف",
-        "removeConnectionButtonLabel": "حذف ارتباط",
-        "sharedWithTitle": "در حال اشتراک‌گذاری با:",
-        "noConnectionsYet": "هنوز اطلاعات خود را با کسی به اشتراک نگذاشته‌اید.",
-        "permissionsSummaryPrefix": "موارد اشتراک‌گذاری شده:",
-        "errorContactRequired": "اطلاعات تماس الزامی است.",
-        "errorInvalidContact": "لطفاً ایمیل یا شماره تلفن معتبر وارد کنید.",
-        "errorNoPermissionsSelected": "لطفاً حداقل یک مورد برای اشتراک‌گذاری انتخاب کنید."
-      }
-    },
     "appTermsContent": {
         "title": "شرایط و قوانین برنامه",
         "content": {

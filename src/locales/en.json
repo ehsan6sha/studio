@@ -144,33 +144,6 @@
         "pasteIncompleteDescription": "Pasted {count} digits. Please complete the 5-digit code."
       }
     },
-    "stepSharingPreferences": {
-      "title": "Sharing Preferences",
-      "description": "If you wish, you can share information with trusted contacts (optional).",
-      "sharingConnections": {
-        "shareWithLabel": "Share with:",
-        "addConnectionButton": "Add Contact to Share With",
-        "dialogTitle": "Share Information",
-        "contactLabel": "Contact (Email or Phone)",
-        "contactPlaceholder": "Enter email or phone number",
-        "permissionsLabel": "Select items to share:",
-        "permissionBasicInformation": "Basic information",
-        "permissionDailyQuizResults": "Daily quiz results",
-        "permissionBiometricReports": "Biometric reports",
-        "permissionTestResults": "Test results",
-        "permissionSyncedInformation": "Information synced from other systems",
-        "permissionOthersNotes": "Others' notes",
-        "dialogAddButton": "Add Connection",
-        "dialogCancelButton": "Cancel",
-        "removeConnectionButtonLabel": "Remove Connection",
-        "sharedWithTitle": "Currently Sharing With:",
-        "noConnectionsYet": "You haven't shared information with anyone yet.",
-        "permissionsSummaryPrefix": "Shares:",
-        "errorContactRequired": "Contact information is required.",
-        "errorInvalidContact": "Please enter a valid email or phone number.",
-        "errorNoPermissionsSelected": "Select at least one permission."
-      }
-    },
     "appTermsContent": {
         "title": "Application Terms & Conditions",
         "content": {

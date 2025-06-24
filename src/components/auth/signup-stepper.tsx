@@ -8,7 +8,6 @@ import { StepInformation } from './steps/step-information';
 import { StepTerms } from './steps/step-terms';
 import { StepUserInfo } from './steps/step-user-info';
 import { StepVerification } from './steps/step-verification';
-import { StepSharingPreferences } from './steps/step-sharing-preferences';
 import { Button } from '@/components/ui/button';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Progress } from "@/components/ui/progress";
@@ -16,20 +15,7 @@ import { useAuth } from '@/context/auth-context';
 import { useToast } from '@/hooks/use-toast';
 import confetti from 'canvas-confetti';
 
-const TOTAL_STEPS = 5;
-
-export interface YouthConnection {
-  id: string;
-  contact: string;
-  permissions: {
-    basicInformation: boolean;
-    dailyQuizResults: boolean;
-    biometricReports: boolean;
-    testResults: boolean;
-    syncedInformation: boolean;
-    othersNotes: boolean;
-  };
-}
+const TOTAL_STEPS = 4;
 
 export interface SignupFormData {
   acceptedMandatoryTerms?: boolean;
@@ -39,7 +25,6 @@ export interface SignupFormData {
   password?: string;
   name?: string;
   verificationCode?: string;
-  youthConnections?: YouthConnection[];
 }
 
 interface SignupStepperProps {
@@ -69,7 +54,6 @@ export function SignupStepper({
 
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState<SignupFormData>({
-    youthConnections: [],
     acceptedMandatoryTerms: false,
     acceptedOptionalCommunications: false,
     acceptedOptionalMarketing: false,
@@ -86,7 +70,6 @@ export function SignupStepper({
   useEffect(() => {
     const storedData = localStorage.getItem('signupFormData');
     let effectiveFormData: SignupFormData = {
-      youthConnections: [],
       acceptedMandatoryTerms: false,
       acceptedOptionalCommunications: false,
       acceptedOptionalMarketing: false,
@@ -101,7 +84,6 @@ export function SignupStepper({
       effectiveFormData = {
         ...effectiveFormData,
         ...parsedData,
-        youthConnections: parsedData.youthConnections || [],
       };
     }
     setFormData(effectiveFormData);
@@ -245,14 +227,6 @@ export function SignupStepper({
   } else if (currentStep === 4) {
     currentStepComponent = <StepVerification
       dictionary={dictionary.stepVerification}
-      formData={formData}
-      updateFormData={updateFormDataAndValidate}
-      onValidation={handleStepValidation}
-      lang={lang}
-    />;
-  } else if (currentStep === 5) {
-    currentStepComponent = <StepSharingPreferences
-      dictionary={dictionary.stepSharingPreferences}
       formData={formData}
       updateFormData={updateFormDataAndValidate}
       onValidation={handleStepValidation}
