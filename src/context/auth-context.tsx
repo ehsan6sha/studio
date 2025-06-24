@@ -4,7 +4,7 @@
 import type { Locale } from '@/i18n-config';
 import { useRouter } from 'next/navigation';
 import type { ReactNode} from 'react';
-import { createContext, useContext, useState, useCallback } from 'react';
+import { createContext, useContext, useState, useCallback, useEffect } from 'react';
 
 interface User {
   name?: string;
@@ -22,26 +22,63 @@ interface AuthContextState {
 
 const AuthContext = createContext<AuthContextState | undefined>(undefined);
 
+const AUTH_STORAGE_KEY = 'ravanhamrah-auth';
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const router = useRouter();
+  
+  // On mount, check for persisted auth state
+  useEffect(() => {
+    try {
+      const storedAuth = localStorage.getItem(AUTH_STORAGE_KEY);
+      if (storedAuth) {
+        const authData = JSON.parse(storedAuth);
+        if (authData.isAuthenticated && authData.user) {
+          setIsAuthenticated(true);
+          setUser(authData.user);
+        }
+      }
+    } catch (error) {
+        console.error("Failed to parse auth data from localStorage", error);
+        localStorage.removeItem(AUTH_STORAGE_KEY);
+    }
+  }, []);
+
+  const persistAuthState = (authStatus: boolean, userData: User | null) => {
+      try {
+        if (authStatus && userData) {
+            const authData = { isAuthenticated: authStatus, user: userData };
+            localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(authData));
+        } else {
+            localStorage.removeItem(AUTH_STORAGE_KEY);
+        }
+      } catch (error) {
+        console.error("Failed to save auth data to localStorage", error);
+      }
+  };
+
 
   const login = useCallback((userData: User, lang: Locale) => {
     setIsAuthenticated(true);
     setUser(userData);
+    persistAuthState(true, userData);
     router.push(`/${lang}/dashboard`);
   }, [router]);
 
   const signup = useCallback((userData: User, lang: Locale) => {
     setIsAuthenticated(true);
     setUser(userData);
+    persistAuthState(true, userData);
     router.push(`/${lang}/dashboard`);
   }, [router]);
   
   const loginWithGoogle = useCallback((lang: Locale) => {
+    const googleUser = { name: 'Google User', emailOrPhone: 'user@google.com' };
     setIsAuthenticated(true);
-    setUser({ name: 'Google User', emailOrPhone: 'user@google.com' });
+    setUser(googleUser);
+    persistAuthState(true, googleUser);
     router.push(`/${lang}/dashboard`);
   }, [router]);
 
@@ -49,6 +86,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logout = useCallback((lang: Locale) => {
     setIsAuthenticated(false);
     setUser(null);
+    persistAuthState(false, null);
     router.push(`/${lang}`);
   }, [router]);
 
