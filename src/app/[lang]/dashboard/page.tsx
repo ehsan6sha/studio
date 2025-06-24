@@ -15,6 +15,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetFo
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Textarea } from '@/components/ui/textarea';
+import Link from 'next/link';
 
 
 const moodData = [
@@ -66,6 +67,17 @@ export default function DashboardPage({ params: paramsAsProp }: { params: { lang
   const isRTL = lang === 'fa';
   const wasOpenRef = useRef(false);
   const [freeNote, setFreeNote] = useState('');
+  const [tasks, setTasks] = useState({
+    profile: false,
+    questionnaire: false,
+    share: false,
+  });
+
+  const handleTaskChange = (task: keyof typeof tasks, checked: boolean) => {
+    setTasks(prev => ({ ...prev, [task]: checked }));
+    // In a real app, this would be saved to a database.
+    console.log(`Task '${task}' status updated to: ${checked}`);
+  };
 
   const getNoteStorageKey = useCallback(() => {
     const today = new Date().toISOString().split('T')[0];
@@ -188,12 +200,49 @@ export default function DashboardPage({ params: paramsAsProp }: { params: { lang
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Tasks */}
           <Card className="lg:col-span-1">
-              <CardHeader>
-                  <CardTitle>{dictionary.tasksTitle}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                  <p className="text-muted-foreground">{dictionary.comingSoon}</p>
-              </CardContent>
+            <CardHeader>
+              <CardTitle>{dictionary.tasksTitle}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="flex items-center space-x-2 rtl:space-x-reverse">
+                  <Checkbox
+                    id="task-profile"
+                    checked={tasks.profile}
+                    onCheckedChange={(checked) => handleTaskChange('profile', !!checked)}
+                  />
+                  <Label htmlFor="task-profile" className="flex-grow font-normal cursor-pointer">
+                    <Link href={`/${lang}/profile`} className="hover:underline">
+                      {dictionary.tasks.completeProfile}
+                    </Link>
+                  </Label>
+                </div>
+                <div className="flex items-center space-x-2 rtl:space-x-reverse">
+                  <Checkbox
+                    id="task-questionnaire"
+                    checked={tasks.questionnaire}
+                    onCheckedChange={(checked) => handleTaskChange('questionnaire', !!checked)}
+                  />
+                  <Label htmlFor="task-questionnaire" className="flex-grow font-normal cursor-pointer">
+                    <Link href={`/${lang}/questionnaires`} className="hover:underline">
+                      {dictionary.tasks.answerQuestionnaire}
+                    </Link>
+                  </Label>
+                </div>
+                <div className="flex items-center space-x-2 rtl:space-x-reverse">
+                  <Checkbox
+                    id="task-share"
+                    checked={tasks.share}
+                    onCheckedChange={(checked) => handleTaskChange('share', !!checked)}
+                  />
+                  <Label htmlFor="task-share" className="flex-grow font-normal cursor-pointer">
+                    <Link href={`/${lang}/settings/connect`} className="hover:underline">
+                      {dictionary.tasks.shareInformation}
+                    </Link>
+                  </Label>
+                </div>
+              </div>
+            </CardContent>
           </Card>
 
            {/* Learn and Earn */}
@@ -325,5 +374,3 @@ export default function DashboardPage({ params: paramsAsProp }: { params: { lang
     </>
   );
 }
-
-    

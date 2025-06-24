@@ -18,6 +18,11 @@
     "welcome": "Hello there. Let's take a moment for you.",
     "quickReactionTitle": "Your overall mood now:",
     "tasksTitle": "Your Tasks",
+    "tasks": {
+      "completeProfile": "Complete your profile",
+      "answerQuestionnaire": "Answer a personality questionnaire",
+      "shareInformation": "Share your information with a trusted adult"
+    },
     "moodsTab": "Moods",
     "biometricsTab": "Biometrics",
     "testResultsTab": "Test Results",
@@ -298,7 +303,52 @@
     "title": "AI Companion",
     "inputPlaceholder": "Talk about your feelings...",
     "sendButtonLabel": "Send"
+  },
+  "profilePage": {
+    "title": "Your Profile",
+    "description": "Manage your personal information.",
+    "formTitle": "Edit Information",
+    "nameLabel": "Full Name",
+    "namePlaceholder": "Enter your full name",
+    "dobLabel": "Date of Birth",
+    "emailLabel": "Email / Phone (not editable)",
+    "saveButton": "Save Changes",
+    "saveSuccess": "Profile updated successfully."
+  },
+  "questionnairesPage": {
+    "title": "Professional Questionnaires",
+    "description": "Answer these questionnaires to get more accurate insights.",
+    "beckTitle": "Beck Depression Inventory",
+    "beckDescription": "A tool to measure the severity of depression.",
+    "gad7Title": "GAD-7 Anxiety Test",
+    "gad7Description": "A tool for screening and measuring the severity of generalized anxiety disorder.",
+    "startSurveyButton": "Start Survey"
+  },
+  "connectPage": {
+    "title": "Connect to Another Account",
+    "description": "Share your information with a parent, therapist, or school counselor.",
+    "sharingConnections": {
+        "shareWithLabel": "Share with",
+        "addConnectionButton": "Add New Connection",
+        "sharedWithTitle": "Currently shared with:",
+        "noConnectionsYet": "You haven't connected with anyone yet.",
+        "removeConnectionButtonLabel": "Remove connection",
+        "permissionsSummaryPrefix": "Permissions:",
+        "dialogTitle": "Add New Connection",
+        "contactLabel": "Their Email or Phone Number",
+        "contactPlaceholder": "Email or Phone",
+        "permissionsLabel": "Select Permissions:",
+        "permissionBasicInformation": "Basic Profile Information",
+        "permissionDailyQuizResults": "Daily Quiz Results",
+        "permissionBiometricReports": "Biometric Reports",
+        "permissionTestResults": "Test Results",
+        "permissionSyncedInformation": "Synced Information",
+        "permissionOthersNotes": "Others' Notes",
+        "dialogCancelButton": "Cancel",
+        "dialogAddButton": "Add",
+        "errorContactRequired": "Contact is required.",
+        "errorInvalidContact": "Invalid email or phone format.",
+        "errorNoPermissionsSelected": "Select at least one permission."
+    }
   }
 }
-
-    

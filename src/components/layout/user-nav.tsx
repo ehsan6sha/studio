@@ -76,7 +76,7 @@ export function UserNav({ lang, dictionary }: UserNavProps) {
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
           <DropdownMenuItem asChild>
-             <Link href={`/${lang}/settings`}> 
+             <Link href={`/${lang}/profile`}> 
                 <User className="ltr:mr-2 rtl:ml-2 h-4 w-4" />
                 <span>{profileLabel}</span>
              </Link>

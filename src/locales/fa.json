@@ -18,6 +18,11 @@
     "welcome": "سلام. بیا یک لحظه برای خودت وقت بگذاریم.",
     "quickReactionTitle": "وضعیت کلی روحی شما در حال حاضر:",
     "tasksTitle": "کارهای شما",
+    "tasks": {
+      "completeProfile": "پروفایل خود را کامل کنید",
+      "answerQuestionnaire": "به پرسشنامه شخصیت پاسخ دهید",
+      "shareInformation": "اطلاعات خود را با یک بزرگسال معتمد به اشتراک بگذارید"
+    },
     "moodsTab": "روند خلق‌وخو",
     "biometricsTab": "بیومتریک",
     "testResultsTab": "نتایج تست",
@@ -295,11 +300,56 @@
       "content1": "اگر در مورد این شرایط سؤالی دارید، لطفاً با ما تماس بگیرید: support@hami.example.com"
     }
   },
-   "chatCompanion": {
+  "chatCompanion": {
     "title": "همراه هوش مصنوعی",
     "inputPlaceholder": "درباره احساساتت صحبت کن...",
     "sendButtonLabel": "ارسال"
+  },
+  "profilePage": {
+    "title": "پروفایل شما",
+    "description": "اطلاعات شخصی خود را مدیریت کنید.",
+    "formTitle": "ویرایش اطلاعات",
+    "nameLabel": "نام کامل",
+    "namePlaceholder": "نام کامل خود را وارد کنید",
+    "dobLabel": "تاریخ تولد",
+    "emailLabel": "ایمیل / شماره تلفن (غیرقابل ویرایش)",
+    "saveButton": "ذخیره تغییرات",
+    "saveSuccess": "پروفایل با موفقیت به‌روز شد."
+  },
+  "questionnairesPage": {
+    "title": "پرسشنامه‌های تخصصی",
+    "description": "به این پرسشنامه‌ها پاسخ دهید تا بینش‌های دقیق‌تری دریافت کنید.",
+    "beckTitle": "پرسشنامه افسردگی بک",
+    "beckDescription": "ابزاری برای سنجش شدت افسردگی.",
+    "gad7Title": "تست اضطراب GAD-7",
+    "gad7Description": "ابزاری برای غربالگری و سنجش شدت اختلال اضطراب فراگیر.",
+    "startSurveyButton": "شروع پرسشنامه"
+  },
+  "connectPage": {
+    "title": "اتصال به حساب دیگر",
+    "description": "اطلاعات خود را با والدین، درمانگر یا مشاور مدرسه به اشتراک بگذارید.",
+    "sharingConnections": {
+        "shareWithLabel": "اشتراک‌گذاری با",
+        "addConnectionButton": "افزودن اتصال جدید",
+        "sharedWithTitle": "در حال حاضر با این افراد به اشتراک گذاشته شده:",
+        "noConnectionsYet": "هنوز با کسی ارتباط برقرار نکرده‌اید.",
+        "removeConnectionButtonLabel": "حذف اتصال",
+        "permissionsSummaryPrefix": "دسترسی‌ها:",
+        "dialogTitle": "افزودن اتصال جدید",
+        "contactLabel": "ایمیل یا شماره تلفن فرد مورد نظر",
+        "contactPlaceholder": "ایمیل یا شماره تلفن",
+        "permissionsLabel": "انتخاب دسترسی‌ها:",
+        "permissionBasicInformation": "اطلاعات پایه پروفایل",
+        "permissionDailyQuizResults": "نتایج کوئیز روزانه",
+        "permissionBiometricReports": "گزارش‌های بیومتریک",
+        "permissionTestResults": "نتایج تست‌ها",
+        "permissionSyncedInformation": "اطلاعات همگام‌سازی شده",
+        "permissionOthersNotes": "یادداشت‌های دیگران",
+        "dialogCancelButton": "انصراف",
+        "dialogAddButton": "افزودن",
+        "errorContactRequired": "ایمیل یا شماره تلفن الزامی است.",
+        "errorInvalidContact": "فرمت ایمیل یا شماره تلفن نامعتبر است.",
+        "errorNoPermissionsSelected": "حداقل یک دسترسی باید انتخاب شود."
+    }
   }
 }
-
-    
