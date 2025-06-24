@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { getDictionary } from "@/lib/dictionaries";
@@ -63,6 +63,7 @@ export default function DashboardPage({ params: paramsAsProp }: { params: { lang
   const [selectedSubMoods, setSelectedSubMoods] = useState<string[]>([]);
   const { toast } = useToast();
   const isRTL = lang === 'fa';
+  const wasOpenRef = useRef(false);
 
   useEffect(() => {
     async function loadDictionary() {
@@ -74,6 +75,20 @@ export default function DashboardPage({ params: paramsAsProp }: { params: { lang
     loadDictionary();
   }, [lang]);
 
+  useEffect(() => {
+    if (wasOpenRef.current && !isSubMoodSheetOpen) {
+      if (selectedSubMoods.length > 0) {
+        console.log('Saving moods on close. Primary:', selectedPrimaryMood, 'Sub-moods:', selectedSubMoods);
+        toast({
+            title: dictionary.subMoodSheet.saveSuccessTitle,
+            description: dictionary.subMoodSheet.saveSuccessDescription.replace('{count}', selectedSubMoods.length.toString()),
+        });
+      }
+    }
+    wasOpenRef.current = isSubMoodSheetOpen;
+  }, [isSubMoodSheetOpen, selectedSubMoods, selectedPrimaryMood, dictionary, toast]);
+
+
   const handleMoodClick = (mood: string) => {
     setSelectedPrimaryMood(mood);
     setSelectedSubMoods([]); // Reset on new primary mood selection
@@ -84,15 +99,6 @@ export default function DashboardPage({ params: paramsAsProp }: { params: { lang
     setSelectedSubMoods(prev =>
       checked ? [...prev, moodId] : prev.filter(id => id !== moodId)
     );
-  };
-  
-  const handleSubMoodSave = () => {
-    console.log('Primary mood:', selectedPrimaryMood, 'Sub-moods:', selectedSubMoods);
-     toast({
-        title: dictionary.subMoodSheet.saveSuccessTitle,
-        description: dictionary.subMoodSheet.saveSuccessDescription.replace('{count}', selectedSubMoods.length.toString()),
-    });
-    setIsSubMoodSheetOpen(false);
   };
 
   const emojiMoods = [
@@ -262,7 +268,7 @@ export default function DashboardPage({ params: paramsAsProp }: { params: { lang
                   <SheetClose asChild>
                       <Button variant="outline">{dictionary.subMoodSheet.skipButton}</Button>
                   </SheetClose>
-                  <Button onClick={handleSubMoodSave}>{dictionary.subMoodSheet.saveButton}</Button>
+                  <Button onClick={() => setIsSubMoodSheetOpen(false)}>{dictionary.subMoodSheet.saveButton}</Button>
               </SheetFooter>
           </SheetContent>
       </Sheet>
