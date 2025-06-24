@@ -1,8 +1,9 @@
+
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter } from "@/components/ui/sheet";
 import { HeartHandshake, Send, Bot, User } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -74,13 +75,13 @@ export function ChatCompanion({ dictionary }: ChatCompanionProps) {
                 <HeartHandshake className="h-7 w-7 text-primary-foreground" />
             </Button>
 
-            <Dialog open={isOpen} onOpenChange={setIsOpen}>
-                <DialogContent className="sm:max-w-[425px] h-[70vh] flex flex-col p-0">
-                    <DialogHeader className="p-4 border-b">
-                        <DialogTitle className="flex items-center gap-2">
+            <Sheet open={isOpen} onOpenChange={setIsOpen}>
+                <SheetContent side="bottom" className="h-[70vh] flex flex-col p-0 rounded-t-lg sm:max-w-lg mx-auto">
+                    <SheetHeader className="p-4 border-b text-left">
+                        <SheetTitle className="flex items-center gap-2">
                            <Bot /> {dictionary.title}
-                        </DialogTitle>
-                    </DialogHeader>
+                        </SheetTitle>
+                    </SheetHeader>
                     <ScrollArea className="flex-1 p-4">
                         <div className="space-y-4">
                             {messages.map((message, index) => (
@@ -113,7 +114,7 @@ export function ChatCompanion({ dictionary }: ChatCompanionProps) {
                             <div ref={messagesEndRef} />
                         </div>
                     </ScrollArea>
-                    <DialogFooter className="p-4 border-t">
+                    <SheetFooter className="p-4 border-t">
                         <form onSubmit={handleSendMessage} className="flex w-full items-center space-x-2 rtl:space-x-reverse">
                             <Input
                                 value={inputValue}
@@ -127,9 +128,9 @@ export function ChatCompanion({ dictionary }: ChatCompanionProps) {
                                 <span className="sr-only">{dictionary.sendButtonLabel}</span>
                             </Button>
                         </form>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
+                    </SheetFooter>
+                </SheetContent>
+            </Sheet>
         </>
     );
 }
