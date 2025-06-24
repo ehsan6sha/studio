@@ -59,7 +59,9 @@
     "noAccount": "Don't have an account?",
     "signupLink": "Sign up",
     "loginSuccessTitle": "Login Successful!",
-    "loginSuccessDescription": "Redirecting to dashboard..."
+    "loginSuccessDescription": "Redirecting to dashboard...",
+    "googleButton": "Continue with Google",
+    "orSeparator": "OR"
   },
   "signupPage": {
     "title": "Create Your Account",
@@ -71,7 +73,9 @@
     "hasAccount": "Already have an account?",
     "loginLink": "Log in",
     "signupSuccessTitle": "Signup Successful",
-    "signupSuccessDescription": "Your account has been created. Redirecting to login..."
+    "signupSuccessDescription": "Your account has been created. Redirecting to login...",
+    "googleButton": "Continue with Google",
+    "orSeparator": "OR"
   },
   "signupStepper": {
     "loading": "Loading registration...",
@@ -107,9 +111,6 @@
       "namePlaceholder": "Enter your full name",
       "emailOrPhoneLabel": "Email or Phone Number",
       "emailOrPhonePlaceholder": "e.g., user@example.com or +1234567890",
-      "dobLabel": "Date of Birth",
-      "dobPlaceholderGregorian": "YYYY/MM/DD (e.g. 1990/01/15)",
-      "dobPlaceholderShamsi": "YYYY/MM/DD (e.g. 1368/10/25) - Shamsi date",
       "passwordLabel": "Password",
       "confirmPasswordLabel": "Confirm Password",
       "showPasswordAriaLabel": "Show password",
@@ -118,9 +119,6 @@
         "nameRequired": "Full name is required.",
         "emailOrPhoneRequired": "Email or phone number is required.",
         "invalidEmailOrPhone": "Please enter a valid email or phone number.",
-        "dobRequired": "Date of birth is required.",
-        "dobInvalid": "Invalid date format. Please use YYYY/MM/DD.",
-        "dobInFuture": "Date of birth cannot be in the future.",
         "passwordMinLength": "Password must be at least 6 characters.",
         "confirmPasswordMinLength": "Confirm password must be at least 6 characters.",
         "passwordsDontMatch": "Passwords do not match."
@@ -144,28 +142,6 @@
         "pasteErrorFailed": "Could not read from clipboard. Please type the code manually.",
         "pasteIncompleteTitle": "Incomplete Code",
         "pasteIncompleteDescription": "Pasted {count} digits. Please complete the 5-digit code."
-      }
-    },
-    "stepRoleSelection": {
-      "title": "Your Role",
-      "descriptionAdult": "Please select any roles that apply to you (optional). You can set sharing preferences in the next step.",
-      "loadingRoleInfo": "Determining your pathway...",
-      "selectRolesLabel": "Select your role(s):",
-      "roles": {
-        "parent": "Parent / Caregiver",
-        "therapist": "Therapist",
-        "schoolConsultant": "School Consultant",
-        "supervisor": "Supervisor",
-        "youth": "Youth"
-      },
-      "clinicCodeLabel": "Clinic Code (for Therapists - Optional)",
-      "clinicCodePlaceholder": "Enter your clinic code (optional)",
-      "schoolCodeLabel": "School Code (for School Consultants)",
-      "schoolCodePlaceholder": "Enter your school's code",
-      "errors": {
-        "roleRequired": "Please select a role.",
-        "schoolCodeRequired": "School code is required if 'School Consultant' role is selected.",
-        "invalidEmail": "Please enter a valid email address."
       }
     },
     "stepSharingPreferences": {
@@ -310,5 +286,3 @@
     }
   }
 }
-
-    

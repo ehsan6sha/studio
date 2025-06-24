@@ -59,7 +59,9 @@
     "noAccount": "حساب کاربری ندارید؟",
     "signupLink": "ثبت نام کنید",
     "loginSuccessTitle": "ورود موفقیت آمیز بود!",
-    "loginSuccessDescription": "در حال انتقال به داشبورد..."
+    "loginSuccessDescription": "در حال انتقال به داشبورد...",
+    "googleButton": "ادامه با گوگل",
+    "orSeparator": "یا"
   },
   "signupPage": {
     "title": "ایجاد حساب کاربری",
@@ -71,7 +73,9 @@
     "hasAccount": "قبلا ثبت نام کرده‌اید؟",
     "loginLink": "وارد شوید",
     "signupSuccessTitle": "ثبت نام موفق",
-    "signupSuccessDescription": "حساب شما با موفقیت ایجاد شد. در حال انتقال به صفحه ورود..."
+    "signupSuccessDescription": "حساب شما با موفقیت ایجاد شد. در حال انتقال به صفحه ورود...",
+    "googleButton": "ادامه با گوگل",
+    "orSeparator": "یا"
   },
   "signupStepper": {
     "loading": "در حال بارگذاری مراحل ثبت نام...",
@@ -107,9 +111,6 @@
       "namePlaceholder": "نام کامل خود را وارد کنید",
       "emailOrPhoneLabel": "ایمیل یا شماره تلفن",
       "emailOrPhonePlaceholder": "مثال: user@example.com یا 09123456789",
-      "dobLabel": "تاریخ تولد",
-      "dobPlaceholderShamsi": "مثال: ۱۳۷۰/۰۱/۱۵ (تاریخ شمسی)",
-      "dobPlaceholderGregorian": "YYYY/MM/DD (e.g. 1990/01/15)",
       "passwordLabel": "رمز عبور",
       "confirmPasswordLabel": "تکرار رمز عبور",
       "showPasswordAriaLabel": "نمایش رمز عبور",
@@ -118,9 +119,6 @@
         "nameRequired": "نام کامل الزامی است.",
         "emailOrPhoneRequired": "ایمیل یا شماره تلفن الزامی است.",
         "invalidEmailOrPhone": "لطفا ایمیل یا شماره تلفن معتبر وارد کنید.",
-        "dobRequired": "تاریخ تولد الزامی است.",
-        "dobInvalid": "فرمت تاریخ نامعتبر است. لطفاً از فرمت YYYY/MM/DD استفاده کنید.",
-        "dobInFuture": "تاریخ تولد نمی‌تواند در آینده باشد.",
         "passwordMinLength": "رمز عبور باید حداقل ۶ کاراکتر باشد.",
         "confirmPasswordMinLength": "تکرار رمز عبور باید حداقل ۶ کاراکتر باشد.",
         "passwordsDontMatch": "رمزهای عبور یکسان نیستند."
@@ -144,28 +142,6 @@
         "pasteErrorFailed": "خواندن از کلیپ‌بورد ناموفق بود. لطفاً کد را دستی وارد کنید.",
         "pasteIncompleteTitle": "کد ناقص",
         "pasteIncompleteDescription": "{count} رقم چسبانده شد. لطفا کد ۵ رقمی را کامل کنید."
-      }
-    },
-    "stepRoleSelection": {
-      "title": "نقش شما",
-      "descriptionAdult": "لطفاً نقش(هایی) که به شما مربوط می‌شود را انتخاب کنید (اختیاری). در مرحله بعد می‌توانید تنظیمات اشتراک‌گذاری را مشخص نمایید.",
-      "loadingRoleInfo": "درحال تعیین مسیر شما...",
-      "selectRolesLabel": "نقش(های) خود را انتخاب کنید:",
-      "roles": {
-        "parent": "والدین / مراقبین",
-        "therapist": "تراپیست",
-        "schoolConsultant": "مشاور مدرسه",
-        "supervisor": "سوپروایزر",
-        "youth": "نوجوان"
-      },
-      "clinicCodeLabel": "کد کلینیک (برای تراپیست‌ها - اختیاری)",
-      "clinicCodePlaceholder": "کد کلینیک خود را وارد کنید (اختیاری)",
-      "schoolCodeLabel": "کد مدرسه (برای مشاورین مدرسه)",
-      "schoolCodePlaceholder": "کد مدرسه خود را وارد کنید",
-      "errors": {
-        "roleRequired": "لطفاً یک نقش انتخاب کنید.",
-        "schoolCodeRequired": "کد مدرسه برای نقش 'مشاور مدرسه' الزامی است.",
-        "invalidEmail": "لطفاً یک آدرس ایمیل معتبر وارد کنید."
       }
     },
     "stepSharingPreferences": {
@@ -310,5 +286,3 @@
     }
   }
 }
-
-    

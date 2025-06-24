@@ -8,24 +8,16 @@ import { StepInformation } from './steps/step-information';
 import { StepTerms } from './steps/step-terms';
 import { StepUserInfo } from './steps/step-user-info';
 import { StepVerification } from './steps/step-verification';
-import { StepRoleSelection } from './steps/step-role-selection';
 import { StepSharingPreferences } from './steps/step-sharing-preferences';
 import { Button } from '@/components/ui/button';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Progress } from "@/components/ui/progress";
 import { useAuth } from '@/context/auth-context';
 import { useToast } from '@/hooks/use-toast';
-import { parse as parseGregorianOriginal } from 'date-fns';
 import confetti from 'canvas-confetti';
 
-const BASE_TOTAL_STEPS_YOUTH = 5;
-const BASE_TOTAL_STEPS_ADULT = 6;
+const TOTAL_STEPS = 5;
 
-export interface YouthConnectionPermission {
-  id: string;
-  label: string;
-  value: boolean;
-}
 export interface YouthConnection {
   id: string;
   contact: string;
@@ -46,17 +38,7 @@ export interface SignupFormData {
   emailOrPhone?: string;
   password?: string;
   name?: string;
-  dob?: string; // Stored as 'yyyy-MM-dd'
   verificationCode?: string;
-  isYouth?: boolean | null;
-  adultRolesSelected?: {
-    parent?: boolean;
-    therapist?: boolean;
-    school_consultant?: boolean;
-    supervisor?: boolean;
-  };
-  clinicCode?: string;
-  schoolCode?: string;
   youthConnections?: YouthConnection[];
 }
 
@@ -87,8 +69,6 @@ export function SignupStepper({
 
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState<SignupFormData>({
-    isYouth: null,
-    adultRolesSelected: {},
     youthConnections: [],
     acceptedMandatoryTerms: false,
     acceptedOptionalCommunications: false,
@@ -96,46 +76,16 @@ export function SignupStepper({
     emailOrPhone: '',
     password: '',
     name: '',
-    dob: undefined,
     verificationCode: '',
-    clinicCode: '',
-    schoolCode: '',
   });
   const [isLoaded, setIsLoaded] = useState(false);
   const [direction, setDirection] = useState(1);
   const [isStepValid, setIsStepValid] = useState(false);
   const finishButtonRef = useRef<HTMLButtonElement>(null);
 
-  const calculateAge = useCallback((dobString?: string): number | null => {
-    if (!dobString) return null;
-    try {
-      const birthDate = parseGregorianOriginal(dobString, 'yyyy-MM-dd', new Date());
-      if (isNaN(birthDate.getTime())) return null;
-
-      const today = new Date();
-      let age = today.getFullYear() - birthDate.getFullYear();
-      const m = today.getMonth() - birthDate.getMonth();
-      if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
-        age--;
-      }
-      return age;
-    } catch (e) {
-      return null;
-    }
-  }, []);
-
-  const getCurrentTotalSteps = useCallback(() => {
-    if (formData.isYouth === true) return BASE_TOTAL_STEPS_YOUTH;
-    if (formData.isYouth === false) return BASE_TOTAL_STEPS_ADULT;
-    return BASE_TOTAL_STEPS_ADULT;
-  }, [formData.isYouth]);
-
-
   useEffect(() => {
     const storedData = localStorage.getItem('signupFormData');
     let effectiveFormData: SignupFormData = {
-      isYouth: null,
-      adultRolesSelected: {},
       youthConnections: [],
       acceptedMandatoryTerms: false,
       acceptedOptionalCommunications: false,
@@ -143,10 +93,7 @@ export function SignupStepper({
       emailOrPhone: '',
       password: '',
       name: '',
-      dob: undefined,
       verificationCode: '',
-      clinicCode: '',
-      schoolCode: '',
     };
 
     if (storedData) {
@@ -154,7 +101,6 @@ export function SignupStepper({
       effectiveFormData = {
         ...effectiveFormData,
         ...parsedData,
-        adultRolesSelected: parsedData.adultRolesSelected || {},
         youthConnections: parsedData.youthConnections || [],
       };
     }
@@ -162,13 +108,7 @@ export function SignupStepper({
 
     const stepFromQuery = searchParams.get('step');
     const validatedInitialStep = stepFromQuery ? parseInt(stepFromQuery, 10) : initialStep;
-
-    let currentTotalStepsCalc;
-    if (effectiveFormData.isYouth === true) currentTotalStepsCalc = BASE_TOTAL_STEPS_YOUTH;
-    else if (effectiveFormData.isYouth === false) currentTotalStepsCalc = BASE_TOTAL_STEPS_ADULT;
-    else currentTotalStepsCalc = BASE_TOTAL_STEPS_ADULT; // Default if isYouth is undetermined
-
-    const saneInitialStep = Math.max(1, Math.min(validatedInitialStep, currentTotalStepsCalc));
+    const saneInitialStep = Math.max(1, Math.min(validatedInitialStep, TOTAL_STEPS));
 
     setCurrentStep(saneInitialStep);
     setIsLoaded(true);
@@ -193,7 +133,6 @@ export function SignupStepper({
 
   useEffect(() => {
     if (!isLoaded) return;
-
     if (currentStep === 1) {
       setIsStepValid(true);
     }
@@ -208,48 +147,38 @@ export function SignupStepper({
       return;
     }
 
-    let nextStepNumber = currentStep + 1;
-    let newFormData = { ...formData };
-    const age = calculateAge(formData.dob);
-
-    if (currentStep === 4) {
-      const isUserYouth = age !== null && age < 18;
-      newFormData = { ...newFormData, isYouth: isUserYouth };
-      setFormData(newFormData);
-    }
-
     setDirection(1);
-    const actualTotalSteps = getCurrentTotalSteps();
-
-    if (currentStep < actualTotalSteps) {
+    
+    if (currentStep < TOTAL_STEPS) {
+      const nextStepNumber = currentStep + 1;
       setCurrentStep(nextStepNumber);
       updateUrl(nextStepNumber);
       setIsStepValid(false);
     } else {
-      console.log('Finalizing registration:', newFormData);
+      console.log('Finalizing registration:', formData);
 
       if (finishButtonRef.current) {
         const rect = finishButtonRef.current.getBoundingClientRect();
         const originX = (rect.left + rect.width / 2) / window.innerWidth;
-        const originY = rect.top / window.innerHeight; // Originates slightly above the button's top
+        const originY = rect.top / window.innerHeight;
 
         confetti({
           particleCount: 150,
-          spread: 70, // A bit narrower spread for upward motion
+          spread: 70,
           origin: { x: originX, y: originY },
-          angle: 90, // Main direction straight up
-          startVelocity: 55, // Increase velocity for more upward thrust
-          gravity: 1, // Standard gravity to bring them down
-          drift: 0, // Minimal horizontal drift initially
-          ticks: 400, // Longer duration
+          angle: 90,
+          startVelocity: 55,
+          gravity: 1,
+          drift: 0,
+          ticks: 400,
         });
       }
 
       toast({ title: dictionary.registrationCompleteTitle, description: dictionary.registrationCompleteMessage });
       localStorage.removeItem('signupFormData');
-      auth.signup({ name: newFormData.name, emailOrPhone: newFormData.emailOrPhone }, lang);
+      auth.signup({ name: formData.name, emailOrPhone: formData.emailOrPhone }, lang);
     }
-  }, [currentStep, formData, dictionary, lang, isStepValid, toast, auth, updateUrl, calculateAge, getCurrentTotalSteps]);
+  }, [currentStep, formData, dictionary, lang, isStepValid, toast, auth, updateUrl]);
 
   const handlePrevious = () => {
     setDirection(-1);
@@ -265,9 +194,7 @@ export function SignupStepper({
     setFormData((prev) => ({ ...prev, ...data }));
   }, []);
 
-
-  const actualTotalSteps = getCurrentTotalSteps();
-  const progressValue = (currentStep / actualTotalSteps) * 100;
+  const progressValue = (currentStep / TOTAL_STEPS) * 100;
 
   const variants = {
     enter: (direction: number) => ({
@@ -286,7 +213,7 @@ export function SignupStepper({
     }),
   };
 
-  if (!isLoaded || (formData.isYouth === null && currentStep > 4 && currentStep <= actualTotalSteps)) {
+  if (!isLoaded) {
     return <div className="flex-grow flex items-center justify-center">{dictionary.loading || "Loading..."}</div>;
   }
 
@@ -324,35 +251,13 @@ export function SignupStepper({
       lang={lang}
     />;
   } else if (currentStep === 5) {
-    if (formData.isYouth === true) {
-      currentStepComponent = <StepSharingPreferences
-        dictionary={dictionary.stepSharingPreferences}
-        formData={formData}
-        updateFormData={updateFormDataAndValidate}
-        onValidation={handleStepValidation}
-        lang={lang}
-      />;
-    } else if (formData.isYouth === false) {
-      currentStepComponent = <StepRoleSelection
-        dictionary={dictionary.stepRoleSelection}
-        formData={formData}
-        updateFormData={updateFormDataAndValidate}
-        onValidation={handleStepValidation}
-        lang={lang}
-      />;
-    } else {
-      currentStepComponent = <div className="flex-grow flex items-center justify-center">{dictionary.loadingRoleInfo || "Determining your pathway..."}</div>;
-    }
-  } else if (currentStep === 6) {
-    if (formData.isYouth === false) {
-      currentStepComponent = <StepSharingPreferences
-        dictionary={dictionary.stepSharingPreferences}
-        formData={formData}
-        updateFormData={updateFormDataAndValidate}
-        onValidation={handleStepValidation}
-        lang={lang}
-      />;
-    }
+    currentStepComponent = <StepSharingPreferences
+      dictionary={dictionary.stepSharingPreferences}
+      formData={formData}
+      updateFormData={updateFormDataAndValidate}
+      onValidation={handleStepValidation}
+      lang={lang}
+    />;
   }
 
 
@@ -363,7 +268,7 @@ export function SignupStepper({
       <div className="flex-grow overflow-hidden flex flex-col">
         <AnimatePresence initial={false} custom={direction} mode="wait">
           <motion.div
-            key={`${currentStep}-${formData.isYouth}`}
+            key={currentStep}
             custom={direction}
             variants={variants}
             initial="enter"
@@ -385,17 +290,16 @@ export function SignupStepper({
           {dictionary.previousButton || 'Previous'}
         </Button>
         <div className="text-sm text-muted-foreground">
-          {lang === 'fa' ? `مرحله ${currentStep} از ${actualTotalSteps}` : `Step ${currentStep} of ${actualTotalSteps}`}
+          {lang === 'fa' ? `مرحله ${currentStep} از ${TOTAL_STEPS}` : `Step ${currentStep} of ${TOTAL_STEPS}`}
         </div>
         <Button
           onClick={handleNext}
           disabled={isNextButtonDisabled}
-          ref={currentStep === actualTotalSteps ? finishButtonRef : null}
+          ref={currentStep === TOTAL_STEPS ? finishButtonRef : null}
         >
-          {currentStep === actualTotalSteps ? (dictionary.finishButton || 'Finish') : (dictionary.nextButton || 'Save & Next')}
+          {currentStep === TOTAL_STEPS ? (dictionary.finishButton || 'Finish') : (dictionary.nextButton || 'Save & Next')}
         </Button>
       </div>
     </div>
   );
 }
-

@@ -17,6 +17,7 @@ interface AuthContextState {
   login: (userData: User, lang: Locale) => void;
   signup: (userData: User, lang: Locale) => void;
   logout: (lang: Locale) => void;
+  loginWithGoogle: (lang: Locale) => void;
 }
 
 const AuthContext = createContext<AuthContextState | undefined>(undefined);
@@ -37,6 +38,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(userData);
     router.push(`/${lang}/dashboard`);
   }, [router]);
+  
+  const loginWithGoogle = useCallback((lang: Locale) => {
+    setIsAuthenticated(true);
+    setUser({ name: 'Google User', emailOrPhone: 'user@google.com' });
+    router.push(`/${lang}/dashboard`);
+  }, [router]);
+
 
   const logout = useCallback((lang: Locale) => {
     setIsAuthenticated(false);
@@ -45,7 +53,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [router]);
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, user, login, signup, logout }}>
+    <AuthContext.Provider value={{ isAuthenticated, user, login, signup, logout, loginWithGoogle }}>
       {children}
     </AuthContext.Provider>
   );
