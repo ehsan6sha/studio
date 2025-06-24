@@ -25,6 +25,10 @@
     "comingSoon": "به زودی...",
     "moodChartTitle": "نمودار روند خلق‌وخو",
     "biometricChartTitle": "نمودار داده‌های بیومتریک",
+    "freeNotesTitle": "یادداشت آزاد",
+    "newNoteLabel": "یادداشت جدید",
+    "freeNotesPlaceholder": "افکار خود را اینجا بنویسید... به طور خودکار ذخیره می‌شوند.",
+    "autoSaveHint": "یادداشت‌های شما به طور خودکار ذخیره می‌شوند.",
     "moodEmojis": {
       "great": "عالی",
       "good": "خوب",
@@ -292,3 +296,5 @@
     }
   }
 }
+
+    

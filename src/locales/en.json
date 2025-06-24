@@ -25,6 +25,10 @@
     "comingSoon": "Coming soon...",
     "moodChartTitle": "Mood Trends",
     "biometricChartTitle": "Biometric Data",
+    "freeNotesTitle": "Free Notes",
+    "newNoteLabel": "New Note",
+    "freeNotesPlaceholder": "Jot down your thoughts here... they save automatically.",
+    "autoSaveHint": "Your notes are saved automatically.",
     "moodEmojis": {
       "great": "Great",
       "good": "Good",
@@ -291,3 +295,5 @@
     }
   }
 }
+
+    

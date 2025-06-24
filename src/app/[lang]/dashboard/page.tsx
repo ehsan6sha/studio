@@ -1,12 +1,12 @@
 
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { getDictionary } from "@/lib/dictionaries";
 import type { Locale } from "@/i18n-config";
-import { Laugh, Smile, Meh, Frown, Angry } from "lucide-react";
+import { Laugh, Smile, Meh, Frown, Angry, FilePlus2 } from "lucide-react";
 import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLegendContent } from "@/components/ui/chart";
 import { Bar, BarChart, LineChart, CartesianGrid, XAxis, YAxis, Line, ResponsiveContainer } from "recharts";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -14,6 +14,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetFooter, SheetClose } from "@/components/ui/sheet";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
+import { Textarea } from '@/components/ui/textarea';
 
 
 const moodData = [
@@ -64,6 +65,36 @@ export default function DashboardPage({ params: paramsAsProp }: { params: { lang
   const { toast } = useToast();
   const isRTL = lang === 'fa';
   const wasOpenRef = useRef(false);
+  const [freeNote, setFreeNote] = useState('');
+
+  const getNoteStorageKey = useCallback(() => {
+    const today = new Date().toISOString().split('T')[0];
+    return `ravanhamrah-freeNote-${today}`;
+  }, []);
+
+  useEffect(() => {
+    const storageKey = getNoteStorageKey();
+    const savedNote = localStorage.getItem(storageKey);
+    if (savedNote) {
+      setFreeNote(savedNote);
+    }
+  }, [getNoteStorageKey]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      localStorage.setItem(getNoteStorageKey(), freeNote);
+    }, 1000); // 1-second debounce
+
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [freeNote, getNoteStorageKey]);
+  
+  const handleNewNote = () => {
+    setFreeNote('');
+    localStorage.removeItem(getNoteStorageKey());
+  };
+
 
   useEffect(() => {
     async function loadDictionary() {
@@ -241,6 +272,25 @@ export default function DashboardPage({ params: paramsAsProp }: { params: { lang
               </Card>
             </TabsContent>
           </Tabs>
+
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between">
+              <CardTitle>{dictionary.freeNotesTitle}</CardTitle>
+              <Button variant="ghost" size="icon" onClick={handleNewNote} aria-label={dictionary.newNoteLabel}>
+                <FilePlus2 className="h-5 w-5" />
+              </Button>
+            </CardHeader>
+            <CardContent className="p-0">
+              <Textarea
+                placeholder={dictionary.freeNotesPlaceholder}
+                value={freeNote}
+                onChange={(e) => setFreeNote(e.target.value)}
+                className="min-h-[150px] w-full resize-none border-0 rounded-none focus-visible:ring-0"
+                aria-label={dictionary.freeNotesTitle}
+              />
+              <p className="text-xs text-muted-foreground text-center p-2 border-t">{dictionary.autoSaveHint}</p>
+            </CardContent>
+          </Card>
       </div>
       <Sheet open={isSubMoodSheetOpen} onOpenChange={setIsSubMoodSheetOpen}>
           <SheetContent side="bottom" className="rounded-t-lg max-h-[90vh] flex flex-col">
@@ -275,3 +325,5 @@ export default function DashboardPage({ params: paramsAsProp }: { params: { lang
     </>
   );
 }
+
+    
