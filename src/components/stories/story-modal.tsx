@@ -1,11 +1,10 @@
-
 'use client';
 import { useState, useEffect, useCallback } from 'react';
 import { X, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
-import { AnimatePresence, motion, useDragControls } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import { StoryProgress } from './story-progress';
 import type { Story, StoryContent } from './story-viewer';
 import Image from 'next/image';
@@ -25,7 +24,6 @@ export function StoryModal({ stories, initialStoryIndex, onClose, lang, title }:
   const [currentStoryIndex, setCurrentStoryIndex] = useState(initialStoryIndex);
   const [currentPageIndex, setCurrentPageIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
-  const dragControls = useDragControls();
 
   const currentStory = stories[currentStoryIndex];
 
@@ -34,35 +32,22 @@ export function StoryModal({ stories, initialStoryIndex, onClose, lang, title }:
     if (!story) return;
 
     if (currentPageIndex < story.content.length - 1) {
-      // We're not on the last page, so just advance the page
       setCurrentPageIndex(prev => prev + 1);
+    } else if (currentStoryIndex < stories.length - 1) {
+      setCurrentStoryIndex(prev => prev + 1);
+      setCurrentPageIndex(0);
     } else {
-      // We are on the last page of the current story
-      if (currentStoryIndex < stories.length - 1) {
-        // There's a next story, so go to it
-        setCurrentStoryIndex(prev => prev + 1);
-        setCurrentPageIndex(0);
-      } else {
-        // It's the last page of the last story, so close the modal
-        onClose();
-      }
+      onClose();
     }
   }, [currentPageIndex, currentStoryIndex, stories, onClose]);
 
-
   const goToPreviousPage = useCallback(() => {
      if (currentPageIndex > 0) {
-      // We're not on the first page, so just go back one page
       setCurrentPageIndex(prev => prev - 1);
-    } else {
-      // We are on the first page of the current story
-      if (currentStoryIndex > 0) {
-        // There's a previous story, so go to it
-        const prevStory = stories[currentStoryIndex - 1];
-        setCurrentStoryIndex(prev => prev - 1);
-        setCurrentPageIndex(prevStory.content.length - 1); // Go to its last page
-      }
-      // If it's the first page of the first story, do nothing.
+    } else if (currentStoryIndex > 0) {
+      const prevStory = stories[currentStoryIndex - 1];
+      setCurrentStoryIndex(prev => prev - 1);
+      setCurrentPageIndex(prevStory.content.length - 1);
     }
   }, [currentPageIndex, currentStoryIndex, stories]);
 
@@ -85,9 +70,7 @@ export function StoryModal({ stories, initialStoryIndex, onClose, lang, title }:
 
   useEffect(() => {
     if (isPaused) return;
-
     const timer = setTimeout(goToNextPage, STORY_DURATION);
-
     return () => clearTimeout(timer);
   }, [currentPageIndex, currentStoryIndex, isPaused, goToNextPage]);
   
@@ -95,18 +78,22 @@ export function StoryModal({ stories, initialStoryIndex, onClose, lang, title }:
       setCurrentPageIndex(0);
   }, [currentStoryIndex]);
 
-  // The guard clause is moved here, after all hooks have been called.
-  // This prevents the "Rendered fewer hooks than expected" error.
   if (!currentStory) {
     return null;
   }
   
-  const handleTap = (e: React.MouseEvent<HTMLDivElement>) => {
-    const { clientX, currentTarget } = e;
-    const { left, width } = currentTarget.getBoundingClientRect();
+  const handleTap = (event: MouseEvent | TouchEvent | PointerEvent) => {
+    // Prevent tap if a button was clicked
+    if (event.target instanceof HTMLElement && event.target.closest('button')) {
+      return;
+    }
+    
+    // Use the event's currentTarget to ensure we get the dimensions of the motion.div
+    const { clientX, currentTarget } = event as MouseEvent;
+    if (!currentTarget) return;
+    const { left, width } = (currentTarget as HTMLElement).getBoundingClientRect();
     const tapPosition = (clientX - left) / width;
     
-    // In RTL, right side is for previous, left for next
     if (lang === 'fa') {
       if (tapPosition < 0.3) {
         goToNextPage();
@@ -123,32 +110,27 @@ export function StoryModal({ stories, initialStoryIndex, onClose, lang, title }:
   };
   
   const handleDragEnd = (event: MouseEvent | TouchEvent | PointerEvent, info: any) => {
-    const swipeThreshold = 100;
-    const velocityThreshold = 300;
+    const swipeThreshold = 50;
+    const velocityThreshold = 200;
 
-    const offsetX = info.offset.x;
-    const offsetY = info.offset.y;
-    const velocityX = info.velocity.x;
-    const velocityY = info.velocity.y;
+    const { offset, velocity } = info;
 
-    // Determine if swipe is more horizontal or vertical
-    if (Math.abs(offsetX) > Math.abs(offsetY)) {
-      // Horizontal swipe
-      if (offsetX > swipeThreshold || velocityX > velocityThreshold) {
-        goToPreviousStory();
-      } else if (offsetX < -swipeThreshold || velocityX < -velocityThreshold) {
+    const isHorizontalSwipe = Math.abs(offset.x) > Math.abs(offset.y);
+
+    if (isHorizontalSwipe) {
+      if (offset.x < -swipeThreshold || velocity.x < -velocityThreshold) {
         goToNextStory();
+      } else if (offset.x > swipeThreshold || velocity.x > velocityThreshold) {
+        goToPreviousStory();
       }
     } else {
-      // Vertical swipe
-      if (Math.abs(offsetY) > swipeThreshold || Math.abs(velocityY) > velocityThreshold) {
+      if (offset.y > swipeThreshold * 2 || velocity.y > velocityThreshold) {
         onClose();
       }
     }
   };
   
   const currentPageContent = currentStory.content[currentPageIndex];
-
 
   return (
     <Dialog open={true} onOpenChange={(open) => !open && onClose()}>
@@ -176,10 +158,10 @@ export function StoryModal({ stories, initialStoryIndex, onClose, lang, title }:
               key={currentStoryIndex}
               className="absolute inset-0"
               drag={true}
-              dragControls={dragControls}
               dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
               dragElastic={0.2}
               onDragEnd={handleDragEnd}
+              onTap={handleTap}
               initial={{ x: '100%' }}
               animate={{ x: 0, y: 0 }}
               exit={{ x: '-100%' }}
@@ -207,9 +189,6 @@ export function StoryModal({ stories, initialStoryIndex, onClose, lang, title }:
                 <span className="text-white font-semibold text-sm">{currentStory.username}</span>
               </div>
             </div>
-
-            {/* Tap navigation zones */}
-            <div className="flex-1 w-full" onClick={handleTap} style={{ pointerEvents: 'auto' }}></div>
           </div>
           
           {/* Navigation Buttons (for desktop) & Close button */}
