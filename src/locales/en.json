@@ -32,7 +32,7 @@
     "biometricChartTitle": "Biometric Data",
     "freeNotesTitle": "Add a Note",
     "freeNotesDescription": "Add a note about your day. Each note is saved as a separate entry.",
-    "freeNotesPlaceholder": "Jot down your thoughts...",
+    "freeNotesPlaceholder": "Jot down your thoughts... These notes will be used by the AI companion to understand your mood and customize your plan.",
     "saveNoteButton": "Save Note",
     "noteSavedSuccess": "Note saved successfully!",
     "moodEmojis": {
@@ -97,7 +97,46 @@
     "language": "Language",
     "theme": "Theme",
     "light": "Light",
-    "dark": "Dark"
+    "dark": "Dark",
+    "accessLevel": {
+      "title": "Access Level",
+      "currentLevelLabel": "Current Level",
+      "normal": "Normal",
+      "requestChangeButton": "Request Access Level Change",
+      "sheetTitle": "Request Access Level Change",
+      "sheetDescription": "Select the access level you want to request and provide the required documentation.",
+      "form": {
+        "roleLabel": "Requested Role",
+        "rolePlaceholder": "Select a role...",
+        "roles": {
+          "educational_institute_admin": "Educational Institute Admin",
+          "clinic_admin": "Clinic Admin",
+          "psychologist": "Psychologist"
+        },
+        "documentsLabel": "Required Documents",
+        "notesLabel": "Additional Notes (Optional)",
+        "notesPlaceholder": "Add any relevant information...",
+        "submitButton": "Submit Request",
+        "cancelButton": "Cancel",
+        "errors": {
+          "roleRequired": "Please select a role.",
+          "documentsRequired": "Document upload is required for this role."
+        }
+      },
+      "requirements": {
+        "educational_institute_admin": "Requires establishment documentation and legal permissions.",
+        "clinic_admin": "Requires establishment documentation and legal permissions.",
+        "psychologist": "Requires educational degree and certified license."
+      },
+      "invitationOnly": {
+        "title": "Invitation-Only Roles:",
+        "student": "Student: By invitation from an Educational Institute Admin only.",
+        "instructor": "Educational Institute Instructor: By invitation from an Educational Institute Admin only."
+      },
+      "responseTime": "Please note: Your request will be reviewed and we will respond within 7 working days.",
+      "requestSuccessTitle": "Request Submitted",
+      "requestSuccessDescription": "Your request has been received. We will get back to you soon."
+    }
   },
   "loginPage": {
     "title": "Login to Your Account",

@@ -32,7 +32,7 @@
     "biometricChartTitle": "نمودار داده‌های بیومتریک",
     "freeNotesTitle": "افزودن یادداشت",
     "freeNotesDescription": "یادداشتی درباره روز خود اضافه کنید. هر یادداشت به عنوان یک ورودی جداگانه ذخیره می شود.",
-    "freeNotesPlaceholder": "افکار خود را اینجا بنویسید...",
+    "freeNotesPlaceholder": "افکار خود را اینجا بنویسید... این یادداشت‌ها توسط همراه هوش مصنوعی برای درک حالت شما و سفارشی‌سازی طرح شما استفاده خواهد شد.",
     "saveNoteButton": "ذخیره یادداشت",
     "noteSavedSuccess": "یادداشت با موفقیت ذخیره شد!",
     "moodEmojis": {
@@ -97,7 +97,46 @@
     "language": "زبان",
     "theme": "پوسته",
     "light": "روشن",
-    "dark": "تیره"
+    "dark": "تیره",
+    "accessLevel": {
+      "title": "سطح دسترسی",
+      "currentLevelLabel": "سطح فعلی",
+      "normal": "عادی",
+      "requestChangeButton": "درخواست تغییر سطح دسترسی",
+      "sheetTitle": "درخواست تغییر سطح دسترسی",
+      "sheetDescription": "سطح دسترسی مورد نظر خود را انتخاب کرده و مدارک مورد نیاز را ارائه دهید.",
+      "form": {
+        "roleLabel": "نقش درخواستی",
+        "rolePlaceholder": "یک نقش انتخاب کنید...",
+        "roles": {
+          "educational_institute_admin": "مدیر موسسه آموزشی",
+          "clinic_admin": "مدیر کلینیک",
+          "psychologist": "روانشناس"
+        },
+        "documentsLabel": "مدارک مورد نیاز",
+        "notesLabel": "یادداشت‌های اضافی (اختیاری)",
+        "notesPlaceholder": "اطلاعات مرتبط را اضافه کنید...",
+        "submitButton": "ارسال درخواست",
+        "cancelButton": "انصراف",
+        "errors": {
+          "roleRequired": "لطفاً یک نقش انتخاب کنید.",
+          "documentsRequired": "بارگذاری مدرک برای این نقش الزامی است."
+        }
+      },
+      "requirements": {
+        "educational_institute_admin": "نیاز به مدارک تاسیس و مجوزهای قانونی دارد.",
+        "clinic_admin": "نیاز به مدارک تاسیس و مجوزهای قانونی دارد.",
+        "psychologist": "نیاز به مدرک تحصیلی و مجوز معتبر دارد."
+      },
+      "invitationOnly": {
+        "title": "نقش‌های فقط با دعوت:",
+        "student": "دانش‌آموز: فقط با دعوت از طرف مدیر موسسه آموزشی.",
+        "instructor": "مدرس موسسه آموزشی: فقط با دعوت از طرف مدیر موسسه آموزشی."
+      },
+      "responseTime": "لطفاً توجه داشته باشید: درخواست شما بررسی شده و ظرف ۷ روز کاری پاسخ داده خواهد شد.",
+      "requestSuccessTitle": "درخواست ارسال شد",
+      "requestSuccessDescription": "درخواست شما دریافت شد. به زودی با شما تماس خواهیم گرفت."
+    }
   },
   "loginPage": {
     "title": "ورود به حساب کاربری",
