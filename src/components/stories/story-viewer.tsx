@@ -1,10 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef, MouseEvent, TouchEvent } from 'react';
 import type { Locale } from '@/i18n-config';
 import Image from 'next/image';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { StoryModal } from './story-modal';
 
 export interface StoryContent {
@@ -66,6 +65,24 @@ const stories: Story[] = [
       { type: 'image', url: 'https://placehold.co/1080x1920.png', aiHint: 'cup tea', header: 'Herbal Tea', text: 'Chamomile tea can help you relax before sleeping.' },
     ],
   },
+   {
+    id: 'user5',
+    username: 'MindfulEats',
+    avatar: 'https://placehold.co/100x100.png',
+    avatarAiHint: 'vegetables fruits',
+    content: [
+      { type: 'image', url: 'https://placehold.co/1080x1920.png', aiHint: 'healthy food', header: 'Eat Mindfully', text: 'Pay attention to the food you eat and enjoy every bite.' },
+    ],
+  },
+  {
+    id: 'user6',
+    username: 'SocialConnect',
+    avatar: 'https://placehold.co/100x100.png',
+    avatarAiHint: 'friends talking',
+    content: [
+      { type: 'image', url: 'https://placehold.co/1080x1920.png', aiHint: 'people community', header: 'Connect with Others', text: 'Reach out to a friend or family member today.' },
+    ],
+  },
 ];
 
 
@@ -76,9 +93,44 @@ interface StoryViewerProps {
 
 export function StoryViewer({ dictionary, lang }: StoryViewerProps) {
     const [selectedStoryIndex, setSelectedStoryIndex] = useState<number | null>(null);
+    const scrollRef = useRef<HTMLDivElement>(null);
+    const [isDragging, setIsDragging] = useState(false);
+    const [startX, setStartX] = useState(0);
+    const [scrollLeft, setScrollLeft] = useState(0);
+    const [hasDragged, setHasDragged] = useState(false);
 
     const handleClose = () => {
         setSelectedStoryIndex(null);
+    };
+
+    const handleDragStart = (pageX: number, currentScrollLeft: number) => {
+        setIsDragging(true);
+        setHasDragged(false);
+        setStartX(pageX);
+        setScrollLeft(currentScrollLeft);
+        if (scrollRef.current) {
+            scrollRef.current.style.cursor = 'grabbing';
+        }
+    };
+
+    const handleDragEnd = () => {
+        setIsDragging(false);
+        if (scrollRef.current) {
+            scrollRef.current.style.cursor = 'grab';
+        }
+    };
+
+    const handleDragMove = (pageX: number) => {
+        if (!isDragging || !scrollRef.current) return;
+        if (!hasDragged) setHasDragged(true);
+        const x = pageX;
+        const walk = (x - startX) * 1.5; // Drag speed multiplier
+        scrollRef.current.scrollLeft = scrollLeft - walk;
+    };
+    
+    const handleStoryClick = (index: number) => {
+        if (hasDragged) return;
+        setSelectedStoryIndex(index);
     };
 
     return (
@@ -87,29 +139,38 @@ export function StoryViewer({ dictionary, lang }: StoryViewerProps) {
                 <CardTitle>{dictionary.title}</CardTitle>
             </CardHeader>
             <CardContent>
-                <ScrollArea className="w-full whitespace-nowrap">
-                    <div className="flex space-x-4 pb-4">
-                        {stories.map((story, index) => (
-                             <div 
-                                key={story.id} 
-                                onClick={() => setSelectedStoryIndex(index)} 
-                                className="flex-shrink-0 group relative w-28 h-40 rounded-lg overflow-hidden cursor-pointer shadow-lg"
-                            >
-                                <Image 
-                                    src={story.content[0].url}
-                                    alt={story.username}
-                                    fill
-                                    className="object-cover transition-transform duration-300 group-hover:scale-110"
-                                    data-ai-hint={story.content[0].aiHint}
-                                />
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent rounded-lg" />
-                                <div className="absolute bottom-0 left-0 right-0 p-2">
-                                    <p className="text-white text-xs font-bold truncate">{story.username}</p>
-                                </div>
+                <div 
+                    ref={scrollRef}
+                    className="flex space-x-4 pb-4 overflow-x-auto cursor-grab active:cursor-grabbing"
+                    style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+                    onMouseDown={(e: MouseEvent<HTMLDivElement>) => handleDragStart(e.pageX, e.currentTarget.scrollLeft)}
+                    onMouseLeave={handleDragEnd}
+                    onMouseUp={handleDragEnd}
+                    onMouseMove={(e: MouseEvent<HTMLDivElement>) => handleDragMove(e.pageX)}
+                    onTouchStart={(e: TouchEvent<HTMLDivElement>) => handleDragStart(e.touches[0].pageX, e.currentTarget.scrollLeft)}
+                    onTouchEnd={handleDragEnd}
+                    onTouchMove={(e: TouchEvent<HTMLDivElement>) => handleDragMove(e.touches[0].pageX)}
+                >
+                    {stories.map((story, index) => (
+                         <div 
+                            key={story.id} 
+                            onClick={() => handleStoryClick(index)} 
+                            className="flex-shrink-0 group relative w-28 h-40 rounded-lg overflow-hidden cursor-pointer shadow-lg select-none"
+                        >
+                            <Image 
+                                src={story.content[0].url}
+                                alt={story.username}
+                                fill
+                                className="object-cover transition-transform duration-300 group-hover:scale-110 pointer-events-none"
+                                data-ai-hint={story.content[0].aiHint}
+                            />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent rounded-lg" />
+                            <div className="absolute bottom-0 left-0 right-0 p-2">
+                                <p className="text-white text-xs font-bold truncate">{story.username}</p>
                             </div>
-                        ))}
-                    </div>
-                </ScrollArea>
+                        </div>
+                    ))}
+                </div>
                 
                 {selectedStoryIndex !== null && (
                     <StoryModal
