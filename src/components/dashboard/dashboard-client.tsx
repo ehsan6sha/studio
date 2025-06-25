@@ -5,7 +5,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import type { Locale } from "@/i18n-config";
-import { Laugh, Smile, Meh, Frown, Angry, FilePlus2 } from "lucide-react";
+import { Laugh, Smile, Meh, Frown, Angry } from "lucide-react";
 import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLegendContent } from "@/components/ui/chart";
 import { Bar, BarChart, LineChart, CartesianGrid, XAxis, YAxis, Line, ResponsiveContainer } from "recharts";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -133,9 +133,13 @@ export function DashboardClient({ dictionary, lang }: DashboardClientProps) {
   useEffect(() => {
     if (wasOpenRef.current && !isSubMoodSheetOpen) {
       if (selectedPrimaryMood) {
+        const primaryMoodLabel = Object.keys(dictionary.moodEmojis).find(key => dictionary.moodEmojis[key] === selectedPrimaryMood) || selectedPrimaryMood;
+        
+        const subMoodLabels = selectedSubMoods.map(id => dictionary.subMoodSheet.subMoods[id] || id);
+        
         const moodData = {
           primary: selectedPrimaryMood,
-          subMoods: selectedSubMoods,
+          subMoods: subMoodLabels,
         };
         addJournalEntry({ type: 'mood', data: moodData });
         
@@ -176,7 +180,9 @@ export function DashboardClient({ dictionary, lang }: DashboardClientProps) {
       { name: 'terrible', icon: Angry },
   ];
   
-  const subMoods = dictionary?.subMoodSheet?.subMoods ? Object.entries(dictionary.subMoodSheet.subMoods).map(([id, label]) => ({ id, label: label as string })) : [];
+  const subMoods = (dictionary && dictionary.subMoodSheet && dictionary.subMoodSheet.subMoods)
+    ? Object.entries(dictionary.subMoodSheet.subMoods).map(([id, label]) => ({ id, label: label as string }))
+    : [];
 
   return (
     <>
