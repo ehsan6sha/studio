@@ -120,8 +120,8 @@ export function JournalHistory({ dictionary, lang }: JournalHistoryProps) {
 
   const filteredHistory = useMemo(() => {
     return history
+      .filter(entry => !!entry?.id) // Ensure entry has a unique ID to prevent key errors.
       .filter(entry => {
-        if (!entry) return false; // Prevent crashes on bad data
         if (!filterType || filterType === 'all') {
           return true;
         }
@@ -131,7 +131,6 @@ export function JournalHistory({ dictionary, lang }: JournalHistoryProps) {
         if (!filterDate) {
           return true;
         }
-        // Defensively check for timestamp to prevent crashes on legacy data.
         if (typeof entry.timestamp !== 'string') {
           return false;
         }
@@ -201,7 +200,7 @@ export function JournalHistory({ dictionary, lang }: JournalHistoryProps) {
       
       {filteredHistory.length > 0 ? (
         filteredHistory.map((entry) => (
-          <Card key={entry.id || entry.timestamp} className="shadow-lg">
+          <Card key={entry.id} className="shadow-lg">
             <CardHeader>
               <CardTitle className="text-sm font-normal text-muted-foreground flex items-center gap-2">
                   {entry.type === 'mood' ? <Smile className="h-4 w-4" /> : <StickyNote className="h-4 w-4" />}
