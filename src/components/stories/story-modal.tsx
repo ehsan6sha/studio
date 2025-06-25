@@ -1,3 +1,4 @@
+
 'use client';
 import { useState, useEffect, useCallback } from 'react';
 import { X, ChevronLeft, ChevronRight } from 'lucide-react';
@@ -27,6 +28,12 @@ export function StoryModal({ stories, initialStoryIndex, onClose, lang, title }:
   const dragControls = useDragControls();
 
   const currentStory = stories[currentStoryIndex];
+
+  // Fix: Add a guard clause to prevent rendering if currentStory is undefined.
+  // This can happen during rapid transitions or on close, preventing a crash.
+  if (!currentStory) {
+    return null;
+  }
 
   const goToNextPage = useCallback(() => {
     setCurrentPageIndex(prev => {
@@ -119,8 +126,6 @@ export function StoryModal({ stories, initialStoryIndex, onClose, lang, title }:
       goToNextStory();
     }
   };
-
-  if (!currentStory) return null;
 
   return (
     <Dialog open={true} onOpenChange={(open) => !open && onClose()}>
