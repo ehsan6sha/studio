@@ -6,6 +6,7 @@
     "dashboard": "Dashboard",
     "journal": "Journal History",
     "notifications": "Notifications",
+    "questionnaires": "Questionnaires",
     "specialists": "Specialists",
     "settings": "Settings",
     "login": "Login",
@@ -17,6 +18,8 @@
     "title": "Your Reflection Space",
     "welcome": "Hello there. Let's take a moment for you.",
     "quickReactionTitle": "Your overall mood now:",
+    "createNoteTitle": "New Note",
+    "createNoteButton": "Create New Note",
     "tasksTitle": "Your Tasks",
     "tasks": {
       "completeProfile": "Complete your profile",
@@ -33,7 +36,7 @@
     "biometricChartTitle": "Biometric Data",
     "studentPerformanceChartTitle": "Performance by Course Type",
     "freeNotesTitle": "Add a Note",
-    "freeNotesDescription": "Start a new note about your day.",
+    "freeNotesDescription": "Start a new note about your day. Your note will be saved automatically.",
     "freeNotesPlaceholder": "Jot down your thoughts... These notes will be used by the AI companion to understand your mood and customize your plan.",
     "saveNoteButton": "Save and New Note",
     "newNoteButton": "New Note",
@@ -413,9 +416,72 @@
     "description": "Answer these questionnaires to get more accurate insights.",
     "beckTitle": "Beck Depression Inventory",
     "beckDescription": "A tool to measure the severity of depression.",
+    "beckGoal": "To assess the severity of depressive symptoms.",
+    "beckDuration": "5-10 minutes",
+    "beckSentBy": "System",
     "gad7Title": "GAD-7 Anxiety Test",
     "gad7Description": "A tool for screening and measuring the severity of generalized anxiety disorder.",
-    "startSurveyButton": "Start Survey"
+    "gad7Goal": "To screen for and measure the severity of anxiety.",
+    "gad7Duration": "2-5 minutes",
+    "gad7SentBy": "Dr. Sarah Ahmadi",
+    "startSurveyButton": "Start Survey",
+    "goalLabel": "Goal",
+    "durationLabel": "Duration",
+    "sentByLabel": "Sent by",
+    "deadlineLabel": "Deadline"
+  },
+  "questionnaireRunnerPage": {
+    "saveAndExitButton": "Save & Continue Later",
+    "nextButton": "Next Question",
+    "previousButton": "Previous Question",
+    "finishButton": "Finish & See Results",
+    "hintLabel": "Hint",
+    "progressSaved": "Your progress has been saved.",
+    "questionnaireCompletedTitle": "Questionnaire Complete!",
+    "questionnaireCompletedDescription": "Your responses have been saved. Redirecting...",
+    "questionLabel": "Question {current} of {total}",
+    "bdi": {
+      "q1": {
+        "text": "Sadness",
+        "hint": "Think about your general mood over the last two weeks. Which statement best describes how you've been feeling?",
+        "opt0": "I do not feel sad.",
+        "opt1": "I feel sad much of the time.",
+        "opt2": "I am sad all the time.",
+        "opt3": "I am so sad or unhappy that I can't stand it."
+      },
+      "q2": {
+        "text": "Pessimism",
+        "hint": "How do you feel about the future? Consider your outlook on life and what you expect to happen.",
+        "opt0": "I am not particularly pessimistic or discouraged about the future.",
+        "opt1": "I feel more pessimistic about the future than I used to.",
+        "opt2": "I do not expect things to work out for me.",
+        "opt3": "I feel that the future is hopeless and that things cannot improve."
+      },
+      "q3": {
+        "text": "Past Failure",
+        "hint": "Reflect on your past. Do you feel like you have failed more than others?",
+        "opt0": "I do not feel like a failure.",
+        "opt1": "I have failed more than I should have.",
+        "opt2": "As I look back on my life, all I can see is a lot of failures.",
+        "opt3": "I feel I am a total failure as a person."
+      },
+      "q4": {
+        "text": "Loss of Pleasure",
+        "hint": "Consider the activities you usually enjoy. How much pleasure do you get from them now compared to before?",
+        "opt0": "I get as much pleasure as I ever did from the things I enjoy.",
+        "opt1": "I don't enjoy things as much as I used to.",
+        "opt2": "I get very little pleasure from the things I used to enjoy.",
+        "opt3": "I can't get any pleasure from the things I used to enjoy."
+      },
+      "q5": {
+        "text": "Guilty Feelings",
+        "hint": "Think about how you feel about yourself and your actions. Do you often feel guilty?",
+        "opt0": "I don't feel particularly guilty.",
+        "opt1": "I feel guilty over many things I have done or should have done.",
+        "opt2": "I feel quite guilty most of the time.",
+        "opt3": "I feel guilty all of the time."
+      }
+    }
   },
   "connectPage": {
     "title": "Connect to Another Account",

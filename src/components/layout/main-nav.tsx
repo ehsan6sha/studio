@@ -40,6 +40,7 @@ export function MainNav({ lang, dictionary, isAuthenticated }: MainNavProps) {
     { key: 'dashboard', defaultLabel: 'Dashboard', href: `/${lang}/dashboard` },
     { key: 'journal', defaultLabel: 'Journal', href: `/${lang}/journal` },
     { key: 'notifications', defaultLabel: 'Notifications', href: `/${lang}/insights` },
+    { key: 'questionnaires', defaultLabel: 'Questionnaires', href: `/${lang}/questionnaires` },
     { key: 'specialists', defaultLabel: 'Specialists', href: `/${lang}/specialists` },
     { key: 'settings', defaultLabel: 'Settings', href: `/${lang}/settings` },
   ];

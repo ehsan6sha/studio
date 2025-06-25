@@ -40,6 +40,7 @@ export function MobileNav({ isOpen, onOpenChange, lang, dictionary, appName }: M
     { key: 'dashboard', defaultLabel: 'Dashboard', href: `/${lang}/dashboard` },
     { key: 'journal', defaultLabel: 'Journal History', href: `/${lang}/journal` },
     { key: 'notifications', defaultLabel: 'Notifications', href: `/${lang}/insights` },
+    { key: 'questionnaires', defaultLabel: 'Questionnaires', href: `/${lang}/questionnaires` },
     { key: 'specialists', defaultLabel: 'Specialists', href: `/${lang}/specialists` },
   ];
 
