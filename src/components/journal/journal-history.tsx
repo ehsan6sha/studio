@@ -196,7 +196,7 @@ export function JournalHistory({ dictionary, lang }: JournalHistoryProps) {
       
       {filteredHistory.length > 0 ? (
         filteredHistory.map((entry) => (
-          <Card key={entry.id} className="shadow-lg">
+          <Card key={entry.id || entry.timestamp} className="shadow-lg">
             <CardHeader>
               <CardTitle className="text-sm font-normal text-muted-foreground flex items-center gap-2">
                   {entry.type === 'mood' ? <Smile className="h-4 w-4" /> : <StickyNote className="h-4 w-4" />}

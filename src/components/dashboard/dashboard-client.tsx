@@ -110,7 +110,7 @@ export function DashboardClient({ dictionary, lang }: DashboardClientProps) {
   
   const addJournalEntry = useCallback((entry: { type: 'mood' | 'note', data: any }) => {
     const newEntry = {
-        id: Date.now().toString(),
+        id: `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
         timestamp: new Date().toISOString(),
         ...entry,
     };
@@ -133,7 +133,7 @@ export function DashboardClient({ dictionary, lang }: DashboardClientProps) {
   useEffect(() => {
     if (wasOpenRef.current && !isSubMoodSheetOpen) {
       if (selectedPrimaryMood) {
-        const primaryMoodLabel = Object.keys(dictionary.moodEmojis).find(key => dictionary.moodEmojis[key] === selectedPrimaryMood) || selectedPrimaryMood;
+        // const primaryMoodLabel = Object.keys(dictionary.moodEmojis).find(key => dictionary.moodEmojis[key] === selectedPrimaryMood) || selectedPrimaryMood;
         
         const subMoodLabels = selectedSubMoods.map(id => dictionary.subMoodSheet.subMoods[id] || id);
         
@@ -143,14 +143,14 @@ export function DashboardClient({ dictionary, lang }: DashboardClientProps) {
         };
         addJournalEntry({ type: 'mood', data: moodData });
         
-        toast({
-          title: dictionary.subMoodSheet.saveSuccessTitle,
-          description: dictionary.subMoodSheet.saveSuccessDescription.replace('{primaryMood}', selectedPrimaryMood),
-        });
+        // toast({
+        //   title: dictionary.subMoodSheet.saveSuccessTitle,
+        //   description: dictionary.subMoodSheet.saveSuccessDescription.replace('{primaryMood}', selectedPrimaryMood),
+        // });
       }
     }
     wasOpenRef.current = isSubMoodSheetOpen;
-  }, [isSubMoodSheetOpen, selectedPrimaryMood, selectedSubMoods, toast, dictionary, addJournalEntry]);
+  }, [isSubMoodSheetOpen, selectedPrimaryMood, selectedSubMoods, dictionary, addJournalEntry]);
 
 
   const handleMoodClick = (mood: string) => {
@@ -180,7 +180,7 @@ export function DashboardClient({ dictionary, lang }: DashboardClientProps) {
       { name: 'terrible', icon: Angry },
   ];
   
-  const subMoods = (dictionary && dictionary.subMoodSheet && dictionary.subMoodSheet.subMoods)
+  const subMoods = (dictionary?.subMoodSheet?.subMoods)
     ? Object.entries(dictionary.subMoodSheet.subMoods).map(([id, label]) => ({ id, label: label as string }))
     : [];
 
