@@ -38,6 +38,16 @@ const biometricData = [
   { date: "2024-07-07", sleep: 6.5, heartRate: 72 },
 ];
 
+const studentPerformanceData = [
+  { date: "2024-07-01", grade: 85, subject: "ریاضی" },
+  { date: "2024-07-02", grade: 92, subject: "علوم" },
+  { date: "2024-07-03", grade: 78, subject: "تاریخ" },
+  { date: "2024-07-04", grade: 88, subject: "ادبیات" },
+  { date: "2024-07-05", grade: 95, subject: "فیزیک" },
+  { date: "2024-07-06", grade: 81, subject: "شیمی" },
+  { date: "2024-07-07", grade: 90, subject: "ورزش" },
+];
+
 const chartConfigMood = {
   mood: {
     label: "Mood",
@@ -53,6 +63,13 @@ const chartConfigBiometric = {
   heartRate: {
     label: "Heart Rate (bpm)",
     color: "hsl(var(--secondary))",
+  },
+};
+
+const chartConfigStudentPerformance = {
+  grade: {
+    label: "Grade",
+    color: "hsl(var(--destructive))",
   },
 };
 
@@ -258,10 +275,11 @@ export function DashboardClient({ dictionary, lang }: DashboardClientProps) {
         </div>
 
          <Tabs defaultValue="moods" className="w-full">
-            <TabsList className="grid w-full grid-cols-3">
+            <TabsList className="grid w-full grid-cols-4">
               <TabsTrigger value="moods">{dictionary.moodsTab}</TabsTrigger>
               <TabsTrigger value="biometrics">{dictionary.biometricsTab}</TabsTrigger>
               <TabsTrigger value="testResults">{dictionary.testResultsTab}</TabsTrigger>
+              <TabsTrigger value="studentPerformance">{dictionary.studentPerformanceTab}</TabsTrigger>
             </TabsList>
 
             <TabsContent value="moods" className="mt-4">
@@ -316,6 +334,27 @@ export function DashboardClient({ dictionary, lang }: DashboardClientProps) {
                   </CardHeader>
                   <CardContent>
                       <p className="text-muted-foreground">{dictionary.comingSoon}</p>
+                  </CardContent>
+              </Card>
+            </TabsContent>
+            
+            <TabsContent value="studentPerformance" className="mt-4">
+               <Card>
+                  <CardHeader>
+                      <CardTitle>{dictionary.studentPerformanceChartTitle}</CardTitle>
+                  </CardHeader>
+                  <CardContent className="h-[300px] p-0">
+                    <ChartContainer config={chartConfigStudentPerformance} className="w-full h-full">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <LineChart data={studentPerformanceData} margin={{ top: 20, right: isRTL ? 10 : 30, left: isRTL ? 30 : 10, bottom: 5 }}>
+                          <CartesianGrid strokeDasharray="3 3" />
+                          <XAxis dataKey={isRTL ? "subject" : "date"} reversed={isRTL} />
+                          <YAxis orientation={isRTL ? 'right' : 'left'} domain={[0, 100]} />
+                          <ChartTooltip content={<ChartTooltipContent />} />
+                          <Line type="monotone" dataKey="grade" stroke="var(--color-grade)" strokeWidth={2} dot={{ r: 4, fill: "var(--color-grade)" }} />
+                        </LineChart>
+                      </ResponsiveContainer>
+                    </ChartContainer>
                   </CardContent>
               </Card>
             </TabsContent>
