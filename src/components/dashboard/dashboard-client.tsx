@@ -2,7 +2,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardFooter, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import type { Locale } from "@/i18n-config";
 import { Laugh, Smile, Meh, Frown, Angry, FilePlus2 } from "lucide-react";
@@ -68,7 +68,7 @@ export function DashboardClient({ dictionary, lang }: DashboardClientProps) {
   const [selectedSubMoods, setSelectedSubMoods] = useState<string[]>([]);
   const isRTL = lang === 'fa';
   const wasOpenRef = useRef(false);
-  const [freeNote, setFreeNote] = useState('');
+  const [noteContent, setNoteContent] = useState('');
   const { user } = useAuth();
   const { toast } = useToast();
   
@@ -108,10 +108,13 @@ export function DashboardClient({ dictionary, lang }: DashboardClientProps) {
     };
   }, [checkTasks]);
   
-  const getTodayDateString = useCallback(() => new Date().toISOString().split('T')[0], []);
+  const addJournalEntry = useCallback((entry: { type: 'mood' | 'note', data: any }) => {
+    const newEntry = {
+        id: Date.now().toString(),
+        timestamp: new Date().toISOString(),
+        ...entry,
+    };
 
-  const saveJournalData = useCallback((dataToSave: { note?: string; mood?: any }) => {
-    const todayStr = getTodayDateString();
     const rawHistory = localStorage.getItem(JOURNAL_HISTORY_KEY);
     let history = [];
     try {
@@ -120,46 +123,11 @@ export function DashboardClient({ dictionary, lang }: DashboardClientProps) {
         history = [];
     }
 
-    const todayEntryIndex = history.findIndex((entry: any) => entry.date === todayStr);
-
-    if (todayEntryIndex > -1) {
-        history[todayEntryIndex] = { ...history[todayEntryIndex], ...dataToSave };
-    } else {
-        history.unshift({ date: todayStr, ...dataToSave });
-    }
+    history.unshift(newEntry);
 
     localStorage.setItem(JOURNAL_HISTORY_KEY, JSON.stringify(history));
-  }, [getTodayDateString]);
-
-
-  useEffect(() => {
-    const todayStr = getTodayDateString();
-    const rawHistory = localStorage.getItem(JOURNAL_HISTORY_KEY);
-    if (rawHistory) {
-      try {
-        const history = JSON.parse(rawHistory);
-        const todayEntry = history.find((entry: any) => entry.date === todayStr);
-        if (todayEntry && todayEntry.note) {
-          setFreeNote(todayEntry.note);
-        }
-      } catch (e) {
-        setFreeNote('');
-      }
-    }
-  }, [getTodayDateString]);
-
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-        saveJournalData({ note: freeNote });
-    }, 1000);
-    return () => clearTimeout(timer);
-  }, [freeNote, saveJournalData]);
-  
-  const handleNewNote = () => {
-    setFreeNote('');
-    saveJournalData({ note: '' });
-  };
+    window.dispatchEvent(new Event('storage'));
+  }, []);
 
 
   useEffect(() => {
@@ -169,7 +137,7 @@ export function DashboardClient({ dictionary, lang }: DashboardClientProps) {
           primary: selectedPrimaryMood,
           subMoods: selectedSubMoods,
         };
-        saveJournalData({ mood: moodData });
+        addJournalEntry({ type: 'mood', data: moodData });
         
         toast({
           title: dictionary.subMoodSheet.saveSuccessTitle,
@@ -178,7 +146,7 @@ export function DashboardClient({ dictionary, lang }: DashboardClientProps) {
       }
     }
     wasOpenRef.current = isSubMoodSheetOpen;
-  }, [isSubMoodSheetOpen, selectedPrimaryMood, selectedSubMoods, toast, dictionary, saveJournalData]);
+  }, [isSubMoodSheetOpen, selectedPrimaryMood, selectedSubMoods, toast, dictionary, addJournalEntry]);
 
 
   const handleMoodClick = (mood: string) => {
@@ -191,6 +159,13 @@ export function DashboardClient({ dictionary, lang }: DashboardClientProps) {
     setSelectedSubMoods(prev =>
       checked ? [...prev, moodId] : prev.filter(id => id !== moodId)
     );
+  };
+
+  const handleSaveNote = () => {
+    if (!noteContent.trim()) return;
+    addJournalEntry({ type: 'note', data: { text: noteContent } });
+    setNoteContent('');
+    toast({ title: dictionary.noteSavedSuccess });
   };
 
   const emojiMoods = [
@@ -352,22 +327,24 @@ export function DashboardClient({ dictionary, lang }: DashboardClientProps) {
           </Tabs>
 
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
+            <CardHeader>
               <CardTitle>{dictionary.freeNotesTitle}</CardTitle>
-              <Button variant="ghost" size="icon" onClick={handleNewNote} aria-label={dictionary.newNoteLabel}>
-                <FilePlus2 className="h-5 w-5" />
-              </Button>
+              <CardDescription>{dictionary.freeNotesDescription}</CardDescription>
             </CardHeader>
-            <CardContent className="p-0">
+            <CardContent>
               <Textarea
                 placeholder={dictionary.freeNotesPlaceholder}
-                value={freeNote}
-                onChange={(e) => setFreeNote(e.target.value)}
-                className="min-h-[150px] w-full resize-none border-0 rounded-none focus-visible:ring-0"
+                value={noteContent}
+                onChange={(e) => setNoteContent(e.target.value)}
+                className="min-h-[150px] w-full resize-y"
                 aria-label={dictionary.freeNotesTitle}
               />
-              <p className="text-xs text-muted-foreground text-center p-2 border-t">{dictionary.autoSaveHint}</p>
             </CardContent>
+            <CardFooter>
+                <Button onClick={handleSaveNote} disabled={!noteContent.trim()}>
+                    {dictionary.saveNoteButton}
+                </Button>
+            </CardFooter>
           </Card>
       </div>
       <Sheet open={isSubMoodSheetOpen} onOpenChange={setIsSubMoodSheetOpen}>

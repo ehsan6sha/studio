@@ -30,10 +30,11 @@
     "comingSoon": "Coming soon...",
     "moodChartTitle": "Mood Trends",
     "biometricChartTitle": "Biometric Data",
-    "freeNotesTitle": "Free Notes",
-    "newNoteLabel": "New Note",
-    "freeNotesPlaceholder": "Jot down your thoughts... they save automatically. Your AI companion uses these notes to understand your mood and customize your plan.",
-    "autoSaveHint": "Your notes are saved automatically.",
+    "freeNotesTitle": "Add a Note",
+    "freeNotesDescription": "Add a note about your day. Each note is saved as a separate entry.",
+    "freeNotesPlaceholder": "Jot down your thoughts...",
+    "saveNoteButton": "Save Note",
+    "noteSavedSuccess": "Note saved successfully!",
     "moodEmojis": {
       "great": "Great",
       "good": "Good",
@@ -63,8 +64,8 @@
   },
   "journalPage": {
     "title": "Journal History",
-    "description": "Review and manage your past daily entries.",
-    "noEntries": "You have no journal entries yet. Go to the dashboard to log your mood or write a note.",
+    "description": "Review your past moods and notes.",
+    "noEntries": "You have no entries yet. Log a mood or add a note from the dashboard.",
     "noNote": "No note was written for this day.",
     "buttons": {
       "edit": "Edit",
@@ -78,7 +79,7 @@
     },
     "deleteDialog": {
       "title": "Are you absolutely sure?",
-      "description": "This action cannot be undone. This will permanently delete your journal entry for this day.",
+      "description": "This action cannot be undone. This will permanently delete this journal entry.",
       "cancel": "Cancel",
       "confirm": "Delete"
     }

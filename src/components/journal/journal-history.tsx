@@ -24,7 +24,7 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import type { Locale } from '@/i18n-config';
-import { Edit, Trash2, Smile } from 'lucide-react';
+import { Edit, Trash2, Smile, StickyNote } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 import { enUS } from 'date-fns/locale';
 import { faIR as faIRJalali } from 'date-fns-jalali/locale';
@@ -33,13 +33,18 @@ import { Separator } from '@/components/ui/separator';
 const JOURNAL_HISTORY_KEY = 'hami-journal-history';
 
 interface JournalEntry {
-  date: string;
-  note?: string;
-  mood?: {
-    primary: string;
-    subMoods: string[];
+  id: string;
+  timestamp: string;
+  type: 'mood' | 'note';
+  data: {
+    // For mood
+    primary?: string;
+    subMoods?: string[];
+    // For note
+    text?: string;
   };
 }
+
 
 interface JournalHistoryProps {
   dictionary: any; // JournalPage dictionary
@@ -48,8 +53,8 @@ interface JournalHistoryProps {
 
 export function JournalHistory({ dictionary, lang }: JournalHistoryProps) {
   const [history, setHistory] = useState<JournalEntry[]>([]);
-  const [editingIndex, setEditingIndex] = useState<number | null>(null);
-  const [editingNote, setEditingNote] = useState<string>('');
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editingText, setEditingText] = useState<string>('');
   const { toast } = useToast();
   
   const isRTL = lang === 'fa';
@@ -72,31 +77,32 @@ export function JournalHistory({ dictionary, lang }: JournalHistoryProps) {
     return () => window.removeEventListener('storage', loadHistory);
   }, [loadHistory]);
 
-  const handleEdit = (index: number) => {
-    setEditingIndex(index);
-    setEditingNote(history[index].note || '');
+  const handleEdit = (entry: JournalEntry) => {
+    setEditingId(entry.id);
+    setEditingText(entry.data.text || '');
   };
 
   const handleCancelEdit = () => {
-    setEditingIndex(null);
-    setEditingNote('');
+    setEditingId(null);
+    setEditingText('');
   };
 
   const handleSaveEdit = () => {
-    if (editingIndex === null) return;
+    if (editingId === null) return;
 
-    const updatedHistory = [...history];
-    updatedHistory[editingIndex].note = editingNote;
+    const updatedHistory = history.map(entry =>
+      entry.id === editingId ? { ...entry, data: { ...entry.data, text: editingText } } : entry
+    );
     setHistory(updatedHistory);
     localStorage.setItem(JOURNAL_HISTORY_KEY, JSON.stringify(updatedHistory));
     
     toast({ title: dictionary.toast.editSuccess });
-    setEditingIndex(null);
-    setEditingNote('');
+    setEditingId(null);
+    setEditingText('');
   };
 
-  const handleDelete = (date: string) => {
-    const updatedHistory = history.filter((entry) => entry.date !== date);
+  const handleDelete = (id: string) => {
+    const updatedHistory = history.filter((entry) => entry.id !== id);
     setHistory(updatedHistory);
     localStorage.setItem(JOURNAL_HISTORY_KEY, JSON.stringify(updatedHistory));
     toast({ title: dictionary.toast.deleteSuccess, variant: 'destructive' });
@@ -105,11 +111,14 @@ export function JournalHistory({ dictionary, lang }: JournalHistoryProps) {
   const formatDate = (dateString: string) => {
     try {
         const date = parseISO(dateString);
-        return format(date, 'PPP', { locale: fnsLocale });
+        return format(date, 'PPP p', { locale: fnsLocale });
     } catch (e) {
         return dateString;
     }
   };
+
+  // Find the index of the latest note in the history to allow editing
+  const latestNoteIndex = history.findIndex(entry => entry.type === 'note');
 
 
   if (history.length === 0) {
@@ -125,43 +134,44 @@ export function JournalHistory({ dictionary, lang }: JournalHistoryProps) {
   return (
     <div className="space-y-4 max-w-3xl mx-auto">
       {history.map((entry, index) => (
-        <Card key={entry.date} className="shadow-lg">
+        <Card key={entry.id} className="shadow-lg">
           <CardHeader>
-            <CardTitle>{formatDate(entry.date)}</CardTitle>
+            <CardTitle className="text-sm font-normal text-muted-foreground flex items-center gap-2">
+                {entry.type === 'mood' ? <Smile className="h-4 w-4" /> : <StickyNote className="h-4 w-4" />}
+                {formatDate(entry.timestamp)}
+            </CardTitle>
           </CardHeader>
           <CardContent>
-            {entry.mood && (
-              <div className="mb-4">
+             {entry.type === 'mood' && entry.data.primary && (
                 <div className="flex items-center gap-2">
-                    <Smile className="h-5 w-5 text-primary"/>
+                    <div className="w-8 h-8 flex items-center justify-center rounded-full bg-primary/10">
+                        <Smile className="h-5 w-5 text-primary"/>
+                    </div>
                     <div>
-                      <p className="font-semibold">{entry.mood.primary}</p>
-                      {entry.mood.subMoods.length > 0 && 
-                          <p className="text-sm text-muted-foreground">({entry.mood.subMoods.join(lang === 'fa' ? '، ' : ', ')})</p>
+                      <p className="font-semibold">{entry.data.primary}</p>
+                      {entry.data.subMoods && entry.data.subMoods.length > 0 && 
+                          <p className="text-sm text-muted-foreground">({entry.data.subMoods.join(lang === 'fa' ? '، ' : ', ')})</p>
                       }
                     </div>
                 </div>
-                {entry.note && <Separator className="my-4" />}
-              </div>
             )}
-            
-            {editingIndex === index ? (
-              <Textarea
-                value={editingNote}
-                onChange={(e) => setEditingNote(e.target.value)}
-                className="min-h-[120px]"
-                autoFocus
-              />
-            ) : (
-              (entry.note || (!entry.note && !entry.mood)) && (
+            {entry.type === 'note' && (
+              editingId === entry.id ? (
+                <Textarea
+                  value={editingText}
+                  onChange={(e) => setEditingText(e.target.value)}
+                  className="min-h-[120px]"
+                  autoFocus
+                />
+              ) : (
                 <p className="text-foreground/90 whitespace-pre-wrap min-h-[24px]">
-                  {entry.note || <span className="text-muted-foreground">{dictionary.noNote}</span>}
+                  {entry.data.text}
                 </p>
               )
             )}
           </CardContent>
           <CardFooter className="flex justify-end gap-2">
-            {editingIndex === index ? (
+            {editingId === entry.id ? (
               <>
                 <Button variant="ghost" onClick={handleCancelEdit}>
                   {dictionary.buttons.cancel}
@@ -169,9 +179,9 @@ export function JournalHistory({ dictionary, lang }: JournalHistoryProps) {
                 <Button onClick={handleSaveEdit}>{dictionary.buttons.save}</Button>
               </>
             ) : (
-              <>
-                {index === 0 && entry.note && ( // Only show edit if there is a note to edit, and it's the latest entry
-                  <Button variant="outline" size="icon" onClick={() => handleEdit(index)}>
+              <div className="flex items-center gap-2">
+                {entry.type === 'note' && index === latestNoteIndex && (
+                  <Button variant="outline" size="icon" onClick={() => handleEdit(entry)}>
                     <Edit className="h-4 w-4" />
                      <span className="sr-only">{dictionary.buttons.edit}</span>
                   </Button>
@@ -192,13 +202,13 @@ export function JournalHistory({ dictionary, lang }: JournalHistoryProps) {
                       </AlertDialogHeader>
                       <AlertDialogFooter>
                         <AlertDialogCancel>{dictionary.deleteDialog.cancel}</AlertDialogCancel>
-                        <AlertDialogAction onClick={() => handleDelete(entry.date)}>
+                        <AlertDialogAction onClick={() => handleDelete(entry.id)}>
                           {dictionary.deleteDialog.confirm}
                         </AlertDialogAction>
                       </AlertDialogFooter>
                     </AlertDialogContent>
                   </AlertDialog>
-              </>
+              </div>
             )}
           </CardFooter>
         </Card>
