@@ -35,7 +35,7 @@
     "freeNotesTitle": "Add a Note",
     "freeNotesDescription": "Start a new note about your day.",
     "freeNotesPlaceholder": "Jot down your thoughts... These notes will be used by the AI companion to understand your mood and customize your plan.",
-    "saveNoteButton": "Save Note",
+    "saveNoteButton": "Save and New Note",
     "newNoteButton": "New Note",
     "noteSavedSuccess": "Note saved successfully!",
     "moodEmojis": {

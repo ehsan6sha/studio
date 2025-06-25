@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
@@ -72,6 +71,7 @@ interface DashboardClientProps {
 }
 
 const JOURNAL_HISTORY_KEY = 'hami-journal-history';
+const CURRENT_NOTE_KEY = 'hami-current-note'; // Key for the note being edited
 
 export function DashboardClient({ dictionary, lang }: DashboardClientProps) {
   const [isSubMoodSheetOpen, setIsSubMoodSheetOpen] = useState(false);
@@ -171,6 +171,28 @@ export function DashboardClient({ dictionary, lang }: DashboardClientProps) {
     wasOpenRef.current = isSubMoodSheetOpen;
   }, [isSubMoodSheetOpen, selectedPrimaryMood, selectedSubMoods, dictionary, addJournalEntry]);
 
+  // Load note from local storage on component mount
+  useEffect(() => {
+    const savedNote = localStorage.getItem(CURRENT_NOTE_KEY);
+    if (savedNote) {
+      setNoteContent(savedNote);
+    }
+  }, []);
+
+  // Auto-save note to local storage as user types
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      if (noteContent) {
+        localStorage.setItem(CURRENT_NOTE_KEY, noteContent);
+      } else {
+        localStorage.removeItem(CURRENT_NOTE_KEY);
+      }
+    }, 500); // Debounce save by 500ms
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [noteContent]);
 
   const handleMoodClick = (mood: string) => {
     setSelectedPrimaryMood(mood);
@@ -187,7 +209,7 @@ export function DashboardClient({ dictionary, lang }: DashboardClientProps) {
   const handleSaveNote = () => {
     if (!noteContent.trim()) return;
     addJournalEntry({ type: 'note', data: { text: noteContent } });
-    setNoteContent('');
+    setNoteContent(''); // This clears the textarea for a new note and triggers the auto-save useEffect to clear localStorage
     toast({ title: dictionary.noteSavedSuccess });
   };
 
