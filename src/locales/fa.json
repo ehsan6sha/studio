@@ -120,13 +120,19 @@
     },
     "buttons": {
         "accept": "پذیرش",
-        "ignore": "نادیده گرفتن"
+        "ignore": "نادیده گرفتن",
+        "startTest": "شروع آزمون"
     },
     "toast": {
         "accepted": "درخواست پذیرفته شد",
         "ignored": "درخواست نادیده گرفته شد",
         "removed": "اعلان حذف شد."
-    }
+    },
+    "testDetails": {
+        "goal": "هدف",
+        "duration": "مدت زمان تخمینی"
+    },
+    "comingSoon": "به زودی..."
   },
   "specialistsPage": {
     "title": "ارجاع به متخصص",

@@ -119,14 +119,20 @@
       "content": "Content"
     },
     "buttons": {
-      "accept": "Accept",
-      "ignore": "Ignore"
+        "accept": "Accept",
+        "ignore": "Ignore",
+        "startTest": "Start Test"
     },
     "toast": {
         "accepted": "Request Accepted",
         "ignored": "Request Ignored",
         "removed": "The notification has been removed."
-    }
+    },
+    "testDetails": {
+      "goal": "Goal",
+      "duration": "Estimated Duration"
+    },
+    "comingSoon": "Coming soon..."
   },
   "specialistsPage": {
     "title": "Specialist Referrals",

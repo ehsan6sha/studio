@@ -7,7 +7,7 @@ import { getDictionary } from '@/lib/dictionaries';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Bell, Check, Eye, EyeOff, GitPullRequest, GraduationCap, X } from 'lucide-react';
+import { Bell, Check, Eye, EyeOff, GitPullRequest, GraduationCap, X, FileText } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 
@@ -19,6 +19,8 @@ interface Notification {
   isRead: boolean;
   scope?: string[];
   position?: string;
+  testGoal?: string;
+  testDuration?: string;
 }
 
 const initialNotifications: Notification[] = [
@@ -53,6 +55,15 @@ const initialNotifications: Notification[] = [
     isRead: true,
     scope: ['Basic Profile', 'Student Performance'],
   },
+  {
+    id: 5,
+    type: 'content',
+    from: 'Dr. Leila Karimi',
+    details: 'has assigned a new psychology test: "Beck Depression Inventory".',
+    isRead: false,
+    testGoal: 'To measure the severity of depression.',
+    testDuration: 'Approx. 10 minutes',
+  },
 ];
 
 const farsiNotifications: Notification[] = [
@@ -86,6 +97,15 @@ const farsiNotifications: Notification[] = [
       details: 'می‌خواهد با شما ارتباط برقرار کند.',
       isRead: true,
       scope: ['پروفایل پایه', 'عملکرد دانش‌آموز'],
+    },
+    {
+      id: 5,
+      type: 'content',
+      from: 'دکتر لیلا کریمی',
+      details: 'یک آزمون روانشناسی جدید برای شما تعیین کرده است: «پرسشنامه افسردگی بک».',
+      isRead: false,
+      testGoal: 'برای سنجش شدت افسردگی.',
+      testDuration: 'تقریباً ۱۰ دقیقه',
     },
 ];
 
@@ -139,7 +159,7 @@ export default function NotificationsPage({ params }: { params: { lang: Locale }
             <div className="text-muted-foreground pt-1">
                 {notification.type === 'connection' && <GitPullRequest />}
                 {notification.type === 'invitation' && <GraduationCap />}
-                {notification.type === 'content' && <Bell />}
+                {notification.type === 'content' && (notification.testGoal ? <FileText /> : <Bell />)}
             </div>
             <div>
                 <CardTitle className="text-base font-semibold">{notification.from}</CardTitle>
@@ -165,6 +185,14 @@ export default function NotificationsPage({ params }: { params: { lang: Locale }
             <p className="text-xs text-muted-foreground">{notification.position}</p>
         </CardContent>
       )}
+      {notification.testGoal && notification.testDuration && (
+        <CardContent className="pt-0 pb-4 pl-12">
+            <div className="text-xs text-muted-foreground space-y-2 border-t pt-4">
+                <p><span className="font-semibold text-card-foreground">{dictionary.testDetails.goal}:</span> {notification.testGoal}</p>
+                <p><span className="font-semibold text-card-foreground">{dictionary.testDetails.duration}:</span> {notification.testDuration}</p>
+            </div>
+        </CardContent>
+      )}
       {(notification.type === 'connection' || notification.type === 'invitation') && (
         <CardFooter className="flex justify-end gap-2 pl-12">
           <Button variant="outline" size="sm" onClick={() => handleAction(notification.id, 'ignore')}>
@@ -176,6 +204,13 @@ export default function NotificationsPage({ params }: { params: { lang: Locale }
             {dictionary.buttons.accept}
           </Button>
         </CardFooter>
+      )}
+      {notification.testGoal && (
+          <CardFooter className="pl-12 pt-0">
+              <Button size="sm" className="w-full" disabled>
+                  {dictionary.buttons.startTest} ({dictionary.comingSoon})
+              </Button>
+          </CardFooter>
       )}
     </Card>
   );
