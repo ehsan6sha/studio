@@ -141,7 +141,7 @@ export function StoryViewer({ dictionary, lang }: StoryViewerProps) {
             <CardContent>
                 <div 
                     ref={scrollRef}
-                    className="flex space-x-4 pb-4 overflow-x-auto cursor-grab active:cursor-grabbing"
+                    className="flex gap-4 pb-4 overflow-x-auto cursor-grab active:cursor-grabbing"
                     style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
                     onMouseDown={(e: MouseEvent<HTMLDivElement>) => handleDragStart(e.pageX, e.currentTarget.scrollLeft)}
                     onMouseLeave={handleDragEnd}
