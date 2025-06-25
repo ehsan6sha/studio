@@ -48,9 +48,8 @@
       "saveButton": "ذخیره جزئیات",
       "skipButton": "رد شدن",
       "saveSuccessTitle": "جزئیات ذخیره شد",
-      "saveSuccessDescription": "حالت روحی شما '{primaryMood}' ثبت شد."
-    },
-    "subMoods": {
+      "saveSuccessDescription": "حالت روحی شما '{primaryMood}' ثبت شد.",
+      "subMoods": {
         "happy": "خوشحال",
         "sad": "غمگین",
         "angry": "عصبانی",
@@ -61,6 +60,7 @@
         "stressed": "پراسترس",
         "confused": "سردرگم"
       }
+    }
   },
   "journalPage": {
     "title": "تاریخچه یادداشت‌ها",
