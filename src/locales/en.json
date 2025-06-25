@@ -31,7 +31,7 @@
     "comingSoon": "Coming soon...",
     "moodChartTitle": "Mood Trends",
     "biometricChartTitle": "Biometric Data",
-    "studentPerformanceChartTitle": "Student Performance Trends",
+    "studentPerformanceChartTitle": "Performance by Course Type",
     "freeNotesTitle": "Add a Note",
     "freeNotesDescription": "Add a note about your day. Each note is saved as a separate entry.",
     "freeNotesPlaceholder": "Jot down your thoughts... These notes will be used by the AI companion to understand your mood and customize your plan.",
@@ -65,6 +65,11 @@
     },
      "stories": {
       "title": "Learn & Earn"
+    },
+    "courseTypes": {
+      "analytical": "Analytical",
+      "humanities": "Humanities & Arts",
+      "practical": "Practical"
     }
   },
   "journalPage": {

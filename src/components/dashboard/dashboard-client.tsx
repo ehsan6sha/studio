@@ -39,13 +39,13 @@ const biometricData = [
 ];
 
 const studentPerformanceData = [
-  { date: "2024-07-01", grade: 85, subject: "ریاضی" },
-  { date: "2024-07-02", grade: 92, subject: "علوم" },
-  { date: "2024-07-03", grade: 78, subject: "تاریخ" },
-  { date: "2024-07-04", grade: 88, subject: "ادبیات" },
-  { date: "2024-07-05", grade: 95, subject: "فیزیک" },
-  { date: "2024-07-06", grade: 81, subject: "شیمی" },
-  { date: "2024-07-07", grade: 90, subject: "ورزش" },
+  { date: "2024-07-01", analytical: 85, humanities: 92, practical: 78 },
+  { date: "2024-07-02", analytical: 88, humanities: 89, practical: 81 },
+  { date: "2024-07-03", analytical: 78, humanities: 85, practical: 88 },
+  { date: "2024-07-04", analytical: 92, humanities: 88, practical: 90 },
+  { date: "2024-07-05", analytical: 95, humanities: 91, practical: 85 },
+  { date: "2024-07-06", analytical: 89, humanities: 94, practical: 92 },
+  { date: "2024-07-07", analytical: 91, humanities: 90, practical: 95 },
 ];
 
 const chartConfigMood = {
@@ -63,13 +63,6 @@ const chartConfigBiometric = {
   heartRate: {
     label: "Heart Rate (bpm)",
     color: "hsl(var(--secondary))",
-  },
-};
-
-const chartConfigStudentPerformance = {
-  grade: {
-    label: "Grade",
-    color: "hsl(var(--destructive))",
   },
 };
 
@@ -95,6 +88,21 @@ export function DashboardClient({ dictionary, lang }: DashboardClientProps) {
     questionnaire: false,
     share: false,
   });
+
+  const chartConfigStudentPerformance = {
+    analytical: {
+      label: dictionary.courseTypes.analytical,
+      color: "hsl(var(--chart-1))",
+    },
+    humanities: {
+      label: dictionary.courseTypes.humanities,
+      color: "hsl(var(--chart-2))",
+    },
+    practical: {
+      label: dictionary.courseTypes.practical,
+      color: "hsl(var(--chart-3))",
+    },
+  };
 
   const checkTasks = useCallback(() => {
     const profileComplete = !!(user?.name && user?.emailOrPhone && user?.dob);
@@ -346,13 +354,16 @@ export function DashboardClient({ dictionary, lang }: DashboardClientProps) {
                   <CardContent className="h-[300px] p-0">
                     <ChartContainer config={chartConfigStudentPerformance} className="w-full h-full">
                       <ResponsiveContainer width="100%" height="100%">
-                        <LineChart data={studentPerformanceData} margin={{ top: 20, right: isRTL ? 10 : 30, left: isRTL ? 30 : 10, bottom: 5 }}>
+                        <BarChart data={studentPerformanceData} margin={{ top: 20, right: isRTL ? 10 : 30, left: isRTL ? 30 : 10, bottom: 5 }}>
                           <CartesianGrid strokeDasharray="3 3" />
-                          <XAxis dataKey={isRTL ? "subject" : "date"} reversed={isRTL} />
+                          <XAxis dataKey="date" reversed={isRTL} />
                           <YAxis orientation={isRTL ? 'right' : 'left'} domain={[0, 100]} />
                           <ChartTooltip content={<ChartTooltipContent />} />
-                          <Line type="monotone" dataKey="grade" stroke="var(--color-grade)" strokeWidth={2} dot={{ r: 4, fill: "var(--color-grade)" }} />
-                        </LineChart>
+                          <ChartLegend content={<ChartLegendContent />} />
+                          <Bar dataKey="analytical" fill="var(--color-analytical)" radius={4} />
+                          <Bar dataKey="humanities" fill="var(--color-humanities)" radius={4} />
+                          <Bar dataKey="practical" fill="var(--color-practical)" radius={4} />
+                        </BarChart>
                       </ResponsiveContainer>
                     </ChartContainer>
                   </CardContent>

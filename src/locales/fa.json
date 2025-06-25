@@ -31,7 +31,7 @@
     "comingSoon": "به زودی...",
     "moodChartTitle": "نمودار روند خلق‌وخو",
     "biometricChartTitle": "نمودار داده‌های بیومتریک",
-    "studentPerformanceChartTitle": "روند عملکرد دانش‌آموز",
+    "studentPerformanceChartTitle": "عملکرد بر اساس نوع دروس",
     "freeNotesTitle": "افزودن یادداشت",
     "freeNotesDescription": "یادداشتی درباره روز خود اضافه کنید. هر یادداشت به عنوان یک ورودی جداگانه ذخیره می شود.",
     "freeNotesPlaceholder": "افکار خود را اینجا بنویسید... این یادداشت‌ها توسط همراه هوش مصنوعی برای درک حالت شما و سفارشی‌سازی طرح شما استفاده خواهد شد.",
@@ -65,6 +65,11 @@
     },
     "stories": {
       "title": "یاد بگیرید و جایزه بگیرید"
+    },
+    "courseTypes": {
+      "analytical": "دروس تحلیلی",
+      "humanities": "علوم انسانی و هنر",
+      "practical": "دروس عملی"
     }
   },
   "journalPage": {
