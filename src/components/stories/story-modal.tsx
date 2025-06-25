@@ -1,10 +1,11 @@
+
 'use client';
 import { useState, useEffect, useCallback } from 'react';
 import { X, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, motion, TapInfo, PanInfo } from 'framer-motion';
 import { StoryProgress } from './story-progress';
 import type { Story, StoryContent } from './story-viewer';
 import Image from 'next/image';
@@ -82,34 +83,29 @@ export function StoryModal({ stories, initialStoryIndex, onClose, lang, title }:
     return null;
   }
   
-  const handleTap = (event: MouseEvent | TouchEvent | PointerEvent) => {
-    // Prevent tap if a button was clicked
+  const handleTap = (event: MouseEvent | TouchEvent | PointerEvent, info: TapInfo) => {
     if (event.target instanceof HTMLElement && event.target.closest('button')) {
       return;
     }
     
-    // Use the event's currentTarget to ensure we get the dimensions of the motion.div
-    const { clientX, currentTarget } = event as MouseEvent;
-    if (!currentTarget) return;
-    const { left, width } = (currentTarget as HTMLElement).getBoundingClientRect();
-    const tapPosition = (clientX - left) / width;
+    const targetElement = event.currentTarget as HTMLElement;
+    if (!targetElement) return;
+
+    const { left, width } = targetElement.getBoundingClientRect();
+    const tapPosition = (info.point.x - left) / width;
     
     if (lang === 'fa') {
-      if (tapPosition < 0.3) {
-        goToNextPage();
-      } else {
-        goToPreviousPage();
-      }
+      if (tapPosition < 0.3) { goToNextPage(); } 
+      else { goToPreviousPage(); }
     } else { // LTR
-      if (tapPosition > 0.7) {
-        goToNextPage();
-      } else {
-        goToPreviousPage();
-      }
+      if (tapPosition > 0.7) { goToNextPage(); } 
+      else { goToPreviousPage(); }
     }
   };
   
-  const handleDragEnd = (event: MouseEvent | TouchEvent | PointerEvent, info: any) => {
+  const handleDragEnd = (event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
+    setIsPaused(false); // Always resume on drag end
+
     const swipeThreshold = 50;
     const velocityThreshold = 200;
 
@@ -119,9 +115,9 @@ export function StoryModal({ stories, initialStoryIndex, onClose, lang, title }:
 
     if (isHorizontalSwipe) {
       if (offset.x < -swipeThreshold || velocity.x < -velocityThreshold) {
-        goToNextStory();
+        lang === 'fa' ? goToPreviousStory() : goToNextStory();
       } else if (offset.x > swipeThreshold || velocity.x > velocityThreshold) {
-        goToPreviousStory();
+        lang === 'fa' ? goToNextStory() : goToPreviousStory();
       }
     } else {
       if (offset.y > swipeThreshold * 2 || velocity.y > velocityThreshold) {
@@ -147,24 +143,25 @@ export function StoryModal({ stories, initialStoryIndex, onClose, lang, title }:
         </DialogHeader>
         <div 
           className="relative w-full h-full max-w-[420px] max-h-[95vh] flex flex-col bg-black rounded-lg overflow-hidden select-none"
-          onMouseDown={() => setIsPaused(true)}
-          onMouseUp={() => setIsPaused(false)}
-          onTouchStart={() => setIsPaused(true)}
-          onTouchEnd={() => setIsPaused(false)}
         >
           {/* Main content with animation for swipe */}
-          <AnimatePresence initial={false} custom={currentStoryIndex}>
+          <AnimatePresence initial={false}>
             <motion.div
               key={currentStoryIndex}
               className="absolute inset-0"
               drag={true}
               dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
               dragElastic={0.2}
+              onDragStart={() => setIsPaused(true)}
               onDragEnd={handleDragEnd}
-              onTap={handleTap}
-              initial={{ x: '100%' }}
+              onTapStart={() => setIsPaused(true)}
+              onTapCancel={() => setIsPaused(false)}
+              onTap={(event, info) => {
+                handleTap(event, info);
+              }}
+              initial={{ x: lang === 'fa' ? '-100%' : '100%' }}
               animate={{ x: 0, y: 0 }}
-              exit={{ x: '-100%' }}
+              exit={{ x: lang === 'fa' ? '100%' : '-100%' }}
               transition={{ type: 'spring', stiffness: 300, damping: 30 }}
             >
               {currentPageContent && <StoryContentDisplay content={currentPageContent} />}
@@ -181,7 +178,7 @@ export function StoryModal({ stories, initialStoryIndex, onClose, lang, title }:
                 duration={STORY_DURATION}
                 isPaused={isPaused}
               />
-              <div className="flex items-center space-x-3 mt-3">
+              <div className="flex items-center space-x-3 rtl:space-x-reverse mt-3">
                 <Avatar className="h-10 w-10 border-2 border-white">
                   <AvatarImage src={currentStory.avatar} alt={currentStory.username} data-ai-hint={currentStory.avatarAiHint} />
                   <AvatarFallback>{currentStory.username.substring(0, 2)}</AvatarFallback>
