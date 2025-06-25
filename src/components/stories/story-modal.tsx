@@ -33,32 +33,38 @@ export function StoryModal({ stories, initialStoryIndex, onClose, lang, title }:
     const story = stories[currentStoryIndex];
     if (!story) return;
 
-    setCurrentPageIndex(prev => {
-      if (prev < story.content.length - 1) {
-        return prev + 1;
-      }
+    if (currentPageIndex < story.content.length - 1) {
+      // We're not on the last page, so just advance the page
+      setCurrentPageIndex(prev => prev + 1);
+    } else {
+      // We are on the last page of the current story
       if (currentStoryIndex < stories.length - 1) {
-        setCurrentStoryIndex(prevIdx => prevIdx + 1);
-        return 0;
+        // There's a next story, so go to it
+        setCurrentStoryIndex(prev => prev + 1);
+        setCurrentPageIndex(0);
+      } else {
+        // It's the last page of the last story, so close the modal
+        onClose();
       }
-      onClose();
-      return prev;
-    });
-  }, [currentStoryIndex, stories, onClose]);
+    }
+  }, [currentPageIndex, currentStoryIndex, stories, onClose]);
+
 
   const goToPreviousPage = useCallback(() => {
-    setCurrentPageIndex(prev => {
-      if (prev > 0) {
-        return prev - 1;
-      }
+     if (currentPageIndex > 0) {
+      // We're not on the first page, so just go back one page
+      setCurrentPageIndex(prev => prev - 1);
+    } else {
+      // We are on the first page of the current story
       if (currentStoryIndex > 0) {
+        // There's a previous story, so go to it
         const prevStory = stories[currentStoryIndex - 1];
-        setCurrentStoryIndex(prevIdx => prevIdx - 1);
-        return prevStory.content.length - 1;
+        setCurrentStoryIndex(prev => prev - 1);
+        setCurrentPageIndex(prevStory.content.length - 1); // Go to its last page
       }
-      return 0;
-    });
-  }, [currentStoryIndex, stories]);
+      // If it's the first page of the first story, do nothing.
+    }
+  }, [currentPageIndex, currentStoryIndex, stories]);
 
   const goToNextStory = useCallback(() => {
     if (currentStoryIndex < stories.length - 1) {
