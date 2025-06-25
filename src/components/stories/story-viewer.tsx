@@ -29,41 +29,41 @@ const stories: Story[] = [
   {
     id: 'user1',
     username: 'RavanHamrah',
-    avatar: 'https://placehold.co/100x100.png',
+    avatar: 'https://source.unsplash.com/100x100/?logo,abstract',
     avatarAiHint: 'logo abstract',
     content: [
-      { type: 'image', url: 'https://placehold.co/1080x1920.png', aiHint: 'inspirational quote', header: 'Welcome!', text: 'Discover daily tips for mental wellness.' },
-      { type: 'image', url: 'https://placehold.co/1080x1920.png', aiHint: 'calm meditation', header: 'Mindfulness', text: 'Take 5 minutes to breathe deeply.' },
+      { type: 'image', url: 'https://source.unsplash.com/1080x1920/?nature,calm', aiHint: 'nature calm', header: 'Welcome!', text: 'Discover daily tips for mental wellness.' },
+      { type: 'image', url: 'https://source.unsplash.com/1080x1920/?meditation,calm', aiHint: 'calm meditation', header: 'Mindfulness', text: 'Take 5 minutes to breathe deeply.' },
     ],
   },
   {
     id: 'user2',
     username: 'Dr. Ahmadi',
-    avatar: 'https://placehold.co/100x100.png',
+    avatar: 'https://source.unsplash.com/100x100/?portrait,doctor',
     avatarAiHint: 'professional portrait',
     content: [
-      { type: 'image', url: 'https://placehold.co/1080x1920.png', aiHint: 'psychology book', header: 'Cognitive Biases', text: 'Learn how your thoughts can trick you. Today, we look at confirmation bias.' },
-      { type: 'image', url: 'https://placehold.co/1080x1920.png', aiHint: 'journal writing', header: 'Journaling Tip', text: 'Try writing down three things you are grateful for each day.' },
-      { type: 'image', url: 'https://placehold.co/1080x1920.png', aiHint: 'brain illustration', header: 'Neuroplasticity', text: 'Your brain can change and adapt, no matter your age.' },
+      { type: 'image', url: 'https://source.unsplash.com/1080x1920/?psychology,book', aiHint: 'psychology book', header: 'Cognitive Biases', text: 'Learn how your thoughts can trick you. Today, we look at confirmation bias.' },
+      { type: 'image', url: 'https://source.unsplash.com/1080x1920/?journal,writing', aiHint: 'journal writing', header: 'Journaling Tip', text: 'Try writing down three things you are grateful for each day.' },
+      { type: 'image', url: 'https://source.unsplash.com/1080x1920/?brain,illustration', aiHint: 'brain illustration', header: 'Neuroplasticity', text: 'Your brain can change and adapt, no matter your age.' },
     ],
   },
   {
     id: 'user3',
     username: 'HealthyHabits',
-    avatar: 'https://placehold.co/100x100.png',
+    avatar: 'https://source.unsplash.com/100x100/?healthy,food',
     avatarAiHint: 'healthy food',
     content: [
-      { type: 'image', url: 'https://placehold.co/1080x1920.png', aiHint: 'running shoes', header: 'Move Your Body', text: 'Even a 15-minute walk can boost your mood.' },
+      { type: 'image', url: 'https://source.unsplash.com/1080x1920/?running,shoes', aiHint: 'running shoes', header: 'Move Your Body', text: 'Even a 15-minute walk can boost your mood.' },
     ],
   },
   {
     id: 'user4',
     username: 'SleepWell',
-    avatar: 'https://placehold.co/100x100.png',
+    avatar: 'https://source.unsplash.com/100x100/?moon,stars',
     avatarAiHint: 'moon stars',
     content: [
-      { type: 'image', url: 'https://placehold.co/1080x1920.png', aiHint: 'bedroom night', header: 'Sleep Hygiene', text: 'Avoid screens for at least an hour before bed for better sleep quality.' },
-      { type: 'image', url: 'https://placehold.co/1080x1920.png', aiHint: 'cup tea', header: 'Herbal Tea', text: 'Chamomile tea can help you relax before sleeping.' },
+      { type: 'image', url: 'https://source.unsplash.com/1080x1920/?bedroom,night', aiHint: 'bedroom night', header: 'Sleep Hygiene', text: 'Avoid screens for at least an hour before bed for better sleep quality.' },
+      { type: 'image', url: 'https://source.unsplash.com/1080x1920/?tea,cup', aiHint: 'cup tea', header: 'Herbal Tea', text: 'Chamomile tea can help you relax before sleeping.' },
     ],
   },
 ];
