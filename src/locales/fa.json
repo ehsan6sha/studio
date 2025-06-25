@@ -67,9 +67,9 @@
       "title": "یاد بگیرید و جایزه بگیرید"
     },
     "courseTypes": {
-      "analytical": "دروس تحلیلی",
-      "humanities": "علوم انسانی و هنر",
-      "practical": "دروس عملی"
+      "analytical": "تحلیلی",
+      "humanities": "حفظی",
+      "practical": "عملی"
     }
   },
   "journalPage": {
