@@ -121,6 +121,7 @@ export function JournalHistory({ dictionary, lang }: JournalHistoryProps) {
   const filteredHistory = useMemo(() => {
     return history
       .filter(entry => {
+        if (!entry) return false; // Prevent crashes on bad data
         if (!filterType || filterType === 'all') {
           return true;
         }
@@ -129,6 +130,10 @@ export function JournalHistory({ dictionary, lang }: JournalHistoryProps) {
       .filter(entry => {
         if (!filterDate) {
           return true;
+        }
+        // Defensively check for timestamp to prevent crashes on legacy data.
+        if (typeof entry.timestamp !== 'string') {
+          return false;
         }
         const entryDateStr = entry.timestamp.substring(0, 10);
         return entryDateStr === filterDate;
