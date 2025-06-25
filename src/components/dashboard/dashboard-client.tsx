@@ -91,15 +91,15 @@ export function DashboardClient({ dictionary, lang }: DashboardClientProps) {
 
   const chartConfigStudentPerformance = {
     analytical: {
-      label: dictionary.courseTypes.analytical,
+      label: dictionary.courseTypes?.analytical || (isRTL ? 'تحلیلی' : 'Analytical'),
       color: "hsl(var(--chart-1))",
     },
     humanities: {
-      label: dictionary.courseTypes.humanities,
+      label: dictionary.courseTypes?.humanities || (isRTL ? 'حفظی' : 'Humanities & Arts'),
       color: "hsl(var(--chart-2))",
     },
     practical: {
-      label: dictionary.courseTypes.practical,
+      label: dictionary.courseTypes?.practical || (isRTL ? 'عملی' : 'Practical'),
       color: "hsl(var(--chart-3))",
     },
   };
