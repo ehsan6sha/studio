@@ -107,7 +107,6 @@ export function ProfileForm({ dictionary, lang }: ProfileFormProps) {
                         lang={lang}
                         value={field.value}
                         onChange={field.onChange}
-                        dictionary={{ placeholder: dictionary.dobPlaceholder }}
                       />
                   </FormControl>
                   <FormMessage />
