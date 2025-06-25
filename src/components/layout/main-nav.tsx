@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import type { Locale } from '@/i18n-config';
+import { useState, useEffect } from 'react';
 
 interface MainNavProps {
   lang: Locale;
@@ -14,6 +15,21 @@ interface MainNavProps {
 
 export function MainNav({ lang, dictionary, isAuthenticated }: MainNavProps) {
   const pathname = usePathname();
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  useEffect(() => {
+    const updateCount = () => {
+      const count = localStorage.getItem('unreadNotifications');
+      setUnreadCount(count ? parseInt(count, 10) : 0);
+    };
+
+    updateCount(); // Initial check
+
+    window.addEventListener('storage', updateCount);
+    return () => {
+      window.removeEventListener('storage', updateCount);
+    };
+  }, []);
 
   if (!isAuthenticated) {
     return null;
@@ -23,7 +39,7 @@ export function MainNav({ lang, dictionary, isAuthenticated }: MainNavProps) {
   const navItemDefinitions = [
     { key: 'dashboard', defaultLabel: 'Dashboard', href: `/${lang}/dashboard` },
     { key: 'journal', defaultLabel: 'Journal', href: `/${lang}/journal` },
-    { key: 'insights', defaultLabel: 'Insights', href: `/${lang}/insights` },
+    { key: 'notifications', defaultLabel: 'Notifications', href: `/${lang}/insights` },
     { key: 'specialists', defaultLabel: 'Specialists', href: `/${lang}/specialists` },
     { key: 'settings', defaultLabel: 'Settings', href: `/${lang}/settings` },
   ];
@@ -32,16 +48,22 @@ export function MainNav({ lang, dictionary, isAuthenticated }: MainNavProps) {
     <nav className="hidden md:flex items-center space-x-6 rtl:space-x-reverse text-sm font-medium mx-6">
       {navItemDefinitions.map((itemDef) => {
         const label = dictionary[itemDef.key] || itemDef.defaultLabel;
+        const isNotifications = itemDef.key === 'notifications';
         return (
           <Link
             key={itemDef.href}
             href={itemDef.href}
             className={cn(
-              'transition-colors hover:text-foreground/80',
-              pathname === itemDef.href ? 'text-foreground' : 'text-foreground/60'
+              'transition-colors hover:text-foreground/80 flex items-center gap-2 relative',
+              pathname.startsWith(itemDef.href) ? 'text-foreground' : 'text-foreground/60'
             )}
           >
             {label}
+            {isNotifications && unreadCount > 0 && (
+                <span className="bg-primary text-primary-foreground text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full">
+                    {unreadCount}
+                </span>
+            )}
           </Link>
         );
       })}

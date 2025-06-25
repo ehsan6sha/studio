@@ -5,7 +5,7 @@
   "navigation": {
     "dashboard": "داشبورد",
     "journal": "تاریخچه یادداشت",
-    "insights": "بینش‌ها",
+    "notifications": "اعلان‌ها",
     "specialists": "متخصصین",
     "settings": "تنظیمات",
     "login": "ورود",
@@ -33,9 +33,10 @@
     "biometricChartTitle": "نمودار داده‌های بیومتریک",
     "studentPerformanceChartTitle": "عملکرد بر اساس نوع دروس",
     "freeNotesTitle": "افزودن یادداشت",
-    "freeNotesDescription": "یادداشتی درباره روز خود اضافه کنید. هر یادداشت به عنوان یک ورودی جداگانه ذخیره می شود.",
+    "freeNotesDescription": "یک یادداشت جدید درباره روز خود شروع کنید.",
     "freeNotesPlaceholder": "افکار خود را اینجا بنویسید... این یادداشت‌ها توسط همراه هوش مصنوعی برای درک حالت شما و سفارشی‌سازی طرح شما استفاده خواهد شد.",
     "saveNoteButton": "ذخیره یادداشت",
+    "newNoteButton": "یادداشت جدید",
     "noteSavedSuccess": "یادداشت با موفقیت ذخیره شد!",
     "moodEmojis": {
       "great": "عالی",
@@ -102,9 +103,30 @@
       "confirm": "حذف"
     }
   },
-  "insightsPage": {
-    "title": "بینش‌های هوشمند",
-    "description": "در اینجا بینش‌های شخصی‌سازی شده بر اساس داده‌های شما نمایش داده می‌شود."
+  "notificationsPage": {
+    "title": "اعلان‌ها",
+    "description": "درخواست‌ها و به‌روزرسانی‌های دیگران را مرور کنید.",
+    "markAllAsRead": "علامت‌گذاری همه به عنوان خوانده شده",
+    "markAsRead": "علامت‌گذاری به عنوان خوانده شده",
+    "markAsUnread": "علامت‌گذاری به عنوان خوانده نشده",
+    "noNotifications": "شما اعلان جدیدی ندارید.",
+    "requestedPermissions": "دسترسی‌های درخواستی:",
+    "positionOffered": "موقعیت پیشنهادی:",
+    "tabs": {
+        "all": "همه",
+        "connections": "ارتباطات",
+        "invitations": "دعوت‌نامه‌ها",
+        "content": "محتوا"
+    },
+    "buttons": {
+        "accept": "پذیرش",
+        "ignore": "نادیده گرفتن"
+    },
+    "toast": {
+        "accepted": "درخواست پذیرفته شد",
+        "ignored": "درخواست نادیده گرفته شد",
+        "removed": "اعلان حذف شد."
+    }
   },
   "specialistsPage": {
     "title": "ارجاع به متخصص",
