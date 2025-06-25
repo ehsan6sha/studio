@@ -29,39 +29,34 @@ export function StoryModal({ stories, initialStoryIndex, onClose, lang, title }:
 
   const currentStory = stories[currentStoryIndex];
 
-  // Fix: Add a guard clause to prevent rendering if currentStory is undefined.
-  // This can happen during rapid transitions or on close, preventing a crash.
-  if (!currentStory) {
-    return null;
-  }
-
   const goToNextPage = useCallback(() => {
+    const story = stories[currentStoryIndex];
+    if (!story) return;
+
     setCurrentPageIndex(prev => {
-      if (prev < currentStory.content.length - 1) {
+      if (prev < story.content.length - 1) {
         return prev + 1;
       }
-      // If on the last page of a story, go to the next story
       if (currentStoryIndex < stories.length - 1) {
         setCurrentStoryIndex(prevIdx => prevIdx + 1);
-        return 0; // Reset to the first page of the new story
+        return 0;
       }
-      onClose(); // Close if it's the absolute last page
+      onClose();
       return prev;
     });
-  }, [currentStory, currentStoryIndex, stories.length, onClose]);
+  }, [currentStoryIndex, stories, onClose]);
 
   const goToPreviousPage = useCallback(() => {
     setCurrentPageIndex(prev => {
       if (prev > 0) {
         return prev - 1;
       }
-      // If on the first page, go to previous story
       if (currentStoryIndex > 0) {
         const prevStory = stories[currentStoryIndex - 1];
         setCurrentStoryIndex(prevIdx => prevIdx - 1);
-        return prevStory.content.length - 1; // Go to the last page of the previous story
+        return prevStory.content.length - 1;
       }
-      return 0; // Stay on the first page if it's the first story
+      return 0;
     });
   }, [currentStoryIndex, stories]);
 
@@ -69,7 +64,7 @@ export function StoryModal({ stories, initialStoryIndex, onClose, lang, title }:
     if (currentStoryIndex < stories.length - 1) {
       setCurrentStoryIndex(prev => prev + 1);
     } else {
-      onClose(); // Close modal if it's the last story
+      onClose();
     }
   }, [currentStoryIndex, stories.length, onClose]);
 
@@ -83,17 +78,20 @@ export function StoryModal({ stories, initialStoryIndex, onClose, lang, title }:
   useEffect(() => {
     if (isPaused) return;
 
-    const timer = setTimeout(() => {
-      goToNextPage();
-    }, STORY_DURATION);
+    const timer = setTimeout(goToNextPage, STORY_DURATION);
 
     return () => clearTimeout(timer);
   }, [currentPageIndex, currentStoryIndex, isPaused, goToNextPage]);
   
-  // Reset page index when story changes via swipe/buttons
   useEffect(() => {
       setCurrentPageIndex(0);
   }, [currentStoryIndex]);
+
+  // The guard clause is moved here, after all hooks have been called.
+  // This prevents the "Rendered fewer hooks than expected" error.
+  if (!currentStory) {
+    return null;
+  }
 
   const handleTap = (e: React.MouseEvent<HTMLDivElement>) => {
     const { clientX, currentTarget } = e;
