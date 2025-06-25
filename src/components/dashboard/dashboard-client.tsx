@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
@@ -283,7 +284,7 @@ export function DashboardClient({ dictionary, lang }: DashboardClientProps) {
                         <LineChart data={moodData} margin={{ top: 20, right: isRTL ? 10 : 30, left: isRTL ? 30 : 10, bottom: 5 }}>
                           <CartesianGrid strokeDasharray="3 3" />
                           <XAxis dataKey={isRTL ? "day" : "date"} reversed={isRTL} />
-                          <YAxis reversed={isRTL} orientation={isRTL ? 'right' : 'left'} domain={[1, 5]} />
+                          <YAxis orientation={isRTL ? 'right' : 'left'} domain={[1, 5]} />
                           <ChartTooltip content={<ChartTooltipContent />} />
                           <Line type="monotone" dataKey="mood" stroke="hsl(var(--primary))" strokeWidth={2} dot={{ r: 4, fill: "hsl(var(--primary))" }} />
                         </LineChart>
@@ -304,8 +305,8 @@ export function DashboardClient({ dictionary, lang }: DashboardClientProps) {
                          <BarChart data={biometricData} margin={{ top: 20, right: isRTL ? 10 : 30, left: isRTL ? 30 : 10, bottom: 5 }}>
                           <CartesianGrid strokeDasharray="3 3" />
                           <XAxis dataKey="date" reversed={isRTL} />
-                          <YAxis yAxisId="left" orientation={isRTL ? 'right' : 'left'} stroke="var(--color-sleep)" reversed={isRTL}/>
-                          <YAxis yAxisId="right" orientation={isRTL ? 'left' : 'right'} stroke="var(--color-heartRate)" reversed={isRTL}/>
+                          <YAxis yAxisId="left" orientation={isRTL ? 'right' : 'left'} stroke="var(--color-sleep)" />
+                          <YAxis yAxisId="right" orientation={isRTL ? 'left' : 'right'} stroke="var(--color-heartRate)" />
                           <ChartTooltip content={<ChartTooltipContent />} />
                           <ChartLegend content={<ChartLegendContent />} />
                           <Bar yAxisId="left" dataKey="sleep" fill="var(--color-sleep)" radius={4} />
