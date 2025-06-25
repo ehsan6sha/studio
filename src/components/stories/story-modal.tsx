@@ -98,7 +98,7 @@ export function StoryModal({ stories, initialStoryIndex, onClose, lang, title }:
   if (!currentStory) {
     return null;
   }
-
+  
   const handleTap = (e: React.MouseEvent<HTMLDivElement>) => {
     const { clientX, currentTarget } = e;
     const { left, width } = currentTarget.getBoundingClientRect();
@@ -130,6 +130,9 @@ export function StoryModal({ stories, initialStoryIndex, onClose, lang, title }:
       goToNextStory();
     }
   };
+  
+  const currentPageContent = currentStory.content[currentPageIndex];
+
 
   return (
     <Dialog open={true} onOpenChange={(open) => !open && onClose()}>
@@ -166,7 +169,7 @@ export function StoryModal({ stories, initialStoryIndex, onClose, lang, title }:
               exit={{ x: '-100%' }}
               transition={{ type: 'spring', stiffness: 300, damping: 30 }}
             >
-              <StoryContentDisplay content={currentStory.content[currentPageIndex]} />
+              {currentPageContent && <StoryContentDisplay content={currentPageContent} />}
             </motion.div>
           </AnimatePresence>
 
