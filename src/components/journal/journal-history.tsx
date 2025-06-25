@@ -5,7 +5,6 @@ import React, { useState, useEffect, useCallback } from 'react';
 import {
   Card,
   CardContent,
-  CardDescription,
   CardFooter,
   CardHeader,
   CardTitle,
@@ -29,6 +28,7 @@ import { Edit, Trash2, Smile } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 import { enUS } from 'date-fns/locale';
 import { faIR as faIRJalali } from 'date-fns-jalali/locale';
+import { Separator } from '@/components/ui/separator';
 
 const JOURNAL_HISTORY_KEY = 'hami-journal-history';
 
@@ -128,16 +128,23 @@ export function JournalHistory({ dictionary, lang }: JournalHistoryProps) {
         <Card key={entry.date} className="shadow-lg">
           <CardHeader>
             <CardTitle>{formatDate(entry.date)}</CardTitle>
-            {entry.mood && (
-                 <CardDescription className="flex items-center gap-2 pt-1">
-                    <Smile className="h-4 w-4"/> {entry.mood.primary}
-                    {entry.mood.subMoods.length > 0 && 
-                        <span className="text-xs text-muted-foreground">({entry.mood.subMoods.join(', ')})</span>
-                    }
-                 </CardDescription>
-            )}
           </CardHeader>
           <CardContent>
+            {entry.mood && (
+              <div className="mb-4">
+                <div className="flex items-center gap-2">
+                    <Smile className="h-5 w-5 text-primary"/>
+                    <div>
+                      <p className="font-semibold">{entry.mood.primary}</p>
+                      {entry.mood.subMoods.length > 0 && 
+                          <p className="text-sm text-muted-foreground">({entry.mood.subMoods.join(lang === 'fa' ? '، ' : ', ')})</p>
+                      }
+                    </div>
+                </div>
+                {entry.note && <Separator className="my-4" />}
+              </div>
+            )}
+            
             {editingIndex === index ? (
               <Textarea
                 value={editingNote}
@@ -146,9 +153,11 @@ export function JournalHistory({ dictionary, lang }: JournalHistoryProps) {
                 autoFocus
               />
             ) : (
-              <p className="text-foreground/90 whitespace-pre-wrap min-h-[40px]">
-                {entry.note || <span className="text-muted-foreground">{dictionary.noNote}</span>}
-              </p>
+              (entry.note || (!entry.note && !entry.mood)) && (
+                <p className="text-foreground/90 whitespace-pre-wrap min-h-[24px]">
+                  {entry.note || <span className="text-muted-foreground">{dictionary.noNote}</span>}
+                </p>
+              )
             )}
           </CardContent>
           <CardFooter className="flex justify-end gap-2">
@@ -161,7 +170,7 @@ export function JournalHistory({ dictionary, lang }: JournalHistoryProps) {
               </>
             ) : (
               <>
-                {index === 0 && ( // Only allow editing the latest entry
+                {index === 0 && entry.note && ( // Only show edit if there is a note to edit, and it's the latest entry
                   <Button variant="outline" size="icon" onClick={() => handleEdit(index)}>
                     <Edit className="h-4 w-4" />
                      <span className="sr-only">{dictionary.buttons.edit}</span>
