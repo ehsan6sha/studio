@@ -69,6 +69,7 @@ export function StoryModal({ stories, initialStoryIndex, onClose, lang, title }:
   const goToNextStory = useCallback(() => {
     if (currentStoryIndex < stories.length - 1) {
       setCurrentStoryIndex(prev => prev + 1);
+      setCurrentPageIndex(0);
     } else {
       onClose();
     }
@@ -77,6 +78,7 @@ export function StoryModal({ stories, initialStoryIndex, onClose, lang, title }:
   const goToPreviousStory = useCallback(() => {
     if (currentStoryIndex > 0) {
       setCurrentStoryIndex(prev => prev - 1);
+      setCurrentPageIndex(0);
     }
   }, [currentStoryIndex]);
 
@@ -121,13 +123,27 @@ export function StoryModal({ stories, initialStoryIndex, onClose, lang, title }:
   };
   
   const handleDragEnd = (event: MouseEvent | TouchEvent | PointerEvent, info: any) => {
-    const offset = info.offset.x;
-    const velocity = info.velocity.x;
+    const swipeThreshold = 100;
+    const velocityThreshold = 300;
 
-    if (offset > 100 || velocity > 500) {
-      goToPreviousStory();
-    } else if (offset < -100 || velocity < -500) {
-      goToNextStory();
+    const offsetX = info.offset.x;
+    const offsetY = info.offset.y;
+    const velocityX = info.velocity.x;
+    const velocityY = info.velocity.y;
+
+    // Determine if swipe is more horizontal or vertical
+    if (Math.abs(offsetX) > Math.abs(offsetY)) {
+      // Horizontal swipe
+      if (offsetX > swipeThreshold || velocityX > velocityThreshold) {
+        goToPreviousStory();
+      } else if (offsetX < -swipeThreshold || velocityX < -velocityThreshold) {
+        goToNextStory();
+      }
+    } else {
+      // Vertical swipe
+      if (Math.abs(offsetY) > swipeThreshold || Math.abs(velocityY) > velocityThreshold) {
+        onClose();
+      }
     }
   };
   
@@ -159,13 +175,13 @@ export function StoryModal({ stories, initialStoryIndex, onClose, lang, title }:
             <motion.div
               key={currentStoryIndex}
               className="absolute inset-0"
-              drag="x"
+              drag={true}
               dragControls={dragControls}
-              dragConstraints={{ left: 0, right: 0 }}
+              dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
               dragElastic={0.2}
               onDragEnd={handleDragEnd}
               initial={{ x: '100%' }}
-              animate={{ x: 0 }}
+              animate={{ x: 0, y: 0 }}
               exit={{ x: '-100%' }}
               transition={{ type: 'spring', stiffness: 300, damping: 30 }}
             >
