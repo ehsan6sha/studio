@@ -1,6 +1,7 @@
+
 'use client';
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import type { Locale } from '@/i18n-config';
 import { getDictionary } from '@/lib/dictionaries';
 import { Button } from '@/components/ui/button';
@@ -88,7 +89,8 @@ const farsiNotifications: Notification[] = [
     },
 ];
 
-export default function NotificationsPage({ params: { lang } }: { params: { lang: Locale } }) {
+export default function NotificationsPage({ params }: { params: { lang: Locale } }) {
+  const { lang } = React.use(params as any);
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [dictionary, setDictionary] = useState<any>(null);
   const { toast } = useToast();
