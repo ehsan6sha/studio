@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import type { Locale } from '@/i18n-config';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import Image from 'next/image';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { StoryModal } from './story-modal';
@@ -90,14 +90,22 @@ export function StoryViewer({ dictionary, lang }: StoryViewerProps) {
                 <ScrollArea className="w-full whitespace-nowrap">
                     <div className="flex space-x-4 pb-4">
                         {stories.map((story, index) => (
-                            <div key={story.id} onClick={() => setSelectedStoryIndex(index)} className="flex-shrink-0 flex flex-col items-center space-y-1 cursor-pointer w-20 text-center">
-                                <div className="relative h-16 w-16 rounded-full p-1 bg-gradient-to-r from-purple-400 via-pink-500 to-red-500">
-                                    <Avatar className="h-full w-full border-2 border-card">
-                                        <AvatarImage src={story.avatar} alt={story.username} data-ai-hint={story.avatarAiHint} />
-                                        <AvatarFallback>{story.username.substring(0, 2)}</AvatarFallback>
-                                    </Avatar>
+                             <div 
+                                key={story.id} 
+                                onClick={() => setSelectedStoryIndex(index)} 
+                                className="flex-shrink-0 group relative w-28 h-40 rounded-lg overflow-hidden cursor-pointer shadow-lg"
+                            >
+                                <Image 
+                                    src={story.content[0].url}
+                                    alt={story.username}
+                                    fill
+                                    className="object-cover transition-transform duration-300 group-hover:scale-110"
+                                    data-ai-hint={story.content[0].aiHint}
+                                />
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent rounded-lg" />
+                                <div className="absolute bottom-0 left-0 right-0 p-2">
+                                    <p className="text-white text-xs font-bold truncate">{story.username}</p>
                                 </div>
-                                <p className="text-xs font-medium truncate w-full">{story.username}</p>
                             </div>
                         ))}
                     </div>
