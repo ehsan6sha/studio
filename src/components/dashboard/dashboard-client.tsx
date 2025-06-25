@@ -16,6 +16,7 @@ import { Textarea } from '@/components/ui/textarea';
 import Link from 'next/link';
 import { useAuth } from '@/context/auth-context';
 import { useToast } from '@/hooks/use-toast';
+import { StoryViewer } from '../stories/story-viewer';
 
 const moodData = [
   { date: "2024-07-01", mood: 3, day: "دوشنبه" },
@@ -133,8 +134,6 @@ export function DashboardClient({ dictionary, lang }: DashboardClientProps) {
   useEffect(() => {
     if (wasOpenRef.current && !isSubMoodSheetOpen) {
       if (selectedPrimaryMood) {
-        // const primaryMoodLabel = Object.keys(dictionary.moodEmojis).find(key => dictionary.moodEmojis[key] === selectedPrimaryMood) || selectedPrimaryMood;
-        
         const subMoodLabels = selectedSubMoods.map(id => dictionary.subMoodSheet.subMoods[id] || id);
         
         const moodData = {
@@ -142,11 +141,6 @@ export function DashboardClient({ dictionary, lang }: DashboardClientProps) {
           subMoods: subMoodLabels,
         };
         addJournalEntry({ type: 'mood', data: moodData });
-        
-        // toast({
-        //   title: dictionary.subMoodSheet.saveSuccessTitle,
-        //   description: dictionary.subMoodSheet.saveSuccessDescription.replace('{primaryMood}', selectedPrimaryMood),
-        // });
       }
     }
     wasOpenRef.current = isSubMoodSheetOpen;
@@ -258,14 +252,9 @@ export function DashboardClient({ dictionary, lang }: DashboardClientProps) {
             </CardContent>
           </Card>
 
-          <Card className="lg:col-span-2">
-              <CardHeader>
-                  <CardTitle>{dictionary.learnAndEarnTitle}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                  <p className="text-muted-foreground">{dictionary.comingSoon}</p>
-              </CardContent>
-          </Card>
+          <div className="lg:col-span-2">
+            <StoryViewer dictionary={dictionary.stories} lang={lang} />
+          </div>
         </div>
 
          <Tabs defaultValue="moods" className="w-full">
