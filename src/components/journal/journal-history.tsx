@@ -46,7 +46,7 @@ interface JournalHistoryProps {
   lang: Locale;
 }
 
-export function JournalForm({ dictionary, lang }: JournalHistoryProps) {
+export function JournalHistory({ dictionary, lang }: JournalHistoryProps) {
   const [history, setHistory] = useState<JournalEntry[]>([]);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [editingNote, setEditingNote] = useState<string>('');

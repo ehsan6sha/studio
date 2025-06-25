@@ -4,7 +4,7 @@
   "tagline": "Your Personal Mental Health Companion",
   "navigation": {
     "dashboard": "Dashboard",
-    "journal": "Daily Journal",
+    "journal": "Journal History",
     "insights": "Insights",
     "specialists": "Specialists",
     "settings": "Settings",
@@ -47,7 +47,7 @@
       "saveButton": "Save Details",
       "skipButton": "Skip",
       "saveSuccessTitle": "Details Saved",
-      "saveSuccessDescription": "Your additional {count} mood(s) have been logged.",
+      "saveSuccessDescription": "Your mood of '{primaryMood}' has been logged.",
       "subMoods": {
         "happy": "Happy",
         "sad": "Sad",
@@ -62,20 +62,26 @@
     }
   },
   "journalPage": {
-    "title": "Daily Journaling",
-    "formTitle": "How was your day?",
-    "moodOptions": {
-      "excellent": "Excellent",
-      "good": "Good",
-      "average": "Average",
-      "bad": "Bad",
-      "very_bad": "Very Bad"
+    "title": "Journal History",
+    "description": "Review and manage your past daily entries.",
+    "noEntries": "You have no journal entries yet. Go to the dashboard to log your mood or write a note.",
+    "noNote": "No note was written for this day.",
+    "buttons": {
+      "edit": "Edit",
+      "delete": "Delete",
+      "save": "Save",
+      "cancel": "Cancel"
     },
-    "sleepLabel": "How was your sleep quality? (1 Low - 5 High)",
-    "consumptionLabel": "Consumption Habits (Optional)",
-    "entryLabel": "Your journal entry for today:",
-    "submitButton": "Submit Entry",
-    "journalSavedSuccess": "Journal entry saved successfully."
+    "toast": {
+      "editSuccess": "Entry updated successfully.",
+      "deleteSuccess": "Entry has been deleted."
+    },
+    "deleteDialog": {
+      "title": "Are you absolutely sure?",
+      "description": "This action cannot be undone. This will permanently delete your journal entry for this day.",
+      "cancel": "Cancel",
+      "confirm": "Delete"
+    }
   },
   "insightsPage": {
     "title": "AI Insights",

@@ -60,6 +60,8 @@ interface DashboardClientProps {
     lang: Locale;
 }
 
+const JOURNAL_HISTORY_KEY = 'hami-journal-history';
+
 export function DashboardClient({ dictionary, lang }: DashboardClientProps) {
   const [isSubMoodSheetOpen, setIsSubMoodSheetOpen] = useState(false);
   const [selectedPrimaryMood, setSelectedPrimaryMood] = useState<string | null>(null);
@@ -77,13 +79,8 @@ export function DashboardClient({ dictionary, lang }: DashboardClientProps) {
   });
 
   const checkTasks = useCallback(() => {
-    // Check profile completion
     const profileComplete = !!(user?.name && user?.emailOrPhone && user?.dob);
-
-    // Check questionnaire completion (simulated)
     const questionnaireComplete = !!localStorage.getItem('hami-questionnaire-completed');
-
-    // Check share info completion
     const storedConnections = localStorage.getItem('hami-connections');
     let shareComplete = false;
     if (storedConnections) {
@@ -94,7 +91,6 @@ export function DashboardClient({ dictionary, lang }: DashboardClientProps) {
         console.error("Failed to parse connections from localStorage", e);
       }
     }
-
     setTaskCompletion({
       profile: profileComplete,
       questionnaire: questionnaireComplete,
@@ -104,60 +100,85 @@ export function DashboardClient({ dictionary, lang }: DashboardClientProps) {
 
   useEffect(() => {
     checkTasks();
-    
-    // Re-check tasks when returning to the tab or when storage changes elsewhere
     window.addEventListener('focus', checkTasks);
     window.addEventListener('storage', checkTasks);
-    
     return () => {
       window.removeEventListener('focus', checkTasks);
       window.removeEventListener('storage', checkTasks);
     };
   }, [checkTasks]);
+  
+  const getTodayDateString = useCallback(() => new Date().toISOString().split('T')[0], []);
 
-  const getNoteStorageKey = useCallback(() => {
-    const today = new Date().toISOString().split('T')[0];
-    return `hami-freeNote-${today}`;
-  }, []);
+  const saveJournalData = useCallback((dataToSave: { note?: string; mood?: any }) => {
+    const todayStr = getTodayDateString();
+    const rawHistory = localStorage.getItem(JOURNAL_HISTORY_KEY);
+    let history = [];
+    try {
+        history = rawHistory ? JSON.parse(rawHistory) : [];
+    } catch {
+        history = [];
+    }
+
+    const todayEntryIndex = history.findIndex((entry: any) => entry.date === todayStr);
+
+    if (todayEntryIndex > -1) {
+        history[todayEntryIndex] = { ...history[todayEntryIndex], ...dataToSave };
+    } else {
+        history.unshift({ date: todayStr, ...dataToSave });
+    }
+
+    localStorage.setItem(JOURNAL_HISTORY_KEY, JSON.stringify(history));
+  }, [getTodayDateString]);
+
 
   useEffect(() => {
-    const storageKey = getNoteStorageKey();
-    const savedNote = localStorage.getItem(storageKey);
-    if (savedNote) {
-      setFreeNote(savedNote);
+    const todayStr = getTodayDateString();
+    const rawHistory = localStorage.getItem(JOURNAL_HISTORY_KEY);
+    if (rawHistory) {
+      try {
+        const history = JSON.parse(rawHistory);
+        const todayEntry = history.find((entry: any) => entry.date === todayStr);
+        if (todayEntry && todayEntry.note) {
+          setFreeNote(todayEntry.note);
+        }
+      } catch (e) {
+        setFreeNote('');
+      }
     }
-  }, [getNoteStorageKey]);
+  }, [getTodayDateString]);
+
 
   useEffect(() => {
     const timer = setTimeout(() => {
-        if (freeNote) { // Only save if there's content
-            localStorage.setItem(getNoteStorageKey(), freeNote);
-        }
+        saveJournalData({ note: freeNote });
     }, 1000);
-
-    return () => {
-      clearTimeout(timer);
-    };
-  }, [freeNote, getNoteStorageKey]);
+    return () => clearTimeout(timer);
+  }, [freeNote, saveJournalData]);
   
   const handleNewNote = () => {
     setFreeNote('');
-    localStorage.removeItem(getNoteStorageKey());
+    saveJournalData({ note: '' });
   };
 
 
   useEffect(() => {
     if (wasOpenRef.current && !isSubMoodSheetOpen) {
-      if (selectedSubMoods.length > 0) {
-        console.log('Saving moods on close. Primary:', selectedPrimaryMood, 'Sub-moods:', selectedSubMoods);
+      if (selectedPrimaryMood) {
+        const moodData = {
+          primary: selectedPrimaryMood,
+          subMoods: selectedSubMoods,
+        };
+        saveJournalData({ mood: moodData });
+        
         toast({
           title: dictionary.subMoodSheet.saveSuccessTitle,
-          description: dictionary.subMoodSheet.saveSuccessDescription.replace('{count}', selectedSubMoods.length.toString()),
+          description: dictionary.subMoodSheet.saveSuccessDescription.replace('{primaryMood}', selectedPrimaryMood),
         });
       }
     }
     wasOpenRef.current = isSubMoodSheetOpen;
-  }, [isSubMoodSheetOpen, selectedPrimaryMood, selectedSubMoods, toast, dictionary]);
+  }, [isSubMoodSheetOpen, selectedPrimaryMood, selectedSubMoods, toast, dictionary, saveJournalData]);
 
 
   const handleMoodClick = (mood: string) => {

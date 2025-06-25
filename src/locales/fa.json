@@ -4,7 +4,7 @@
   "tagline": "همراه شخصی سلامت روان شما",
   "navigation": {
     "dashboard": "داشبورد",
-    "journal": "یادداشت روزانه",
+    "journal": "تاریخچه یادداشت",
     "insights": "بینش‌ها",
     "specialists": "متخصصین",
     "settings": "تنظیمات",
@@ -47,7 +47,7 @@
       "saveButton": "ذخیره جزئیات",
       "skipButton": "رد شدن",
       "saveSuccessTitle": "جزئیات ذخیره شد",
-      "saveSuccessDescription": "{count} حالت روحی دیگر شما ثبت شد.",
+      "saveSuccessDescription": "حالت روحی شما '{primaryMood}' ثبت شد.",
       "subMoods": {
         "happy": "خوشحال",
         "sad": "غمگین",
@@ -62,21 +62,26 @@
     }
   },
   "journalPage": {
-    "title": "یادداشت روزانه",
-    "formTitle": "امروز چطور بودید؟",
-    "moodLabel": "حال امروزتون چطور بود؟",
-    "moodOptions": {
-      "excellent": "عالی",
-      "good": "خوب",
-      "average": "متوسط",
-      "bad": "بد",
-      "very_bad": "خیلی بد"
+    "title": "تاریخچه یادداشت‌ها",
+    "description": "یادداشت‌های روزانه گذشته خود را مرور و مدیریت کنید.",
+    "noEntries": "هنوز هیچ یادداشتی ثبت نکرده‌اید. برای ثبت حالت یا نوشتن یادداشت به داشبورد بروید.",
+    "noNote": "یادداشتی برای این روز نوشته نشده است.",
+    "buttons": {
+      "edit": "ویرایش",
+      "delete": "حذف",
+      "save": "ذخیره",
+      "cancel": "انصراف"
     },
-    "sleepLabel": "کیفیت خوابتون چطور بود؟ (۱ کم - ۵ زیاد)",
-    "consumptionLabel": "عادات مصرفی (اختیاری)",
-    "entryLabel": "یادداشت امروز شما:",
-    "submitButton": "ثبت یادداشت",
-    "journalSavedSuccess": "یادداشت با موفقیت ذخیره شد."
+    "toast": {
+      "editSuccess": "یادداشت با موفقیت به‌روز شد.",
+      "deleteSuccess": "یادداشت حذف شد."
+    },
+    "deleteDialog": {
+      "title": "آیا کاملاً مطمئن هستید؟",
+      "description": "این عمل قابل بازگشت نیست. این کار یادداشت شما برای این روز را برای همیشه حذف می‌کند.",
+      "cancel": "انصراف",
+      "confirm": "حذف"
+    }
   },
   "insightsPage": {
     "title": "بینش‌های هوشمند",
