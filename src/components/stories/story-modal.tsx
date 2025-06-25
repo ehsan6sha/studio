@@ -1,10 +1,9 @@
-
 'use client';
 import { useState, useEffect, useCallback } from 'react';
 import { X, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { AnimatePresence, motion, useDragControls } from 'framer-motion';
 import { StoryProgress } from './story-progress';
 import type { Story, StoryContent } from './story-viewer';
@@ -18,9 +17,10 @@ interface StoryModalProps {
   initialStoryIndex: number;
   onClose: () => void;
   lang: Locale;
+  title: string;
 }
 
-export function StoryModal({ stories, initialStoryIndex, onClose, lang }: StoryModalProps) {
+export function StoryModal({ stories, initialStoryIndex, onClose, lang, title }: StoryModalProps) {
   const [currentStoryIndex, setCurrentStoryIndex] = useState(initialStoryIndex);
   const [currentPageIndex, setCurrentPageIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
@@ -129,6 +129,12 @@ export function StoryModal({ stories, initialStoryIndex, onClose, lang }: StoryM
         onPointerDownOutside={onClose}
         onEscapeKeyDown={onClose}
       >
+        <DialogHeader className="sr-only">
+          <DialogTitle>{title}</DialogTitle>
+          <DialogDescription>
+            A full-screen story viewer. Navigate by tapping or swiping.
+          </DialogDescription>
+        </DialogHeader>
         <div 
           className="relative w-full h-full max-w-[420px] max-h-[95vh] flex flex-col bg-black rounded-lg overflow-hidden select-none"
           onMouseDown={() => setIsPaused(true)}

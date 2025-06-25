@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState } from 'react';
@@ -110,6 +109,7 @@ export function StoryViewer({ dictionary, lang }: StoryViewerProps) {
                         initialStoryIndex={selectedStoryIndex}
                         onClose={handleClose}
                         lang={lang}
+                        title={dictionary.title}
                     />
                 )}
             </CardContent>
