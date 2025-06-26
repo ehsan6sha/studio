@@ -425,6 +425,7 @@
     "gad7Duration": "2-5 minutes",
     "gad7SentBy": "Dr. Sarah Ahmadi",
     "startSurveyButton": "Start Survey",
+    "resumeSurveyButton": "Resume Survey",
     "goalLabel": "Goal",
     "durationLabel": "Duration",
     "sentByLabel": "Sent by",
