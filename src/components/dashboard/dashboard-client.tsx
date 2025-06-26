@@ -249,12 +249,12 @@ export function DashboardClient({ dictionary, lang }: DashboardClientProps) {
                        <Button 
                           key={mood.name} 
                           variant="ghost" 
-                          size="icon" 
-                          className="h-24 w-24 rounded-full transition-transform hover:scale-110 hover:bg-muted/50" 
+                          size="emoji" 
+                          className="transition-transform hover:scale-110 hover:bg-muted/50" 
                           onClick={() => handleMoodClick(dictionary.moodEmojis[mood.name])} 
                           aria-label={dictionary.moodEmojis[mood.name]}
                         >
-                          <mood.icon className={cn("h-16 w-16", mood.color)} />
+                          <mood.icon className={cn(mood.color)} />
                       </Button>
                   ))}
               </div>
