@@ -6,7 +6,7 @@ import type { Locale } from '@/i18n-config';
 import Image from 'next/image';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { StoryModal } from './story-modal';
-import { Coin } from 'lucide-react';
+import { Coins } from 'lucide-react';
 
 export interface StoryContent {
   type: 'image' | 'video';
@@ -165,7 +165,7 @@ export function StoryViewer({ dictionary, lang }: StoryViewerProps) {
             <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle>{dictionary.title}</CardTitle>
                 <div className="flex items-center gap-2 text-amber-500" aria-label={`${coins} ${dictionary.rewardPointsLabel || 'reward points'}`}>
-                    <Coin className="h-6 w-6" />
+                    <Coins className="h-6 w-6" />
                     <span className="font-bold text-lg">{coins}</span>
                 </div>
             </CardHeader>
