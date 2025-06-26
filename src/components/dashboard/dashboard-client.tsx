@@ -16,6 +16,7 @@ import Link from 'next/link';
 import { useAuth } from '@/context/auth-context';
 import { useToast } from '@/hooks/use-toast';
 import { StoryViewer } from '../stories/story-viewer';
+import { cn } from '@/lib/utils';
 
 const moodData = [
   { date: "2024-07-01", mood: 3, day: "دوشنبه" },
@@ -214,11 +215,11 @@ export function DashboardClient({ dictionary, lang }: DashboardClientProps) {
   };
 
   const emojiMoods = [
-      { name: 'great', icon: Laugh },
-      { name: 'good', icon: Smile },
-      { name: 'okay', icon: Meh },
-      { name: 'bad', icon: Frown },
-      { name: 'terrible', icon: Angry },
+      { name: 'great', icon: Laugh, color: 'text-accent' },
+      { name: 'good', icon: Smile, color: 'text-primary' },
+      { name: 'okay', icon: Meh, color: 'text-muted-foreground' },
+      { name: 'bad', icon: Frown, color: 'text-secondary' },
+      { name: 'terrible', icon: Angry, color: 'text-destructive' },
   ];
   
   const subMoods = (dictionary?.subMoodSheet?.subMoods)
@@ -242,10 +243,17 @@ export function DashboardClient({ dictionary, lang }: DashboardClientProps) {
               <CardTitle>{dictionary.quickReactionTitle}</CardTitle>
           </CardHeader>
           <CardContent>
-              <div className="flex justify-around p-2">
+              <div className="flex justify-around p-4 items-center">
                   {emojiMoods.map((mood) => (
-                       <Button key={mood.name} variant="ghost" size="icon" className="h-14 w-14 rounded-full transition-transform hover:scale-125" onClick={() => handleMoodClick(dictionary.moodEmojis[mood.name])} aria-label={dictionary.moodEmojis[mood.name]}>
-                          <mood.icon className="h-8 w-8" />
+                       <Button 
+                          key={mood.name} 
+                          variant="ghost" 
+                          size="icon" 
+                          className="h-20 w-20 rounded-full transition-transform hover:scale-110 hover:bg-muted/50" 
+                          onClick={() => handleMoodClick(dictionary.moodEmojis[mood.name])} 
+                          aria-label={dictionary.moodEmojis[mood.name]}
+                        >
+                          <mood.icon className={cn("h-12 w-12", mood.color)} />
                       </Button>
                   ))}
               </div>
