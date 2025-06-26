@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
@@ -249,11 +250,11 @@ export function DashboardClient({ dictionary, lang }: DashboardClientProps) {
                           key={mood.name} 
                           variant="ghost" 
                           size="icon" 
-                          className="h-20 w-20 rounded-full transition-transform hover:scale-110 hover:bg-muted/50" 
+                          className="h-24 w-24 rounded-full transition-transform hover:scale-110 hover:bg-muted/50" 
                           onClick={() => handleMoodClick(dictionary.moodEmojis[mood.name])} 
                           aria-label={dictionary.moodEmojis[mood.name]}
                         >
-                          <mood.icon className={cn("h-12 w-12", mood.color)} />
+                          <mood.icon className={cn("h-16 w-16", mood.color)} />
                       </Button>
                   ))}
               </div>
