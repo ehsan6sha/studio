@@ -67,7 +67,7 @@
         "confused": "Confused"
       }
     },
-     "stories": {
+    "stories": {
       "title": "Learn & Earn",
       "rewardPointsLabel": "reward points"
     },
@@ -75,7 +75,23 @@
       "analytical": "Analytical",
       "humanities": "Humanities & Arts",
       "practical": "Practical"
-    }
+    },
+    "testReportTitle": "Personality Insights Report",
+    "testReportDate": "Based on your assessment from July 25, 2024",
+    "testReportSummary": "This report highlights key personality traits based on your recent assessment. Understanding these tendencies can help you leverage your strengths and identify areas for personal growth.",
+    "traits": {
+      "openness": "Openness",
+      "opennessDescription": "Reflects imagination, creativity, and a willingness to try new things.",
+      "conscientiousness": "Conscientiousness",
+      "conscientiousnessDescription": "Indicates organization, responsibility, and dependability.",
+      "extraversion": "Extraversion",
+      "extraversionDescription": "Characterized by sociability, assertiveness, and emotional expressiveness.",
+      "agreeableness": "Agreeableness",
+      "agreeablenessDescription": "Involves traits like compassion, cooperation, and trustworthiness.",
+      "neuroticism": "Neuroticism",
+      "neuroticismDescription": "Relates to emotional stability and the tendency to experience negative emotions."
+    },
+    "viewFullReportButton": "View Full Report"
   },
   "journalPage": {
     "title": "Journal History",
@@ -123,14 +139,14 @@
       "content": "Content"
     },
     "buttons": {
-        "accept": "Accept",
-        "ignore": "Ignore",
-        "startTest": "Start Test"
+      "accept": "Accept",
+      "ignore": "Ignore",
+      "startTest": "Start Test"
     },
     "toast": {
-        "accepted": "Request Accepted",
-        "ignored": "Request Ignored",
-        "removed": "The notification has been removed."
+      "accepted": "Request Accepted",
+      "ignored": "Request Ignored",
+      "removed": "The notification has been removed."
     },
     "testDetails": {
       "goal": "Goal",

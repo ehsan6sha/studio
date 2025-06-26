@@ -18,6 +18,7 @@ import { useAuth } from '@/context/auth-context';
 import { useToast } from '@/hooks/use-toast';
 import { StoryViewer } from '../stories/story-viewer';
 import { cn } from '@/lib/utils';
+import { Progress } from "@/components/ui/progress";
 
 const moodData = [
   { date: "2024-07-01", mood: 3, day: "دوشنبه" },
@@ -74,6 +75,14 @@ interface DashboardClientProps {
 
 const JOURNAL_HISTORY_KEY = 'hami-journal-history';
 const CURRENT_NOTE_KEY = 'hami-current-note'; // Key for the note being edited
+
+const personalityTraits = [
+    { key: 'openness', value: 80 },
+    { key: 'conscientiousness', value: 65 },
+    { key: 'extraversion', value: 75 },
+    { key: 'agreeableness', value: 85 },
+    { key: 'neuroticism', value: 30 },
+];
 
 export function DashboardClient({ dictionary, lang }: DashboardClientProps) {
   const [isSubMoodSheetOpen, setIsSubMoodSheetOpen] = useState(false);
@@ -367,13 +376,33 @@ export function DashboardClient({ dictionary, lang }: DashboardClientProps) {
             </TabsContent>
 
             <TabsContent value="testResults" className="mt-4">
-               <Card>
-                  <CardHeader>
-                      <CardTitle>{dictionary.testResultsTab}</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                      <p className="text-muted-foreground">{dictionary.comingSoon}</p>
-                  </CardContent>
+              <Card>
+                <CardHeader>
+                  <CardTitle>{dictionary.testReportTitle}</CardTitle>
+                  <CardDescription>{dictionary.testReportDate}</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <p className="text-sm text-muted-foreground">
+                    {dictionary.testReportSummary}
+                  </p>
+                  <div className="space-y-4">
+                    {personalityTraits.map((trait) => (
+                      <div key={trait.key}>
+                        <div className="flex justify-between mb-1">
+                          <h4 className="text-sm font-semibold">{dictionary.traits[trait.key]}</h4>
+                          <span className="text-sm text-muted-foreground">{trait.value}%</span>
+                        </div>
+                        <Progress value={trait.value} aria-label={`${trait.value}% ${dictionary.traits[trait.key]}`} />
+                        <p className="text-xs text-muted-foreground mt-1">{dictionary.traits[`${trait.key}Description`]}</p>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+                <CardFooter>
+                  <Button disabled>
+                    {dictionary.viewFullReportButton} ({dictionary.comingSoon})
+                  </Button>
+                </CardFooter>
               </Card>
             </TabsContent>
             
