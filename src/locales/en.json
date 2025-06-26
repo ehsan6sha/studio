@@ -68,7 +68,8 @@
       }
     },
      "stories": {
-      "title": "Learn & Earn"
+      "title": "Learn & Earn",
+      "rewardPointsLabel": "reward points"
     },
     "courseTypes": {
       "analytical": "Analytical",

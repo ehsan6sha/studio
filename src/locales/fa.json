@@ -68,7 +68,8 @@
       }
     },
     "stories": {
-      "title": "یاد بگیرید و جایزه بگیرید"
+      "title": "یاد بگیرید و جایزه بگیرید",
+      "rewardPointsLabel": "امتیاز جایزه"
     },
     "courseTypes": {
       "analytical": "تحلیلی",

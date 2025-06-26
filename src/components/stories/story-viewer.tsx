@@ -1,10 +1,12 @@
+
 'use client';
 
-import { useState, useRef, MouseEvent, TouchEvent } from 'react';
+import { useState, useRef, MouseEvent, TouchEvent, useEffect } from 'react';
 import type { Locale } from '@/i18n-config';
 import Image from 'next/image';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { StoryModal } from './story-modal';
+import { Coin } from 'lucide-react';
 
 export interface StoryContent {
   type: 'image' | 'video';
@@ -91,15 +93,40 @@ interface StoryViewerProps {
     lang: Locale;
 }
 
+const REWARD_STORAGE_KEY = 'hami-reward-coins';
+
 export function StoryViewer({ dictionary, lang }: StoryViewerProps) {
     const [selectedStoryIndex, setSelectedStoryIndex] = useState<number | null>(null);
+    const [coins, setCoins] = useState(0);
     const scrollRef = useRef<HTMLDivElement>(null);
     const [isDragging, setIsDragging] = useState(false);
     const [startX, setStartX] = useState(0);
     const [scrollLeft, setScrollLeft] = useState(0);
     const [hasDragged, setHasDragged] = useState(false);
+    const storiesViewedInSession = useRef(new Set<string>());
+
+    // Load coins from local storage on mount
+    useEffect(() => {
+        const storedCoins = localStorage.getItem(REWARD_STORAGE_KEY);
+        if (storedCoins) {
+            setCoins(parseInt(storedCoins, 10));
+        }
+    }, []);
+
+    // Save coins to local storage when they change
+    useEffect(() => {
+        localStorage.setItem(REWARD_STORAGE_KEY, coins.toString());
+    }, [coins]);
 
     const handleClose = () => {
+        // Award a coin only if the story group hasn't been viewed in this session
+        if (selectedStoryIndex !== null) {
+            const storyId = stories[selectedStoryIndex].id;
+            if (!storiesViewedInSession.current.has(storyId)) {
+                setCoins(prevCoins => prevCoins + 1);
+                storiesViewedInSession.current.add(storyId);
+            }
+        }
         setSelectedStoryIndex(null);
     };
 
@@ -135,8 +162,12 @@ export function StoryViewer({ dictionary, lang }: StoryViewerProps) {
 
     return (
         <Card>
-            <CardHeader>
+            <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle>{dictionary.title}</CardTitle>
+                <div className="flex items-center gap-2 text-amber-500" aria-label={`${coins} ${dictionary.rewardPointsLabel || 'reward points'}`}>
+                    <Coin className="h-6 w-6" />
+                    <span className="font-bold text-lg">{coins}</span>
+                </div>
             </CardHeader>
             <CardContent>
                 <div 
