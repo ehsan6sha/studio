@@ -7,86 +7,8 @@ import Image from 'next/image';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { StoryModal } from './story-modal';
 import { Coins } from 'lucide-react';
-
-export interface StoryContent {
-  type: 'image' | 'video';
-  url: string;
-  duration?: number; // in seconds
-  header: string;
-  text: string;
-  aiHint?: string;
-}
-
-export interface Story {
-  id: string;
-  username: string;
-  avatar: string;
-  avatarAiHint?: string;
-  content: StoryContent[];
-}
-
-// Demo Data
-const stories: Story[] = [
-  {
-    id: 'user1',
-    username: 'RavanHamrah',
-    avatar: 'https://placehold.co/100x100.png',
-    avatarAiHint: 'logo abstract',
-    content: [
-      { type: 'image', url: 'https://placehold.co/1080x1920.png', aiHint: 'nature calm', header: 'Welcome!', text: 'Discover daily tips for mental wellness.' },
-      { type: 'image', url: 'https://placehold.co/1080x1920.png', aiHint: 'meditation calm', header: 'Mindfulness', text: 'Take 5 minutes to breathe deeply.' },
-    ],
-  },
-  {
-    id: 'user2',
-    username: 'Dr. Ahmadi',
-    avatar: 'https://placehold.co/100x100.png',
-    avatarAiHint: 'professional portrait',
-    content: [
-      { type: 'image', url: 'https://placehold.co/1080x1920.png', aiHint: 'psychology book', header: 'Cognitive Biases', text: 'Learn how your thoughts can trick you. Today, we look at confirmation bias.' },
-      { type: 'image', url: 'https://placehold.co/1080x1920.png', aiHint: 'journal writing', header: 'Journaling Tip', text: 'Try writing down three things you are grateful for each day.' },
-      { type: 'image', url: 'https://placehold.co/1080x1920.png', aiHint: 'brain illustration', header: 'Neuroplasticity', text: 'Your brain can change and adapt, no matter your age.' },
-    ],
-  },
-  {
-    id: 'user3',
-    username: 'HealthyHabits',
-    avatar: 'https://placehold.co/100x100.png',
-    avatarAiHint: 'healthy food',
-    content: [
-      { type: 'image', url: 'https://placehold.co/1080x1920.png', aiHint: 'running shoes', header: 'Move Your Body', text: 'Even a 15-minute walk can boost your mood.' },
-    ],
-  },
-  {
-    id: 'user4',
-    username: 'SleepWell',
-    avatar: 'https://placehold.co/100x100.png',
-    avatarAiHint: 'moon stars',
-    content: [
-      { type: 'image', url: 'https://placehold.co/1080x1920.png', aiHint: 'bedroom night', header: 'Sleep Hygiene', text: 'Avoid screens for at least an hour before bed for better sleep quality.' },
-      { type: 'image', url: 'https://placehold.co/1080x1920.png', aiHint: 'cup tea', header: 'Herbal Tea', text: 'Chamomile tea can help you relax before sleeping.' },
-    ],
-  },
-   {
-    id: 'user5',
-    username: 'MindfulEats',
-    avatar: 'https://placehold.co/100x100.png',
-    avatarAiHint: 'vegetables fruits',
-    content: [
-      { type: 'image', url: 'https://placehold.co/1080x1920.png', aiHint: 'healthy food', header: 'Eat Mindfully', text: 'Pay attention to the food you eat and enjoy every bite.' },
-    ],
-  },
-  {
-    id: 'user6',
-    username: 'SocialConnect',
-    avatar: 'https://placehold.co/100x100.png',
-    avatarAiHint: 'friends talking',
-    content: [
-      { type: 'image', url: 'https://placehold.co/1080x1920.png', aiHint: 'people community', header: 'Connect with Others', text: 'Reach out to a friend or family member today.' },
-    ],
-  },
-];
-
+import { Skeleton } from '@/components/ui/skeleton';
+import { fetchStories, type Story } from '@/lib/story-data';
 
 interface StoryViewerProps {
     dictionary: any;
@@ -96,6 +18,8 @@ interface StoryViewerProps {
 const REWARD_STORAGE_KEY = 'hami-reward-coins';
 
 export function StoryViewer({ dictionary, lang }: StoryViewerProps) {
+    const [stories, setStories] = useState<Story[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
     const [selectedStoryIndex, setSelectedStoryIndex] = useState<number | null>(null);
     const [coins, setCoins] = useState(0);
     const scrollRef = useRef<HTMLDivElement>(null);
@@ -105,7 +29,16 @@ export function StoryViewer({ dictionary, lang }: StoryViewerProps) {
     const [hasDragged, setHasDragged] = useState(false);
     const storiesViewedInSession = useRef(new Set<string>());
 
-    // Load coins from local storage on mount
+    useEffect(() => {
+        const getStories = async () => {
+            setIsLoading(true);
+            const fetchedStories = await fetchStories();
+            setStories(fetchedStories);
+            setIsLoading(false);
+        };
+        getStories();
+    }, []);
+
     useEffect(() => {
         const storedCoins = localStorage.getItem(REWARD_STORAGE_KEY);
         if (storedCoins) {
@@ -113,13 +46,11 @@ export function StoryViewer({ dictionary, lang }: StoryViewerProps) {
         }
     }, []);
 
-    // Save coins to local storage when they change
     useEffect(() => {
         localStorage.setItem(REWARD_STORAGE_KEY, coins.toString());
     }, [coins]);
 
     const handleClose = () => {
-        // Award a coin only if the story group hasn't been viewed in this session
         if (selectedStoryIndex !== null) {
             const storyId = stories[selectedStoryIndex].id;
             if (!storiesViewedInSession.current.has(storyId)) {
@@ -151,7 +82,7 @@ export function StoryViewer({ dictionary, lang }: StoryViewerProps) {
         if (!isDragging || !scrollRef.current) return;
         if (!hasDragged) setHasDragged(true);
         const x = pageX;
-        const walk = (x - startX) * 1.5; // Drag speed multiplier
+        const walk = (x - startX) * 1.5;
         scrollRef.current.scrollLeft = scrollLeft - walk;
     };
     
@@ -182,28 +113,36 @@ export function StoryViewer({ dictionary, lang }: StoryViewerProps) {
                     onTouchEnd={handleDragEnd}
                     onTouchMove={(e: TouchEvent<HTMLDivElement>) => handleDragMove(e.touches[0].pageX)}
                 >
-                    {stories.map((story, index) => (
-                         <div 
-                            key={story.id} 
-                            onClick={() => handleStoryClick(index)} 
-                            className="flex-shrink-0 group relative w-28 h-40 rounded-lg overflow-hidden cursor-pointer shadow-lg select-none"
-                        >
-                            <Image 
-                                src={story.content[0].url}
-                                alt={story.username}
-                                fill
-                                className="object-cover transition-transform duration-300 group-hover:scale-110 pointer-events-none"
-                                data-ai-hint={story.content[0].aiHint}
-                            />
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent rounded-lg" />
-                            <div className="absolute bottom-0 left-0 right-0 p-2">
-                                <p className="text-white text-xs font-bold truncate">{story.username}</p>
+                    {isLoading ? (
+                         Array.from({ length: 6 }).map((_, index) => (
+                            <div key={index} className="flex-shrink-0 w-28 h-40">
+                                <Skeleton className="w-full h-full rounded-lg" />
                             </div>
-                        </div>
-                    ))}
+                        ))
+                    ) : (
+                        stories.map((story, index) => (
+                             <div 
+                                key={story.id} 
+                                onClick={() => handleStoryClick(index)} 
+                                className="flex-shrink-0 group relative w-28 h-40 rounded-lg overflow-hidden cursor-pointer shadow-lg select-none"
+                            >
+                                <Image 
+                                    src={story.avatar}
+                                    alt={story.username}
+                                    fill
+                                    className="object-cover transition-transform duration-300 group-hover:scale-110 pointer-events-none"
+                                    data-ai-hint={story.avatarAiHint}
+                                />
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent rounded-lg" />
+                                <div className="absolute bottom-0 left-0 right-0 p-2">
+                                    <p className="text-white text-xs font-bold truncate">{story.username}</p>
+                                </div>
+                            </div>
+                        ))
+                    )}
                 </div>
                 
-                {selectedStoryIndex !== null && (
+                {selectedStoryIndex !== null && stories.length > 0 && (
                     <StoryModal
                         stories={stories}
                         initialStoryIndex={selectedStoryIndex}

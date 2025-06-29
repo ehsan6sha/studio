@@ -7,11 +7,11 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { AnimatePresence, motion, TapInfo, PanInfo } from 'framer-motion';
 import { StoryProgress } from './story-progress';
-import type { Story, StoryContent } from './story-viewer';
+import type { Story, StoryContent } from '@/lib/story-data';
 import Image from 'next/image';
 import type { Locale } from '@/i18n-config';
 
-const STORY_DURATION = 5000; // 5 seconds
+const STORY_DEFAULT_DURATION = 5000; // 5 seconds
 
 interface StoryModalProps {
   stories: Story[];
@@ -68,13 +68,19 @@ export function StoryModal({ stories, initialStoryIndex, onClose, lang, title }:
     }
   }, [currentStoryIndex]);
 
-
   useEffect(() => {
     if (isPaused) return;
-    const timer = setTimeout(goToNextPage, STORY_DURATION);
+
+    const content = stories[currentStoryIndex]?.content[currentPageIndex];
+    if (!content) return;
+
+    // Use dynamic duration if available, otherwise default. For both video and image.
+    const duration = (content.duration ? content.duration * 1000 : STORY_DEFAULT_DURATION);
+
+    const timer = setTimeout(goToNextPage, duration);
     return () => clearTimeout(timer);
-  }, [currentPageIndex, currentStoryIndex, isPaused, goToNextPage]);
-  
+  }, [currentPageIndex, currentStoryIndex, isPaused, goToNextPage, stories]);
+
   useEffect(() => {
       setCurrentPageIndex(0);
   }, [currentStoryIndex]);
@@ -84,10 +90,12 @@ export function StoryModal({ stories, initialStoryIndex, onClose, lang, title }:
   }
   
   const handleTap = (event: MouseEvent | TouchEvent | PointerEvent, info: TapInfo) => {
+    // Prevent tap event from firing on buttons
     if (event.target instanceof HTMLElement && event.target.closest('button')) {
       return;
     }
     
+    // Use the element that the event listener is attached to
     const targetElement = event.currentTarget as HTMLElement;
     if (!targetElement) return;
 
@@ -101,6 +109,8 @@ export function StoryModal({ stories, initialStoryIndex, onClose, lang, title }:
       if (tapPosition > 0.7) { goToNextPage(); } 
       else { goToPreviousPage(); }
     }
+     // After tap, resume animations/timer
+    setIsPaused(false);
   };
   
   const handleDragEnd = (event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
@@ -114,13 +124,16 @@ export function StoryModal({ stories, initialStoryIndex, onClose, lang, title }:
     const isHorizontalSwipe = Math.abs(offset.x) > Math.abs(offset.y);
 
     if (isHorizontalSwipe) {
-      if (offset.x < -swipeThreshold || velocity.x < -velocityThreshold) {
-        lang === 'fa' ? goToPreviousStory() : goToNextStory();
-      } else if (offset.x > swipeThreshold || velocity.x > velocityThreshold) {
-        lang === 'fa' ? goToNextStory() : goToPreviousStory();
+      // Horizontal swipe
+      const swipe = lang === 'fa' ? offset.x * -1 : offset.x; // Invert for RTL
+      if (swipe < -swipeThreshold || velocity.x < -velocityThreshold) {
+        goToNextStory();
+      } else if (swipe > swipeThreshold || velocity.x > velocityThreshold) {
+        goToPreviousStory();
       }
     } else {
-      if (offset.y > swipeThreshold * 2 || velocity.y > velocityThreshold) {
+      // Vertical swipe to dismiss
+      if (offset.y > swipeThreshold * 1.5 || velocity.y > velocityThreshold) {
         onClose();
       }
     }
@@ -144,23 +157,20 @@ export function StoryModal({ stories, initialStoryIndex, onClose, lang, title }:
         <div 
           className="relative w-full h-full max-w-[420px] max-h-[95vh] flex flex-col bg-black rounded-lg overflow-hidden select-none"
         >
-          {/* Main content with animation for swipe */}
           <AnimatePresence initial={false}>
             <motion.div
               key={currentStoryIndex}
               className="absolute inset-0"
-              drag={true}
+              drag
               dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
               dragElastic={0.2}
               onDragStart={() => setIsPaused(true)}
               onDragEnd={handleDragEnd}
               onTapStart={() => setIsPaused(true)}
               onTapCancel={() => setIsPaused(false)}
-              onTap={(event, info) => {
-                handleTap(event, info);
-              }}
+              onTap={handleTap}
               initial={{ x: lang === 'fa' ? '-100%' : '100%' }}
-              animate={{ x: 0, y: 0 }}
+              animate={{ x: 0 }}
               exit={{ x: lang === 'fa' ? '100%' : '-100%' }}
               transition={{ type: 'spring', stiffness: 300, damping: 30 }}
             >
@@ -168,14 +178,12 @@ export function StoryModal({ stories, initialStoryIndex, onClose, lang, title }:
             </motion.div>
           </AnimatePresence>
 
-          {/* Overlays */}
           <div className="absolute inset-0 flex flex-col pointer-events-none">
-            {/* Header */}
             <div className="absolute top-0 left-0 right-0 p-4 pt-6 z-10">
               <StoryProgress
                 storyCount={currentStory.content.length}
                 currentPageIndex={currentPageIndex}
-                duration={STORY_DURATION}
+                duration={(currentStory.content[currentPageIndex]?.duration || 5) * 1000}
                 isPaused={isPaused}
               />
               <div className="flex items-center space-x-3 rtl:space-x-reverse mt-3">
@@ -188,14 +196,13 @@ export function StoryModal({ stories, initialStoryIndex, onClose, lang, title }:
             </div>
           </div>
           
-          {/* Navigation Buttons (for desktop) & Close button */}
-          <Button variant="ghost" size="icon" className="absolute top-4 right-4 z-20 text-white hover:bg-white/20 hover:text-white" onClick={onClose}>
+          <Button variant="ghost" size="icon" className="absolute top-4 right-4 z-20 text-white hover:bg-white/20 hover:text-white pointer-events-auto" onClick={onClose}>
             <X />
           </Button>
-          <Button variant="ghost" size="icon" className="absolute top-1/2 -translate-y-1/2 left-2 z-20 text-white hover:bg-white/20 hover:text-white hidden md:flex" onClick={goToPreviousStory} disabled={currentStoryIndex === 0}>
+          <Button variant="ghost" size="icon" className="absolute top-1/2 -translate-y-1/2 left-2 z-20 text-white hover:bg-white/20 hover:text-white hidden md:flex pointer-events-auto" onClick={goToPreviousStory} disabled={currentStoryIndex === 0}>
             <ChevronLeft />
           </Button>
-           <Button variant="ghost" size="icon" className="absolute top-1/2 -translate-y-1/2 right-2 z-20 text-white hover:bg-white/20 hover:text-white hidden md:flex" onClick={goToNextStory} disabled={currentStoryIndex === stories.length - 1}>
+           <Button variant="ghost" size="icon" className="absolute top-1/2 -translate-y-1/2 right-2 z-20 text-white hover:bg-white/20 hover:text-white hidden md:flex pointer-events-auto" onClick={goToNextStory} disabled={currentStoryIndex === stories.length - 1}>
             <ChevronRight />
           </Button>
         </div>
@@ -207,14 +214,26 @@ export function StoryModal({ stories, initialStoryIndex, onClose, lang, title }:
 const StoryContentDisplay = ({ content }: { content: StoryContent }) => {
     return (
         <div className="relative w-full h-full">
-            <Image
-                src={content.url}
-                alt={content.header}
-                fill
-                className="object-cover"
-                data-ai-hint={content.aiHint}
-                priority
-            />
+            {content.type === 'video' ? (
+                 <video
+                    key={content.url}
+                    src={content.url}
+                    className="object-cover w-full h-full"
+                    autoPlay
+                    muted
+                    playsInline
+                    loop
+                />
+            ) : (
+                <Image
+                    src={content.url}
+                    alt={content.header}
+                    fill
+                    className="object-cover"
+                    data-ai-hint={content.aiHint}
+                    priority
+                />
+            )}
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
             <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
                 <h3 className="text-xl font-bold">{content.header}</h3>
