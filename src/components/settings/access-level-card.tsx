@@ -27,13 +27,24 @@ export function AccessLevelCard({ dictionary, lang }: AccessLevelCardProps) {
   const { toast } = useToast();
 
   const accessLevelRequestSchema = z.object({
-    role: z.enum(['educational_institute_admin', 'clinic_admin', 'psychologist'], {
+    role: z.enum(['educational_institute_admin', 'clinic_admin', 'psychologist', 'school_counselor', 'parent'], {
       required_error: dictionary.form.errors.roleRequired,
     }),
     documents: z.any()
-      .refine((files) => files?.length >= 1, dictionary.form.errors.documentsRequired),
+      .refine((files) => files?.length >= 1, dictionary.form.errors.documentsRequired)
+      .optional(), // Make documents optional as not all roles need it
     notes: z.string().max(500).optional(),
+  }).superRefine((data, ctx) => {
+    const documentRoles = ['educational_institute_admin', 'clinic_admin', 'psychologist', 'school_counselor'];
+    if (documentRoles.includes(data.role) && (!data.documents || data.documents.length === 0)) {
+        ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ['documents'],
+            message: dictionary.form.errors.documentsRequired,
+        });
+    }
   });
+
 
   const form = useForm<z.infer<typeof accessLevelRequestSchema>>({
     resolver: zodResolver(accessLevelRequestSchema),
@@ -57,7 +68,11 @@ export function AccessLevelCard({ dictionary, lang }: AccessLevelCardProps) {
   const handleRoleChange = (value: string) => {
     setSelectedRole(value);
     form.setValue('role', value as any); // Set value for react-hook-form
+    form.clearErrors('documents'); // Clear errors when role changes
   };
+
+  const documentRoles = ['educational_institute_admin', 'clinic_admin', 'psychologist', 'school_counselor'];
+  const needsDocuments = selectedRole && documentRoles.includes(selectedRole);
 
   return (
     <>
@@ -101,6 +116,8 @@ export function AccessLevelCard({ dictionary, lang }: AccessLevelCardProps) {
                           <SelectItem value="educational_institute_admin">{dictionary.form.roles.educational_institute_admin}</SelectItem>
                           <SelectItem value="clinic_admin">{dictionary.form.roles.clinic_admin}</SelectItem>
                           <SelectItem value="psychologist">{dictionary.form.roles.psychologist}</SelectItem>
+                          <SelectItem value="school_counselor">{dictionary.form.roles.school_counselor}</SelectItem>
+                          <SelectItem value="parent">{dictionary.form.roles.parent}</SelectItem>
                         </SelectContent>
                       </Select>
                       <FormMessage />
@@ -108,9 +125,9 @@ export function AccessLevelCard({ dictionary, lang }: AccessLevelCardProps) {
                   )}
                 />
 
-                {selectedRole && (
+                {needsDocuments && (
                     <div className="p-3 bg-muted/50 rounded-md text-sm text-muted-foreground space-y-2">
-                        <p><span className="font-semibold">{dictionary.form.documentsLabel}:</span> {dictionary.requirements[selectedRole]}</p>
+                        <p><span className="font-semibold">{dictionary.form.documentsLabel}:</span> {dictionary.requirements[selectedRole! ]}</p>
                         <FormField
                             control={form.control}
                             name="documents"

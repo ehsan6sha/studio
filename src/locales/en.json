@@ -177,7 +177,9 @@
         "roles": {
           "educational_institute_admin": "Educational Institute Admin",
           "clinic_admin": "Clinic Admin",
-          "psychologist": "Psychologist"
+          "psychologist": "Psychologist",
+          "school_counselor": "School Counselor",
+          "parent": "Parent"
         },
         "documentsLabel": "Required Documents",
         "notesLabel": "Additional Notes (Optional)",
@@ -192,7 +194,9 @@
       "requirements": {
         "educational_institute_admin": "Requires establishment documentation and legal permissions.",
         "clinic_admin": "Requires establishment documentation and legal permissions.",
-        "psychologist": "Requires educational degree and certified license."
+        "psychologist": "Requires educational degree and certified license.",
+        "school_counselor": "Requires proof of employment and relevant certifications.",
+        "parent": "No documents required. You will be able to connect to a child's account via an invitation code."
       },
       "invitationOnly": {
         "title": "Invitation-Only Roles:",
