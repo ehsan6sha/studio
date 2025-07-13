@@ -130,6 +130,7 @@ export function StoryViewer({ dictionary, lang }: StoryViewerProps) {
                                     src={story.avatar}
                                     alt={story.username}
                                     fill
+                                    unoptimized
                                     className="object-cover transition-transform duration-300 group-hover:scale-110 pointer-events-none"
                                     data-ai-hint={story.avatarAiHint}
                                 />
