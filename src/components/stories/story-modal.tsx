@@ -188,7 +188,7 @@ export function StoryModal({ stories, initialStoryIndex, onClose, lang, title }:
               />
               <div className="flex items-center space-x-3 rtl:space-x-reverse mt-3">
                 <Avatar className="h-10 w-10 border-2 border-white">
-                  <AvatarImage src={currentStory.avatar} alt={currentStory.username} data-ai-hint={currentStory.avatarAiHint} unoptimized />
+                  <AvatarImage src={currentStory.avatar} alt={currentStory.username} data-ai-hint={currentStory.avatarAiHint} />
                   <AvatarFallback>{currentStory.username.substring(0, 2)}</AvatarFallback>
                 </Avatar>
                 <span className="text-white font-semibold text-sm">{currentStory.username}</span>
@@ -229,7 +229,6 @@ const StoryContentDisplay = ({ content }: { content: StoryContent }) => {
                     src={content.url}
                     alt={content.header}
                     fill
-                    unoptimized
                     className="object-cover"
                     data-ai-hint={content.aiHint}
                     priority
