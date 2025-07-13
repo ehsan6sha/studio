@@ -3,20 +3,20 @@
   {
     "id": "user1",
     "name": "RavanHamrah",
-    "thumbnail": "/images/100x100/1.png",
+    "thumbnail": "/images/100x100/0.png",
     "avatarAiHint": "logo abstract",
     "content": [
-      { "order": 1, "url": "/images/1080x1920/1-1.png", "aiHint": "nature calm", "header": "Welcome!", "text": "Discover daily tips for mental wellness.", "time": 7000 },
+      { "order": 1, "url": "/images/1080x1920/1.png", "aiHint": "nature calm", "header": "Welcome!", "text": "Discover daily tips for mental wellness.", "time": 7000 },
       { "order": 2, "url": "/images/1080x1920/1-2.png", "aiHint": "meditation calm", "header": "Mindfulness", "text": "Take 5 minutes to breathe deeply.", "time": 5000 }
     ]
   },
   {
     "id": "user2",
     "name": "Dr. Ahmadi",
-    "thumbnail": "/images/100x100/2.png",
+    "thumbnail": "/images/100x100/1.png",
     "avatarAiHint": "professional portrait",
     "content": [
-      { "order": 1, "url": "/images/1080x1920/2-1.png", "aiHint": "psychology book", "header": "Cognitive Biases", "text": "Learn how your thoughts can trick you. Today, we look at confirmation bias.", "time": 8000 },
+      { "order": 1, "url": "/images/1080x1920/2.png", "aiHint": "psychology book", "header": "Cognitive Biases", "text": "Learn how your thoughts can trick you. Today, we look at confirmation bias.", "time": 8000 },
       { "order": 2, "url": "/images/1080x1920/2-2.png", "aiHint": "journal writing", "header": "Journaling Tip", "text": "Try writing down three things you are grateful for each day.", "time": 6000 },
       { "order": 3, "url": "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4", "header": "Neuroplasticity", "text": "Your brain can change and adapt, no matter your age.", "time": 10000 }
     ]
@@ -24,7 +24,7 @@
   {
     "id": "user3",
     "name": "HealthyHabits",
-    "thumbnail": "/images/100x100/3.png",
+    "thumbnail": "/images/100x100/6.png",
     "avatarAiHint": "healthy food",
     "content": [
       { "order": 1, "url": "/images/1080x1920/3.png", "aiHint": "running shoes", "header": "Move Your Body", "text": "Even a 15-minute walk can boost your mood.", "time": 5000 }
@@ -33,17 +33,17 @@
   {
     "id": "user4",
     "name": "SleepWell",
-    "thumbnail": "/images/100x100/4.png",
+    "thumbnail": "/images/100x100/2.png",
     "avatarAiHint": "moon stars",
     "content": [
-      { "order": 1, "url": "/images/1080x1920/4-1.png", "aiHint": "bedroom night", "header": "Sleep Hygiene", "text": "Avoid screens for at least an hour before bed for better sleep quality.", "time": 7000 },
+      { "order": 1, "url": "/images/1080x1920/4.png", "aiHint": "bedroom night", "header": "Sleep Hygiene", "text": "Avoid screens for at least an hour before bed for better sleep quality.", "time": 7000 },
       { "order": 2, "url": "/images/1080x1920/4-2.png", "aiHint": "cup tea", "header": "Herbal Tea", "text": "Chamomile tea can help you relax before sleeping.", "time": 5000 }
     ]
   },
   {
     "id": "user5",
     "name": "MindfulEats",
-    "thumbnail": "/images/100x100/5.png",
+    "thumbnail": "/images/100x100/4.png",
     "avatarAiHint": "vegetables fruits",
     "content": [
       { "order": 1, "url": "/images/1080x1920/5.png", "aiHint": "healthy food", "header": "Eat Mindfully", "text": "Pay attention to the food you eat and enjoy every bite.", "time": 6000 }
@@ -52,7 +52,7 @@
   {
     "id": "user6",
     "name": "SocialConnect",
-    "thumbnail": "/images/100x100/6.png",
+    "thumbnail": "/images/100x100/5.png",
     "avatarAiHint": "friends talking",
     "content": [
       { "order": 1, "url": "/images/1080x1920/6.png", "aiHint": "people community", "header": "Connect with Others", "text": "Reach out to a friend or family member today.", "time": 5000 }
